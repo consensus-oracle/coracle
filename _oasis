@@ -1,0 +1,36 @@
+OASISFormat: 0.4
+Name:        ocaml-raft
+Version:     0.2
+Synopsis:    Implementation of the Raft consensus algorithm inin OCaml
+Authors:     Heidi Howard
+License:     MIT
+Plugins:     META (0.4)
+BuildTools:  ocamlbuild
+
+Library raft
+  Path: lib
+  Findlibname: raft
+  Pack: true
+  Modules:
+    Common, Election, Election_io, Event, Io, State, Numbergen, Rpcs
+  BuildDepends: sexplib, sexplib.syntax
+
+Library "raft-lwt"
+  Path: lwt
+  Findlibname: lwt
+  Modules: Id, Raft_lwt
+  BuildDepends: lwt, lwt.syntax, lwt.unix, cstruct.lwt, raft, ipaddr, bytes
+  XMetaRequires: lwt.unix, cstruct.lwt, raft
+  FindlibParent: raft
+
+Executable run_raft
+  Path:       lwt
+  BuildTools: ocamlbuild
+  MainIs:     cmdline.ml
+  BuildDepends: raft.lwt, cmdliner
+  
+Executable sim_raft
+  Path:       sim
+  BuildTools: ocamlbuild
+  MainIs:     simulator.ml
+  BuildDepends:       lwt, lwt.unix, raft, cmdliner

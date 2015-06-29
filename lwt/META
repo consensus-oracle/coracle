@@ -1,0 +1,13 @@
+# OASIS_START
+# DO NOT EDIT (digest: cd2888af83d1548fe1b1828e563af476)
+version = "0.2"
+description = "Implementation of the Raft consensus algorithm inin OCaml"
+requires =
+"cstruct re re.str ipaddr base64 bytes lwt.unix cstruct.lwt dns dns.lwt-core ipaddr.unix"
+archive(byte) = "raft-lwt.cma"
+archive(byte, plugin) = "raft-lwt.cma"
+archive(native) = "raft-lwt.cmxa"
+archive(native, plugin) = "raft-lwt.cmxs"
+exists_if = "raft-lwt.cma"
+# OASIS_STOP
+

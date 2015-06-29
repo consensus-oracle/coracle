@@ -1,0 +1,22 @@
+# OASIS_START
+# DO NOT EDIT (digest: a2ef6140a8929e51d6cd825b4692acfc)
+version = "0.2"
+description = "Implementation of the Raft consensus algorithm inin OCaml"
+requires = "sexplib sexplib.syntax"
+archive(byte) = "raft.cma"
+archive(byte, plugin) = "raft.cma"
+archive(native) = "raft.cmxa"
+archive(native, plugin) = "raft.cmxs"
+exists_if = "raft.cma"
+package "lwt" (
+ version = "0.2"
+ description = "Implementation of the Raft consensus algorithm inin OCaml"
+ requires = "lwt.unix cstruct.lwt raft"
+ archive(byte) = "raft-lwt.cma"
+ archive(byte, plugin) = "raft-lwt.cma"
+ archive(native) = "raft-lwt.cmxa"
+ archive(native, plugin) = "raft-lwt.cmxs"
+ exists_if = "raft-lwt.cma"
+)
+# OASIS_STOP
+
