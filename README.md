@@ -9,7 +9,7 @@ Compile from source as follows:
 ```
 # get source & deps
 git clone https://github.com/heidi-ann/coracle
-opam install sexplib
+opam install cstruct ipaddr lwt sexplib
 cd coracle
 # build
 ocaml setup.ml -configure

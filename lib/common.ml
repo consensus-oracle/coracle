@@ -61,3 +61,5 @@ let rec create_nodes max me now =
 	if now=max then []
 	else if now=me then create_nodes max me (now+1)
     else now :: (create_nodes max me (now+1))
+
+exception Not_implemented of string
