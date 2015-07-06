@@ -6,14 +6,23 @@ ______
 
 #### Installation
 
+Start off by installing OPAM/OCaml, here's some helpful links:
+* https://opam.ocaml.org/doc/Install.html
+* https://github.com/realworldocaml/book/wiki/Installation-Instructions
+
+Using OPAM we can get the project dependencies:
+```
+opam update
+opam upgrade
+opam install cstruct ipaddr lwt sexplib
+```
+
 Compile from source as follows:
 
 ```
-# get source & deps
 git clone https://github.com/heidi-ann/coracle
-opam install cstruct ipaddr lwt sexplib
 cd coracle
-# build
+
 ocaml setup.ml -configure
 ocaml setup.ml -build
 ocaml setup.ml -install
