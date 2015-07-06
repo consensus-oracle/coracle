@@ -2,6 +2,8 @@
 
 Welcome to Coracle, a consensus algorithm simulator for heterogeneous networks.
 
+______
+
 #### Installation
 
 Compile from source as follows:
@@ -16,6 +18,8 @@ ocaml setup.ml -configure
 ocaml setup.ml -build
 ocaml setup.ml -install
 ```
+
+______
 
 #### Usage
 
@@ -40,15 +44,20 @@ This will ran a simualator with 5 nodes.
 ##### Bugs
 
 Please send any comments, questions or bugs to GitHub issue tracker:
+
 https://github.com/heidi-ann/coracle/issues
 
 ##### License
 
 This code is released under the MIT License, see the [LICENSE](LICENSE) file for full details.
 
+______
+
 #### Contribute
 
-This project is in the early development stages and we plan to have the first prototype release ready for [SIGCOMM '15](http://conferences.sigcomm.org/sigcomm/2015/) on 17th Aug 2015. Contributions are welcome, these are best make via pull requests and using Github issues to mark that your working on a particular issues or features. The current codebase is structured as follows:
+This project is in the early development stages and we plan to have the first prototype release ready for [SIGCOMM '15](http://conferences.sigcomm.org/sigcomm/2015/) on 17th Aug 2015. Contributions are welcome, these are best make via pull requests and using Github issues to mark that your working on a particular issues or features. 
+
+The current codebase is structured as follows:
 
 * [lib/](lib) - pure protocol implementation
   * [common.ml(i)](lib/common.ml) - simple useful functions for use throughout
@@ -119,6 +128,8 @@ This project is in the early development stages and we plan to have the first pr
 ##### Demo
 - [ ] Register coracle domain
 - [ ] Setup Coracle on Azure, may need multiple machines/processes with load balancing
+
+______
 
 #### Ideas for future features
 
