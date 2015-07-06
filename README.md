@@ -44,7 +44,7 @@ https://github.com/heidi-ann/coracle/issues
 
 ##### License
 
-This code is released under the MIT License, see the [LICENSE](/master/LICENSE) file for full details.
+This code is released under the MIT License, see the [LICENSE](LICENSE) file for full details.
 
 #### Contribute
 
