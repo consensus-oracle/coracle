@@ -51,7 +51,7 @@ This code is released under the MIT License, see the [LICENSE](LICENSE) file for
 This project is in the early development stages and we plan to have the first prototype release ready for [SIGCOMM '15](http://conferences.sigcomm.org/sigcomm/2015/) on 17th Aug 2015. Contributions are welcome, these are best make via pull requests and using Github issues to mark that your working on a particular issues or features. The current codebase is structured as follows:
 
 * [lib/](lib) - pure protocol implementation
-  * [common.ml(i)](lib/common.ml) - 
+  * [`common.ml(i)`](lib/common.ml) - 
   * [election.ml(i)](lib/election.ml) -
   * [election_io.ml(i)](lib/election.ml) -
   * [event.ml(i)](lib/event.ml) -
