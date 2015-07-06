@@ -2,9 +2,6 @@ open Common
 
 module Simulate = 
   functor (C: Protocol.CONSENSUS) -> struct
-  
-  module E = Events 
-  module S = States
 
   let rec run ss es =
   match Events.next es with
