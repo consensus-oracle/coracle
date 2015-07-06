@@ -2,13 +2,20 @@ open Common
 open Rpcs
 open Io
 
-type eventsig = State.t -> State.t option * Io.output list
+type eventsig = State.t -> State.t option * rpc output list
 
 
 type term_checker =
   | Invalid 
   | Same
   | Higher
+
+type mode = Follower | Candidate | Leader
+
+let string_of_mode = function
+  | Follower -> "Follower"
+  | Candidate -> "Candidate"
+  | Leader -> "Leader"
 
 (* check term of incoming packet relative to local term *)
 let check_terms incoming_term (state:State.t) = 

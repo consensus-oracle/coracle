@@ -1,12 +1,11 @@
 open Common
-open Event
 open Io
 
-type event = time * id * input
-type queue = event list
+type 'msg event = time * id * 'msg input
+type 'msg queue = 'msg event list
 
-type t = {
-  queue: queue;
+type 'msg t = {
+  queue: 'msg queue;
   queue_id: id;
   msgsent: int;
   msgrecv: int;

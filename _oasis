@@ -7,30 +7,32 @@ License:     MIT
 Plugins:     META (0.4)
 BuildTools:  ocamlbuild
 
-Library raft
+Library lib
   Path: lib
-  Findlibname: raft
+  Findlibname: lib
   Pack: true
   Modules:
-    Common, Election, Election_io, Event, Io, State, Numbergen, Rpcs
+    Common, Io, Numbergen, Protocol
   BuildDepends: sexplib, sexplib.syntax
 
-Library "raft-lwt"
-  Path: lwt
-  Findlibname: lwt
-  Modules: Id, Raft_lwt
-  BuildDepends: lwt, lwt.syntax, lwt.unix, cstruct.lwt, raft, ipaddr, bytes
-  XMetaRequires: lwt.unix, cstruct.lwt, raft
-  FindlibParent: raft
+Library raft
+  Path: raft
+  Findlibname: raft
+  Pack: false
+  Modules:
+    Election, Election_io, Event, State, Rpcs, Raft
+  BuildDepends: lib, sexplib, sexplib.syntax
 
-Executable run_raft
-  Path:       lwt
-  BuildTools: ocamlbuild
-  MainIs:     cmdline.ml
-  BuildDepends: raft.lwt, cmdliner
+
+Library simulator
+  Path:       sim
+  Findlibname: simulator
+  Modules:
+    Events, Parameters, States, Simulator, Cmdline
+  BuildDepends: lwt, lwt.unix, lib, raft, cmdliner
   
 Executable sim_raft
   Path:       sim
   BuildTools: ocamlbuild
-  MainIs:     simulator.ml
-  BuildDepends:       lwt, lwt.unix, raft, cmdliner
+  MainIs:     cmdline.ml
+  BuildDepends:       lwt, lwt.unix, lib, raft, cmdliner

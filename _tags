@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 935c6571fffc88e6a46a1c6813dfa91b)
+# DO NOT EDIT (digest: ab4ce8b795b6bfe9dd2ea061d106a712)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -14,54 +14,34 @@ true: annot, bin_annot
 ".git": not_hygienic
 "_darcs": -traverse
 "_darcs": not_hygienic
-# Library raft
-"lib/raft.cmxs": use_raft
-"lib/common.cmx": for-pack(Raft)
-"lib/election.cmx": for-pack(Raft)
-"lib/election_io.cmx": for-pack(Raft)
-"lib/event.cmx": for-pack(Raft)
-"lib/io.cmx": for-pack(Raft)
-"lib/state.cmx": for-pack(Raft)
-"lib/numbergen.cmx": for-pack(Raft)
-"lib/rpcs.cmx": for-pack(Raft)
+# Library lib
+"lib/lib.cmxs": use_lib
+"lib/common.cmx": for-pack(Lib)
+"lib/io.cmx": for-pack(Lib)
+"lib/numbergen.cmx": for-pack(Lib)
+"lib/protocol.cmx": for-pack(Lib)
 <lib/*.ml{,i,y}>: pkg_sexplib
 <lib/*.ml{,i,y}>: pkg_sexplib.syntax
-# Library raft-lwt
-"lwt/raft-lwt.cmxs": use_raft-lwt
-# Executable run_raft
-"lwt/cmdline.byte": pkg_bytes
-"lwt/cmdline.byte": pkg_cmdliner
-"lwt/cmdline.byte": pkg_cstruct.lwt
-"lwt/cmdline.byte": pkg_ipaddr
-"lwt/cmdline.byte": pkg_lwt
-"lwt/cmdline.byte": pkg_lwt.syntax
-"lwt/cmdline.byte": pkg_lwt.unix
-"lwt/cmdline.byte": pkg_sexplib
-"lwt/cmdline.byte": pkg_sexplib.syntax
-"lwt/cmdline.byte": use_raft
-"lwt/cmdline.byte": use_raft-lwt
-<lwt/*.ml{,i,y}>: pkg_bytes
-<lwt/*.ml{,i,y}>: pkg_cmdliner
-<lwt/*.ml{,i,y}>: pkg_cstruct.lwt
-<lwt/*.ml{,i,y}>: pkg_ipaddr
-<lwt/*.ml{,i,y}>: pkg_lwt
-<lwt/*.ml{,i,y}>: pkg_lwt.syntax
-<lwt/*.ml{,i,y}>: pkg_lwt.unix
-<lwt/*.ml{,i,y}>: pkg_sexplib
-<lwt/*.ml{,i,y}>: pkg_sexplib.syntax
-<lwt/*.ml{,i,y}>: use_raft
-<lwt/*.ml{,i,y}>: use_raft-lwt
+# Library raft
+"raft/raft.cmxs": use_raft
+<raft/*.ml{,i,y}>: pkg_sexplib
+<raft/*.ml{,i,y}>: pkg_sexplib.syntax
+<raft/*.ml{,i,y}>: use_lib
+# Library simulator
+"sim/simulator.cmxs": use_simulator
 # Executable sim_raft
-"sim/simulator.byte": pkg_cmdliner
-"sim/simulator.byte": pkg_lwt
-"sim/simulator.byte": pkg_lwt.unix
-"sim/simulator.byte": pkg_sexplib
-"sim/simulator.byte": pkg_sexplib.syntax
-"sim/simulator.byte": use_raft
+"sim/cmdline.byte": pkg_cmdliner
+"sim/cmdline.byte": pkg_lwt
+"sim/cmdline.byte": pkg_lwt.unix
+"sim/cmdline.byte": pkg_sexplib
+"sim/cmdline.byte": pkg_sexplib.syntax
+"sim/cmdline.byte": use_lib
+"sim/cmdline.byte": use_raft
 <sim/*.ml{,i,y}>: pkg_cmdliner
 <sim/*.ml{,i,y}>: pkg_lwt
 <sim/*.ml{,i,y}>: pkg_lwt.unix
 <sim/*.ml{,i,y}>: pkg_sexplib
 <sim/*.ml{,i,y}>: pkg_sexplib.syntax
+<sim/*.ml{,i,y}>: use_lib
 <sim/*.ml{,i,y}>: use_raft
 # OASIS_STOP

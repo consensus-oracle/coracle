@@ -1,11 +1,12 @@
 open Common 
-type t = State.t list list
 
-let rec init p = 
+type 'state t = 'state list list
+
+let rec init f p = 
   let max = Parameters.(p.n) in
   let rec state = function
   | 0 -> [] 
-  | n -> [State.init (create_nodes max n 0)] :: state (n-1) in
+  | n -> [f (create_nodes max n 0)] :: state (n-1) in
   state max
 
 let get n t = List.hd (List.nth t (int_of_id n))

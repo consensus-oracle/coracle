@@ -20,13 +20,6 @@ let incr x y = x+y
 let int_of_time = ident
 
 
-type mode = Follower | Candidate | Leader
-
-let string_of_mode = function
-  | Follower -> "Follower"
-  | Candidate -> "Candidate"
-  | Leader -> "Leader"
-
 let string_of_option f = function 
   | None -> "none" 
   | Some x -> f x

@@ -2,7 +2,7 @@ open Common
 open Rpcs
 open Io
 
-type eventsig = State.t -> State.t option * Io.output list
+type eventsig = State.t -> State.t option * rpc output list
 
 
 let receive_pkt id pkt state =

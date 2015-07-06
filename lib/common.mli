@@ -21,10 +21,6 @@ val incr: time -> span -> time
 val sec_of_span: span -> float
 val int_of_time: time -> int
 
-
-type mode = Follower | Candidate | Leader
-
-val string_of_mode : mode -> string
 val string_of_option : ('a -> string) -> 'a option -> string
 
 val add_unique: 'a -> 'a list -> 'a list

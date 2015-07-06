@@ -2,19 +2,21 @@
 
 open Event
 open Common
+open Io
 
-type t
-type event = time * id * Io.input
+type 'msg event = time * id * 'msg input
+type 'msg queue = 'msg event list
+type 'msg t 
 
 
 (* [init p] creates an event queue and adds StartUp events for 
 	nodes with ID from 0 to n-1 *)
-val init: Parameters.t -> t
+val init: Parameters.t -> 'msg t
 
-val next: t -> (event * t) option
+val next: 'msg t -> ('msg event * 'msg t) option
 
-val add: id -> time -> Io.output list -> t -> t
+val add: id -> time -> 'msg output list -> 'msg t -> 'msg t
 
-val output_to_input: t -> id -> time -> Io.output -> event option
+val output_to_input: 'msg t -> id -> time -> 'msg output -> 'msg event option
 
-val string_of_stats: t -> string
+val string_of_stats: 'msg t -> string
