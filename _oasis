@@ -24,7 +24,7 @@ Library raft
   BuildDepends: lib, sexplib, sexplib.syntax
 
 Library unix
-  Path:       lwt
+  Path:       unix
   Findlibname: unix
   Modules:
     Id, Io_handlers
@@ -45,7 +45,7 @@ Executable coracle_sim
   BuildDepends: lwt, lwt.unix, lib, raft, cmdliner
 
 Executable coracle_unix
-  Path:       lwt
+  Path:       unix
   BuildTools: ocamlbuild
   MainIs:     coracle_unix.ml
   BuildDepends: unix, raft, cmdliner

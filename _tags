@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 255e238a569e44167ca90b6fa7fb61ca)
+# DO NOT EDIT (digest: eb01141933d73a96e6dcdf09edc37f1d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -28,7 +28,7 @@ true: annot, bin_annot
 <raft/*.ml{,i,y}>: pkg_sexplib.syntax
 <raft/*.ml{,i,y}>: use_lib
 # Library unix
-"lwt/unix.cmxs": use_unix
+"unix/unix.cmxs": use_unix
 # Library simulator
 "sim/simulator.cmxs": use_simulator
 # Executable coracle_sim
@@ -47,28 +47,28 @@ true: annot, bin_annot
 <sim/*.ml{,i,y}>: use_lib
 <sim/*.ml{,i,y}>: use_raft
 # Executable coracle_unix
-"lwt/coracle_unix.byte": pkg_bytes
-"lwt/coracle_unix.byte": pkg_cmdliner
-"lwt/coracle_unix.byte": pkg_cstruct.lwt
-"lwt/coracle_unix.byte": pkg_ipaddr
-"lwt/coracle_unix.byte": pkg_lwt
-"lwt/coracle_unix.byte": pkg_lwt.syntax
-"lwt/coracle_unix.byte": pkg_lwt.unix
-"lwt/coracle_unix.byte": pkg_sexplib
-"lwt/coracle_unix.byte": pkg_sexplib.syntax
-"lwt/coracle_unix.byte": use_lib
-"lwt/coracle_unix.byte": use_raft
-"lwt/coracle_unix.byte": use_unix
-<lwt/*.ml{,i,y}>: pkg_bytes
-<lwt/*.ml{,i,y}>: pkg_cmdliner
-<lwt/*.ml{,i,y}>: pkg_cstruct.lwt
-<lwt/*.ml{,i,y}>: pkg_ipaddr
-<lwt/*.ml{,i,y}>: pkg_lwt
-<lwt/*.ml{,i,y}>: pkg_lwt.syntax
-<lwt/*.ml{,i,y}>: pkg_lwt.unix
-<lwt/*.ml{,i,y}>: pkg_sexplib
-<lwt/*.ml{,i,y}>: pkg_sexplib.syntax
-<lwt/*.ml{,i,y}>: use_lib
-<lwt/*.ml{,i,y}>: use_raft
-<lwt/*.ml{,i,y}>: use_unix
+"unix/coracle_unix.byte": pkg_bytes
+"unix/coracle_unix.byte": pkg_cmdliner
+"unix/coracle_unix.byte": pkg_cstruct.lwt
+"unix/coracle_unix.byte": pkg_ipaddr
+"unix/coracle_unix.byte": pkg_lwt
+"unix/coracle_unix.byte": pkg_lwt.syntax
+"unix/coracle_unix.byte": pkg_lwt.unix
+"unix/coracle_unix.byte": pkg_sexplib
+"unix/coracle_unix.byte": pkg_sexplib.syntax
+"unix/coracle_unix.byte": use_lib
+"unix/coracle_unix.byte": use_raft
+"unix/coracle_unix.byte": use_unix
+<unix/*.ml{,i,y}>: pkg_bytes
+<unix/*.ml{,i,y}>: pkg_cmdliner
+<unix/*.ml{,i,y}>: pkg_cstruct.lwt
+<unix/*.ml{,i,y}>: pkg_ipaddr
+<unix/*.ml{,i,y}>: pkg_lwt
+<unix/*.ml{,i,y}>: pkg_lwt.syntax
+<unix/*.ml{,i,y}>: pkg_lwt.unix
+<unix/*.ml{,i,y}>: pkg_sexplib
+<unix/*.ml{,i,y}>: pkg_sexplib.syntax
+<unix/*.ml{,i,y}>: use_lib
+<unix/*.ml{,i,y}>: use_raft
+<unix/*.ml{,i,y}>: use_unix
 # OASIS_STOP
