@@ -1,7 +1,7 @@
 open Cmdliner
 open Common
 
-module R = Raft_lwt.UnixInterface(Raft)
+module R = Io_handlers.UnixInterface(Raft)
 
 let t =
   let id =

@@ -27,7 +27,7 @@ Library unix
   Path:       lwt
   Findlibname: unix
   Modules:
-    Id, Raft_lwt
+    Id, Io_handlers
   BuildDepends: lwt, lwt.syntax, lwt.unix, cstruct.lwt, ipaddr, bytes, lib
   XMetaRequires: lwt.unix, cstruct.lwt
 
