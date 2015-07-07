@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 50b785a4fb205c805e834d2cca6449b5)
-version = "0.2"
-description = "Implementation of the Raft consensus algorithm inin OCaml"
-requires = "lwt lwt.unix lib raft cmdliner"
+# DO NOT EDIT (digest: 70911e24fe6475050a449ed235d45104)
+version = "0.1"
+description = "Simulation of consensus algorithms in heterogeneous networks"
+requires = "lwt lwt.unix lib"
 archive(byte) = "simulator.cma"
 archive(byte, plugin) = "simulator.cma"
 archive(native) = "simulator.cmxa"

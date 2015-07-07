@@ -1,7 +1,7 @@
 OASISFormat: 0.4
-Name:        ocaml-raft
-Version:     0.2
-Synopsis:    Implementation of the Raft consensus algorithm inin OCaml
+Name:        coracle
+Version:     0.1
+Synopsis:    Simulation of consensus algorithms in heterogeneous networks
 Authors:     Heidi Howard
 License:     MIT
 Plugins:     META (0.4)
@@ -23,16 +23,29 @@ Library raft
     Election, Election_io, Event, State, Rpcs, Raft
   BuildDepends: lib, sexplib, sexplib.syntax
 
+Library unix
+  Path:       lwt
+  Findlibname: unix
+  Modules:
+    Id, Raft_lwt
+  BuildDepends: lwt, lwt.syntax, lwt.unix, cstruct.lwt, ipaddr, bytes, lib
+  XMetaRequires: lwt.unix, cstruct.lwt
 
 Library simulator
   Path:       sim
   Findlibname: simulator
   Modules:
-    Events, Parameters, States, Simulator, Cmdline
-  BuildDepends: lwt, lwt.unix, lib, raft, cmdliner
+    Events, Parameters, States, Simulator
+  BuildDepends: lwt, lwt.unix, lib
   
-Executable sim_raft
+Executable coracle_sim
   Path:       sim
   BuildTools: ocamlbuild
-  MainIs:     cmdline.ml
-  BuildDepends:       lwt, lwt.unix, lib, raft, cmdliner
+  MainIs:     coracle_sim.ml
+  BuildDepends: lwt, lwt.unix, lib, raft, cmdliner
+
+Executable coracle_unix
+  Path:       lwt
+  BuildTools: ocamlbuild
+  MainIs:     coracle_unix.ml
+  BuildDepends: unix, raft, cmdliner

@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: 634494e4026dde03b8f5544ec4ff4a02)
-version = "0.2"
-description = "Implementation of the Raft consensus algorithm inin OCaml"
+# DO NOT EDIT (digest: 1ce679970d72eed6fc74e314be537e3e)
+version = "0.1"
+description = "Simulation of consensus algorithms in heterogeneous networks"
 requires = "lib sexplib sexplib.syntax"
 archive(byte) = "raft.cma"
 archive(byte, plugin) = "raft.cma"
