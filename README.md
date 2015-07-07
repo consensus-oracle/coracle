@@ -1,4 +1,4 @@
-## Coracle ![coracle](https://cloud.githubusercontent.com/assets/1835251/8544604/8d3fdee6-249e-11e5-8ae3-0ee6d73028dd.png) 
+# Coracle ![coracle](https://cloud.githubusercontent.com/assets/1835251/8544604/8d3fdee6-249e-11e5-8ae3-0ee6d73028dd.png) 
 
 Welcome to Coracle, a consensus algorithm simulator for heterogeneous networks.
 
