@@ -56,3 +56,5 @@ let rec create_nodes max me now =
     else now :: (create_nodes max me (now+1))
 
 exception Not_implemented of string
+
+let bugs_to = "bug reports to https://github.com/consensus-oracle/coracle/issues"
