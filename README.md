@@ -38,7 +38,7 @@ We currently support two interfaces: command line implementation and simulation.
 
 Run an consensus algorithm as follows:
 ```
-./cmdline.byte 1 --max=5
+./coracle_unix.byte 1 --max=5
 ```
 This instance will bind locally to port 5001 (5000+id) and will try to communicate with other instances at ports 5000 to 5004 (5000 to 5000+max-1).
 
@@ -46,7 +46,7 @@ This instance will bind locally to port 5001 (5000+id) and will try to communica
 
 Ran a simulation as follows:
 ```
-./simulator.byte -n 5
+./coracle_sim.byte -n 5
 ```
 This will ran a simualator with 5 nodes.
 
@@ -68,20 +68,25 @@ This project is in the early development stages and we plan to have the first pr
 
 The current codebase is structured as follows:
 
-* [lib/](lib) - pure protocol implementation
+* [lib/](lib) - common functionality used by all consensus implementations
   * [common.ml(i)](lib/common.ml) - simple useful functions for use throughout
-  * [election.ml(i)](lib/election.ml) - raft election code
-  * [election_io.ml(i)](lib/election.ml) - raft election interface, packets and timeouts
-  * [event.ml(i)](lib/event.ml) - main eval loop for raft protocol
   * [io.ml(i)](lib/io.ml) - type definitions for protocol and frontend interface
   * [numbergen.ml(i)](lib/numbergen.ml) - generator for random numbers within a given distribution
-  * [rpcs.ml(i)](lib/rpcs.ml) - raft RPC representations as records plus serialize/deserialize
-  * [state.ml(i)](lib/state.ml) - raft internal state and operators
-* [lwt/](lwt) - unix frontend for consensus protocols
-  * [client.ml(i)](lwt\client.ml) - empty
-  * [cmdline.ml(i)](lwt\cmdline.ml) - parsing command line arguments for unix interface
-  * [id.ml(i)](lwt\id.ml) - handling node ID's
+  * [protocol.ml(i)](lib/protocol.ml) - module sig for general consensus algorithms
+* [raft/](raft) - pure raft consensus implementation
+  * [election.ml(i)](raft/election.ml) - raft election code
+  * [election_io.ml(i)](raft/election.ml) - raft election interface, packets and timeouts
+  * [event.ml(i)](raft/event.ml) - main eval loop for raft protocol
+  * [raft.ml(i)](raft/raft.ml) - wrapping raft consensus ready for the CONSENSUS sig
+  * [rpcs.ml(i)](raft/rpcs.ml) - raft RPC representations as records plus serialize/deserialize
+  * [state.ml(i)](raft/state.ml) - raft internal state and operators
+* [unix/](unix) - unix frontend for consensus protocols
+  * [client.ml(i)](unix\client.ml) - empty
+  * [coracle_unix.ml(i)](unix/coracle_unix.ml) - parsing command line arguments for unix interface
+  * [id.ml(i)](unix/id.ml) - handling node ID's
+  * [io_handlers.ml(i)](unix/io_handlers.ml) - main body of unix interface
 * [sim/](sim) - simulation frontend for coracle
+  * [coracle_sim.ml(i)](sim\coracle_sim.ml) - parsing command line arguments for simulation interface
   * [events.ml(i)](sim\events.ml) - handling events and their applications
   * [parameters.ml(i)](sim\parameters.ml) - type sig for simulation parameters
   * [simulator.ml(i)](sim\simulator.ml) - simulators main loop
@@ -94,7 +99,7 @@ The current codebase is structured as follows:
 #### ToDos
 
 ##### Common backend
-- [ ] Abstract over Consensus algorithms
+- [x] Abstract over Consensus algorithms
 
 ##### Raft
 - [ ] Support AppendEntries
