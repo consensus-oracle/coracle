@@ -14,6 +14,7 @@ module Simulate =
 
   let start n loss = 
   let para = Parameters.({n;loss}) in
-    run (States.init (C.init) para) (Events.init para)
+  let config = C.parse_config "" in
+    run (States.init (fun n -> C.init n config) para) (Events.init para)
 
 end

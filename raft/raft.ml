@@ -1,4 +1,6 @@
 type state = State.t
+type config = State.config
+let parse_config = State.parse_config
 let init = State.init
 let add_peers = State.add_nodes
 let state_to_string = State.to_string

@@ -4,7 +4,9 @@ open Io
 module type CONSENSUS = sig
   
 type state
-val init: id list -> state
+type config
+val parse_config: string -> config
+val init: id list -> config -> state
 val add_peers: id list -> state -> state
 val state_to_string: state -> string 
 

@@ -31,20 +31,30 @@ let string_of_mode_state = function
   | Candidate _ -> "Candidate"
   | Leader _ -> "Leader"
 
+type config = {
+  timeout: int;
+}
+
+let parse_config _ = {
+  timeout = 200;
+}
+
 type t = {
  term: term;
  mode: mode_state;
  last_index: index;
  last_term: term;
  node_ids: id list;
+ config: config;
 }
 
-let init ids = {
+let init ids config = {
  term = 1;
  mode = Follower {voted_for=None};
  last_index = 0;
  last_term = 0;
  node_ids = ids;
+ config;
 }
 
 let add_node id t = 
