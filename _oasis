@@ -12,8 +12,8 @@ Library lib
   Findlibname: lib
   Pack: true
   Modules:
-    Common, Io, Numbergen, Protocol
-  BuildDepends: sexplib, sexplib.syntax
+    Common, Docs, Io, Numbergen, Protocol
+  BuildDepends: sexplib, sexplib.syntax, cmdliner
 
 Library raft
   Path: raft

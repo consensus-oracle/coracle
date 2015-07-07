@@ -32,3 +32,5 @@ val string_of_list: ('a -> string) -> 'a list -> string
 val create_nodes: int -> int -> int -> int list
 
 exception Not_implemented of string
+
+val bugs_to: string

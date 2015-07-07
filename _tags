@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: eb01141933d73a96e6dcdf09edc37f1d)
+# DO NOT EDIT (digest: d10f7cfc73f980ee3b71f78709cadccd)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -17,13 +17,16 @@ true: annot, bin_annot
 # Library lib
 "lib/lib.cmxs": use_lib
 "lib/common.cmx": for-pack(Lib)
+"lib/docs.cmx": for-pack(Lib)
 "lib/io.cmx": for-pack(Lib)
 "lib/numbergen.cmx": for-pack(Lib)
 "lib/protocol.cmx": for-pack(Lib)
+<lib/*.ml{,i,y}>: pkg_cmdliner
 <lib/*.ml{,i,y}>: pkg_sexplib
 <lib/*.ml{,i,y}>: pkg_sexplib.syntax
 # Library raft
 "raft/raft.cmxs": use_raft
+<raft/*.ml{,i,y}>: pkg_cmdliner
 <raft/*.ml{,i,y}>: pkg_sexplib
 <raft/*.ml{,i,y}>: pkg_sexplib.syntax
 <raft/*.ml{,i,y}>: use_lib
