@@ -27,7 +27,7 @@ module UnixInterface =
     List.exists ((=) t) !cancelled_timers
 
   let rec dispatcher fd event = 
-    Printf.printf "%s\n%!"(C.output_to_string event);
+    Printf.printf "%s\n%!"(output_to_string C.msg_to_string event);
     match event with
     | PacketDispatch (id,pkt) -> 
         let buf = Lwt_bytes.of_string (C.msg_serialize pkt) in
@@ -41,7 +41,7 @@ module UnixInterface =
         cancel_timer t
 
   and pass_to_raft fd event = 
-    Printf.printf "%s\n%!"(C.input_to_string event);
+    Printf.printf "%s\n%!"(input_to_string C.msg_to_string event);
     let (s,e) = C.eval event !state in 
     set_state s;
     C.state_to_string (get_state ())

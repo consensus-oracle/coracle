@@ -14,3 +14,13 @@ type 'rpc output =
   | PacketDispatch of id * 'rpc
   | SetTimeout of span * timer
   | CancelTimeout of timer
+
+let input_to_string rpc_to_string = function
+  | Startup id -> "startup "^ (string_of_id id)
+  | PacketArrival (id,pkt) -> "from: "^(string_of_id id) ^" payload: "^(rpc_to_string pkt)
+  | Timeout _-> "timeout"
+
+let output_to_string rpc_to_string  = function
+  | PacketDispatch (id,pkt) -> "to: "^(string_of_id id) ^" payload: "^(rpc_to_string pkt)
+  | SetTimeout (s,timer) -> "set timeout for"^string_of_float (sec_of_span s)
+  | CancelTimeout timer -> "cancel timeout"
