@@ -1,4 +1,4 @@
-# Coracle ![coracle](https://cloud.githubusercontent.com/assets/1835251/8544604/8d3fdee6-249e-11e5-8ae3-0ee6d73028dd.png) 
+# Coracle ![coracle Clipart courtesy FCIT](https://cloud.githubusercontent.com/assets/1835251/8544604/8d3fdee6-249e-11e5-8ae3-0ee6d73028dd.png) 
 
 Welcome to Coracle, a consensus algorithm simulator for heterogeneous networks.
 
@@ -60,6 +60,7 @@ https://github.com/heidi-ann/coracle/issues
 
 This code is released under the MIT License, see the [LICENSE](LICENSE) file for full details.
 
+Coracle clipart courtesy of [FCIT](http://etc.usf.edu/clipart/) for non-commercial use only 
 ______
 
 #### Contribute
