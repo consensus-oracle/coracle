@@ -11,8 +11,6 @@ opam init
 eval `opam config env`
 
 # setup ocaml compiler and libaries for coracle
-opam switch 4.02.1
-eval `opam config env`
 opam update
 opam upgrade
 opam install cstruct ipaddr lwt sexplib cmdliner
