@@ -139,6 +139,7 @@ The current codebase is structured as follows:
 - [ ] Choose and implement a logging solution throughout code base, syslog compatible
 - [ ] add coracle to OPAM
 - [ ] add copyright/license notice to each file header
+- [ ] add ocaml 4.02.2 support (fix inconsistent interface error)
 
 ##### Demo
 - [ ] Register coracle domain
