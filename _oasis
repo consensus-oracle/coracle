@@ -20,7 +20,7 @@ Library raft
   Findlibname: raft
   Pack: false
   Modules:
-    Election, Election_io, Event, State, Rpcs, Raft
+    Election, Election_io, State, Rpcs, Raft
   BuildDepends: lib, sexplib, sexplib.syntax
 
 Library unix

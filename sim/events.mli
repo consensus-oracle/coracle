@@ -1,6 +1,4 @@
 (* Events manages the event queue for a DES *)
-
-open Event
 open Common
 open Io
 

@@ -7,13 +7,15 @@ module UnixInterface =
 
   let bufsz = 4096
 
-  let state = ref (C.init [])
+  let state = ref None
 
   let set_state = function
   	| None -> ()
-  	| Some new_state -> state := new_state
+  	| Some new_state -> state := Some new_state
    
-  let get_state () = !state 
+  let get_state () = match !state with
+  | None -> assert false
+  | Some s -> s
 
   (* storing a list of cancelled timers until we can do this in lwt *)
   let cancelled_timers = ref []
@@ -27,7 +29,7 @@ module UnixInterface =
     List.exists ((=) t) !cancelled_timers
 
   let rec dispatcher fd event = 
-    Printf.printf "%s\n%!"(C.output_to_string event);
+    Printf.printf "%s\n%!"(output_to_string C.msg_to_string event);
     match event with
     | PacketDispatch (id,pkt) -> 
         let buf = Lwt_bytes.of_string (C.msg_serialize pkt) in
@@ -41,8 +43,8 @@ module UnixInterface =
         cancel_timer t
 
   and pass_to_raft fd event = 
-    Printf.printf "%s\n%!"(C.input_to_string event);
-    let (s,e) = C.eval event !state in 
+    Printf.printf "%s\n%!"(input_to_string C.msg_to_string event);
+    let (s,e) = C.eval event (get_state()) in 
     set_state s;
     C.state_to_string (get_state ())
     |> Printf.printf "%s\n";
@@ -73,7 +75,7 @@ module UnixInterface =
   let setup id max =
     Printf.printf "Starting up";
     let peers = create_nodes max id 0 in
-    set_state (Some (C.add_peers peers (get_state())));
+    set_state (Some (C.init peers (C.parse_config "")));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in
     let fd = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
