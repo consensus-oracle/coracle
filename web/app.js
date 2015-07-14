@@ -39,11 +39,12 @@ app.post('/runSim', function(req,res){
 		}
 		console.log(filename + ' saved');
 	
-		var cmd = '../coracle_sim.byte -f ' + filename;
+		var cmd = '../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
+		console.log('running: ' + cmd);
 		exec(cmd, function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
-			res.send(stdout);
+			res.send(stdout + '<br>' + error);
 		});
 	});
 });
