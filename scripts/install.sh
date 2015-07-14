@@ -13,7 +13,7 @@ eval `opam config env`
 # setup ocaml compiler and libaries for coracle
 opam update
 opam upgrade
-opam install cstruct ipaddr lwt sexplib cmdliner
+opam install cstruct ipaddr lwt sexplib cmdliner yojson
 
 # get code
 ./scripts/update.sh

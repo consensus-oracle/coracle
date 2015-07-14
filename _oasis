@@ -36,13 +36,13 @@ Library simulator
   Findlibname: simulator
   Modules:
     Events, Parameters, States, Simulator
-  BuildDepends: lwt, lwt.unix, lib
+  BuildDepends: lwt, lwt.unix, lib, yojson
   
 Executable coracle_sim
   Path:       sim
   BuildTools: ocamlbuild
   MainIs:     coracle_sim.ml
-  BuildDepends: lwt, lwt.unix, lib, raft, cmdliner
+  BuildDepends: lwt, lwt.unix, lib, raft, simulator, cmdliner
 
 Executable coracle_unix
   Path:       unix
