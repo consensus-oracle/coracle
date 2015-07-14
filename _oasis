@@ -36,7 +36,7 @@ Library simulator
   Findlibname: simulator
   Modules:
     Events, Parameters, States, Simulator
-  BuildDepends: lwt, lwt.unix, lib
+  BuildDepends: lwt, lwt.unix, lib, yojson
   
 Executable coracle_sim
   Path:       sim

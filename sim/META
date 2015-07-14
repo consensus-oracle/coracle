@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 70911e24fe6475050a449ed235d45104)
+# DO NOT EDIT (digest: 2852c4ce73f21c115a62b576951d991a)
 version = "0.1"
 description = "Simulation of consensus algorithms in heterogeneous networks"
-requires = "lwt lwt.unix lib"
+requires = "lwt lwt.unix lib yojson"
 archive(byte) = "simulator.cma"
 archive(byte, plugin) = "simulator.cma"
 archive(native) = "simulator.cmxa"
