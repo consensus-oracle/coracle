@@ -12,10 +12,10 @@ module Simulate =
     run (States.set n new_s ss) (Events.add n t new_e new_es)
   | None -> Printf.printf "Done\n%s\n" (Events.string_of_stats es)
 
-  let start n loss config = 
+  let start n loss term config = 
   let para = 
     match config with
-    | None -> Parameters.({n;loss})
+    | None -> Parameters.({n;term;loss})
     | Some filename -> Parameters.of_json filename in
   let config = C.parse_config "" in
     run (States.init (fun n -> C.init n config) para) (Events.init para)
