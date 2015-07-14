@@ -15,8 +15,11 @@ let t =
       ~doc:"termination time") in
   let config_file =
     Arg.(value & opt (some string) None & info ["f";"file"] ~docv:"CONFIG FILE"
-      ~doc:"name of config file") in    
-  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file) in
+      ~doc:"name of config file") in  
+  let trace =
+    Arg.(value & flag & info ["t"; "trace"] ~docv:"TRACE FLAG" 
+      ~doc:"enable tracing") in  
+  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace) in
   match Term.eval (cmd_t, Docs.info) with `Ok x -> x |_ -> exit 1
 
  let () = t
