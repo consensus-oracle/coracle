@@ -30,7 +30,10 @@ app.post('/runSim', function(req,res){
     console.log(req.body);
 	var id = uuid.v1();
 	var filename = 'requests/' + id + '.json'
-	fs.writeFile(filename,JSON.stringify(req.body),function(err){
+	fs.writeFile(filename,JSON.stringify({
+		nodes: parseInt(req.body.nodes),
+		loss: parseFloat(req.body.loss)	
+	}),function(err){
 		if(err){
 			return console.log(err);
 		}
