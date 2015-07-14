@@ -1,6 +1,11 @@
 $(document).ready(function () {
     $('#runSim').click(function () {
-        $.get( '/runSim', function(data){
+        $.post( '/runSim',
+		{
+		nodes: $('#numNodes').val(),
+		loss: $('#loss').val()
+		}, 
+		function(data){
         $('#SimResults').html(data);
         });
     });
