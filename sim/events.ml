@@ -96,3 +96,15 @@ let string_of_stats t =
   "packets dispatched: %i\npackets received: %i\npackets dropped: %i\n"
   t.msgsent t.msgrecv t.msgdrop
 
+open Yojson.Safe
+
+let json_of_stats t =
+  `Assoc [
+    ("packets dispatched", `Int t.msgsent);
+    ("packets received", `Int t.msgrecv);
+    ("packets dropped", `Int t.msgdrop);
+    ]
+
+let output_of_stats t = function
+  | None -> to_channel stdout (json_of_stats t)
+  | Some filename -> to_file filename (json_of_stats t)

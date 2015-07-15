@@ -18,3 +18,5 @@ val add: id -> time -> 'msg output list -> 'msg t -> 'msg t
 val output_to_input: 'msg t -> id -> time -> 'msg output -> 'msg event option
 
 val string_of_stats: 'msg t -> string
+
+val output_of_stats: 'msg t -> string option -> unit
