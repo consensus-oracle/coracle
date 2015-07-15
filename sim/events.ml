@@ -43,11 +43,13 @@ let init p =
 let next t = 
   match t.queue with
  | [] -> None
- | x::xs -> 
-    (match x with
-    | (_,_,PacketArrival (_,_)) -> {t with msgrecv=t.msgrecv+1}
-    | _ -> t)
-    |> fun t_new -> Some (x, {t_new with queue=xs})
+ | (time,n,e)::xs -> 
+    if (time>=t.p.term) then None 
+    else
+      (match (time,n,e) with
+      | (_,_,PacketArrival (_,_)) -> {t with msgrecv=t.msgrecv+1}
+      | _ -> t)
+    |> fun t_new -> Some ((time,n,e), {t_new with queue=xs})
 
 let rec add_one t ((time,_,_) as y) = 
   match t.queue with
