@@ -32,7 +32,8 @@ app.post('/runSim', function(req,res){
 	var filename = 'requests/' + id + '.json'
 	fs.writeFile(filename,JSON.stringify({
 		nodes: parseInt(req.body.nodes),
-		loss: parseFloat(req.body.loss)	
+		loss: parseFloat(req.body.loss),
+		termination: parseInt(req.body.termination)
 	}),function(err){
 		if(err){
 			return console.log(err);
@@ -44,7 +45,12 @@ app.post('/runSim', function(req,res){
 		exec(cmd, function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
-			res.send(stdout + '<br>' + error);
+			if (error != null){
+				res.send(stdout + '<br>' + error);
+			}
+			else{
+				res.send(stdout);
+			}
 		});
 	});
 });

@@ -3,10 +3,12 @@ extends layout
 block content
   h1 Coracle
   label Nodes:
-  input#numNodes(type='number', min='0', max='100',step='1',value='1')
+  input#numNodes(type='number', min='2', max='100',step='1',value='2')
   br
   label Loss:
   input#loss(type='text',value='0.0')
+  br
+  input#termination(type='number', min='500', max='100000',step='500',value='1000')
   br
   button#runSim(data-action="runsim") Run Simulation
 
