@@ -30,6 +30,8 @@ ocaml setup.ml -build
 ocaml setup.ml -install
 ```
 
+An update script can be found in [scripts/update.sh](scripts/update.sh).
+
 ______
 
 #### Usage
@@ -56,7 +58,7 @@ This will ran a simualator with 5 nodes.
 
 Please send any comments, questions or bugs to GitHub issue tracker:
 
-https://github.com/heidi-ann/coracle/issues
+https://github.com/consensus-oracle/coracle/issues
 
 ##### License
 
