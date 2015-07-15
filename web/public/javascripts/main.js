@@ -15,10 +15,18 @@ $(document).ready(function () {
 			loss: parseFloat($('#loss').val()),
 			termination: parseInt($('#termination').val())
 			}, 
-			function(data){
-			$('#SimResults').html(data);
-			$('#runSim').html(oldButtonText);
-			$('#runSim').removeAttr("disabled");
+			function(response){
+				var result;
+				if (response.error != null){
+					console.log(response);
+					result = "Failed: " + response.stderr;
+				}
+				else{
+					result = createTable(response.stdout);
+				}
+				$('#SimResults').html(result);
+				$('#runSim').html(oldButtonText);
+				$('#runSim').removeAttr("disabled");
 			});
 		}
     });
@@ -51,4 +59,22 @@ $(document).ready(function () {
 		return (!isNaN(value) && value >= min && value <=max);
 	}
 	
+	function createTable(jsonObject){
+		//start of html for the table
+		var table = "<table id='results' border='1'>\
+			<tr>";
+		//add in the headers from the JSON variables
+		for (var key in jsonObject){
+			table += "<th>" + key + "</th>";
+		}
+		table += "</tr><tr>";
+		
+		//now add in the values, assumes no list values
+		for (var key in jsonObject){
+			table += "<td>" + jsonObject[key] + "</td>";
+		}
+		table += "</tr></table>";
+		
+		return table;
+	}
 });
