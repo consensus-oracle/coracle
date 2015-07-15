@@ -22,7 +22,7 @@ $(document).ready(function () {
 					result = "Failed: " + response.stderr;
 				}
 				else{
-					result = createTable(response.stdout);
+					result = createTable(JSON.parse(response.stdout));
 				}
 				$('#SimResults').html(result);
 				$('#runSim').html(oldButtonText);
