@@ -3,7 +3,7 @@ extends layout
 block content
   h1 Coracle
   label Nodes:
-  input#numNodes(type='number', min='2', max='100',step='1',value='2')
+  input#numNodes(type='number', min='2', max='20',step='1',value='2')
   br
   label Loss:
   input#loss(type='text',value='0.0')
@@ -11,8 +11,10 @@ block content
   label Termination:
   input#termination(type='number', min='500', max='100000',step='500',value='1000')
   br
-  button#runSim(data-action="runsim") Run Simulation
+  button#runSim Run Simulation
 
-  p#SimResults
-   script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
-   script(src="/javascripts/main.js")
+  t
+  div#SimResults
+  
+  script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
+  script(src="/javascripts/main.js")

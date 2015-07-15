@@ -30,23 +30,25 @@ $(document).ready(function () {
 	
 	function validateSettings(){
 		var valid = true;
-		var nodes = parseInt($('#numNodes').val());
-		if (isNaN(nodes) || nodes <2 || nodes > maxNodes ){
+		if (!checkBounds(parseInt($('#numNodes').val()),2,maxNodes)){
 			$('#numNodes').after(validationError("Must be an integer between 2 and " + maxNodes));
 			valid = false;
 		}
 		
-		var loss = parseFloat($('#loss').val())
-		if (isNaN(loss) || loss < 0 || loss > 100 ){
+		if (!checkBounds(parseFloat($('#loss').val()),0,100)){
 			$('#loss').after(validationError("Must be a number between 0 and 100"));
 			valid = false;
 		}
 		
-		var termination = parseInt($('#termination').val())
-		if (isNaN(termination) || termination < 1 || termination > maxTermination ){
+		if (!checkBounds(parseInt($('#termination').val()),1,maxTermination)){
 			$('#loss').after(validationError("Must be an integer between 1 and " + maxTermination));
 			valid = false;
 		}
 		return valid;
 	}
+	
+	function checkBounds(value, min, max){
+		return (!isNaN(value) && value >= min && value <=max);
+	}
+	
 });
