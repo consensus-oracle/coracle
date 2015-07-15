@@ -19,7 +19,10 @@ let t =
   let trace =
     Arg.(value & flag & info ["t"; "trace"] ~docv:"TRACE FLAG" 
       ~doc:"enable tracing") in  
-  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace) in
+  let output_file =
+    Arg.(value & opt (some string) None & info ["o";"output"] ~docv:"OUTPUT FILE"
+      ~doc:"name of output file, print to stdout if not set") in  
+  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace $ output_file) in
   match Term.eval (cmd_t, Docs.info) with `Ok x -> x |_ -> exit 1
 
  let () = t
