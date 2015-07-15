@@ -45,12 +45,9 @@ app.post('/runSim', function(req,res){
 		exec(cmd, function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
-			if (error != null){
-				res.send(stdout + '<br>' + error);
-			}
-			else{
-				res.send(stdout);
-			}
+			res.send({error:error,
+				stdout:stdout,
+				stderr:stderr});
 		});
 	});
 });

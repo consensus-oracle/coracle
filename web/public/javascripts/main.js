@@ -15,10 +15,18 @@ $(document).ready(function () {
 			loss: parseFloat($('#loss').val()),
 			termination: parseInt($('#termination').val())
 			}, 
-			function(data){
-			$('#SimResults').html(data);
-			$('#runSim').html(oldButtonText);
-			$('#runSim').removeAttr("disabled");
+			function(response){
+				var result;
+				if (response.error != null){
+					console.log(response);
+					result = "Failed: " + response.stderr;
+				}
+				else{
+					result = createTable(response.stdout);
+				}
+				$('#SimResults').html(result);
+				$('#runSim').html(oldButtonText);
+				$('#runSim').removeAttr("disabled");
 			});
 		}
     });
@@ -30,23 +38,43 @@ $(document).ready(function () {
 	
 	function validateSettings(){
 		var valid = true;
-		var nodes = parseInt($('#numNodes').val());
-		if (isNaN(nodes) || nodes <2 || nodes > maxNodes ){
+		if (!checkBounds(parseInt($('#numNodes').val()),2,maxNodes)){
 			$('#numNodes').after(validationError("Must be an integer between 2 and " + maxNodes));
 			valid = false;
 		}
 		
-		var loss = parseFloat($('#loss').val())
-		if (isNaN(loss) || loss < 0 || loss > 100 ){
+		if (!checkBounds(parseFloat($('#loss').val()),0,100)){
 			$('#loss').after(validationError("Must be a number between 0 and 100"));
 			valid = false;
 		}
 		
-		var termination = parseInt($('#termination').val())
-		if (isNaN(termination) || termination < 1 || termination > maxTermination ){
+		if (!checkBounds(parseInt($('#termination').val()),1,maxTermination)){
 			$('#loss').after(validationError("Must be an integer between 1 and " + maxTermination));
 			valid = false;
 		}
 		return valid;
+	}
+	
+	function checkBounds(value, min, max){
+		return (!isNaN(value) && value >= min && value <=max);
+	}
+	
+	function createTable(jsonObject){
+		//start of html for the table
+		var table = "<table id='results' border='1'>\
+			<tr>";
+		//add in the headers from the JSON variables
+		for (var key in jsonObject){
+			table += "<th>" + key + "</th>";
+		}
+		table += "</tr><tr>";
+		
+		//now add in the values, assumes no list values
+		for (var key in jsonObject){
+			table += "<td>" + jsonObject[key] + "</td>";
+		}
+		table += "</tr></table>";
+		
+		return table;
 	}
 });
