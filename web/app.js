@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var exec = require('child_process').exec;
+var fs = require('fs');
+var uuid = require('node-uuid');
 
 var app = express();
 
@@ -24,14 +26,33 @@ app.get('/', function(req, res) {
     res.render('index',{ title: 'Coracle' })
 });
 
-app.get('/runSim', function(req,res){
-    console.log(req);
-    var cmd = 'ls';
-    exec(cmd, function (error,stdout,stderr){
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-        res.send(stdout);
-    });
+app.post('/runSim', function(req,res){
+    console.log(req.body);
+	var id = uuid.v1();
+	var filename = 'requests/' + id + '.json'
+	fs.writeFile(filename,JSON.stringify({
+		nodes: parseInt(req.body.nodes),
+		loss: parseFloat(req.body.loss),
+		termination: parseInt(req.body.termination)
+	}),function(err){
+		if(err){
+			return console.log(err);
+		}
+		console.log(filename + ' saved');
+	
+		var cmd = '../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
+		console.log('running: ' + cmd);
+		exec(cmd, function (error,stdout,stderr){
+			console.log('stdout: ' + stdout);
+			console.log('stderr: ' + stderr);
+			if (error != null){
+				res.send(stdout + '<br>' + error);
+			}
+			else{
+				res.send(stdout);
+			}
+		});
+	});
 });
 
 // catch 404 and forward to error handler
@@ -65,5 +86,4 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.listen(80)
 module.exports = app;
