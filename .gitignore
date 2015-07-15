@@ -18,3 +18,9 @@ _build/
 # oasis generated files
 setup.data
 setup.log
+
+#installed node modules
+web/node_modules/
+
+#any request to website
+web/requests/
