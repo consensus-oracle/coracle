@@ -22,7 +22,10 @@ let t =
   let output_file =
     Arg.(value & opt (some string) None & info ["o";"output"] ~docv:"OUTPUT FILE"
       ~doc:"name of output file, print to stdout if not set") in  
-  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace $ output_file) in
+  let no_sanity =
+    Arg.(value & flag & info ["ns"; "not_sanitized"] ~docv:"DO NOT SANITY CHECK" 
+      ~doc:"disable sanity check on input values") in  
+  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace $ output_file $ no_sanity) in
   match Term.eval (cmd_t, Docs.info) with `Ok x -> x |_ -> exit 1
 
  let () = t
