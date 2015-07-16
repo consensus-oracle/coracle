@@ -48,19 +48,19 @@ $(document).ready(function () {
 	function validateSettings(){
 		var valid = true;
 		if (!checkBounds(parseInt($('#numNodes').val()),2,maxNodes)){
-			$('#numNodes').after(validationError("Must be an integer between 2 and " + maxNodes));
+			$('#nodesDiv').after(validationError("Must be an integer between 2 and " + maxNodes));
       $('#nodesDiv').addClass('has-error');
 			valid = false;
 		}
 		
 		if (!checkBounds(parseFloat($("#lossSlider").val()),0,1)){
-			$('#loss').after(validationError("Must be a number between 0 and 100"));
+			$('#lossDiv').after(validationError("Must be a number between 0 and 100"));
       $('#lossDiv').addClass('has-error');
 			valid = false;
 		}
 		
 		if (!checkBounds(parseInt($('#termination').val()),1,maxTermination)){
-			$('#termination').after(validationError("Must be an integer between 1 and " + maxTermination));
+			$('#terminationDiv').after(validationError("Must be an integer between 1 and " + maxTermination));
       $('#terminationDiv').addClass('has-error');
 			valid = false;
 		}
