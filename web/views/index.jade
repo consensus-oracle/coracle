@@ -7,23 +7,25 @@ block content
       h1 Coracle
     
     form
-      div.form-group
-        label(for='numNodes') Nodes:
+      div.form-group#nodesDiv
+        label.control-label(for='numNodes') Nodes:
           input.form-control#numNodes(type='number', min='2', max='20',step='1',value='2')
-      div.form-group
-        label(for='lossSlider') Loss:
+      div.form-group#lossDiv
+        label.control-label(for='lossSlider') Loss:
         div
           span(style={'padding-right':'15px'}) 0
           input.form-control#lossSlider(data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="0.1")
           span(style={'padding-left':'15px'}) 1
-      div.form-group
-        label(for='termination') Termination:
-          input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
+      div.form-group#terminationDiv
+        label.control-label(for='termination') Termination:
+        input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
           
       button.btn.btn-primary#runSim Run Simulation
 
 
-    div#SimResults
+    div.panel.panel-default.hidden#resultsPanel
+      div.panel-heading Results
+      div#SimResults
   
   script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src="/javascripts/main.js")
