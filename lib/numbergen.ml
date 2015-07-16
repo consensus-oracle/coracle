@@ -1,4 +1,6 @@
-let () = Random.self_init ()
+let init = function
+  | None -> Random.self_init ()
+  | Some seed -> Random.init seed
 
 let maybe p = (Random.float 1.0 <= p)
 

@@ -19,6 +19,7 @@ let min = {
   n = 2;
   loss = 0.0;
   term = 0;
+
 }
 
 let max = {

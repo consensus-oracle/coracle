@@ -24,8 +24,11 @@ let t =
       ~doc:"name of output file, print to stdout if not set") in  
   let no_sanity =
     Arg.(value & flag & info ["ns"; "not_sanitized"] ~docv:"DO NOT SANITY CHECK" 
-      ~doc:"disable sanity check on input values") in  
-  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace $ output_file $ no_sanity) in
+      ~doc:"disable sanity check on input values") in
+  let seed =
+    Arg.(value & opt (some int) None & info ["s";"seed"] ~docv:"RANDOM SEED"
+      ~doc:"set a random seed for reproducibility") in 
+  let cmd_t = Term.(pure R.start $ n $ loss $ termination $ config_file $ trace $ output_file $ no_sanity $ seed) in
   match Term.eval (cmd_t, Docs.info) with `Ok x -> x |_ -> exit 1
 
  let () = t
