@@ -19,7 +19,16 @@ block content
       div.form-group#terminationDiv
         label.control-label(for='termination') Termination:
           input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
-          
+      
+      div.form-group#advancedSettingsButton
+        button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
+          aria-expanded='fa$()lse') Advanced Settings
+      
+      div.collapse#advancedSettings
+        div.well
+          label.control-label(for='randomSeed') Random Seed:
+            input.form-control#randomSeed(type='number',min='0',max='10000',value=parseInt(Math.random()*10000))
+      
       button.btn.btn-primary#runSim Run Simulation
 
 
@@ -30,4 +39,5 @@ block content
   script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src="/javascripts/main.js")
   script(src='/javascripts/bootstrap-slider.js')
+  script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js//bootstrap.min.js')
   link(href='/stylesheets/bootstrap-slider.css',rel='stylesheet')
