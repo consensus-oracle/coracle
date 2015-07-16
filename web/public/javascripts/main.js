@@ -1,6 +1,8 @@
 var maxNodes = 20;
 var maxTermination = 100000;
 $(document).ready(function () {
+  $("#lossSlider").slider({
+  });
     $('#runSim').click(function () {
 		//clear all validationErrors and results
 		$('.validationError').remove();
@@ -12,7 +14,7 @@ $(document).ready(function () {
 			$.post( '/runSim',
 			{
 			nodes: parseInt($('#numNodes').val()),
-			loss: parseFloat($('#loss').val()),
+			loss: parseFloat($("#lossSlider").val()),
 			termination: parseInt($('#termination').val())
 			}, 
 			function(response){
@@ -43,7 +45,7 @@ $(document).ready(function () {
 			valid = false;
 		}
 		
-		if (!checkBounds(parseFloat($('#loss').val()),0,100)){
+		if (!checkBounds(parseFloat($("#lossSlider").val()),0,1)){
 			$('#loss').after(validationError("Must be a number between 0 and 100"));
 			valid = false;
 		}

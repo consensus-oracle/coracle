@@ -1,20 +1,31 @@
 extends layout
 
 block content
-  h1 Coracle
-  label Nodes:
-  input#numNodes(type='number', min='2', max='20',step='1',value='2')
-  br
-  label Loss:
-  input#loss(type='text',value='0.0')
-  br
-  label Termination:
-  input#termination(type='number', min='500', max='100000',step='500',value='1000')
-  br
-  button#runSim Run Simulation
+  
+  div.container
+    div.jumbotron
+      h1 Coracle
+    
+    form
+      div.form-group
+        label(for='numNodes') Nodes:
+          input.form-control#numNodes(type='number', min='2', max='20',step='1',value='2')
+      div.form-group
+        label(for='lossSlider') Loss:
+        div
+          span(style={'padding-right':'15px'}) 0
+          input.form-control#lossSlider(data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="0.1")
+          span(style={'padding-left':'15px'}) 1
+      div.form-group
+        label(for='termination') Termination:
+          input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
+          
+      button.btn.btn-primary#runSim Run Simulation
 
-  t
-  div#SimResults
+
+    div#SimResults
   
   script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src="/javascripts/main.js")
+  script(src='/javascripts/bootstrap-slider.js')
+  link(href='/stylesheets/bootstrap-slider.css',rel='stylesheet')
