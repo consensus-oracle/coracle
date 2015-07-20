@@ -46,7 +46,7 @@ let config_file = {
 
 let trace = {
     name = "trace";
-    sname = "t";
+    sname = "r";
     doc = "enable tracing";
     default = Some false;
     min = None;
