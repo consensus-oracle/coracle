@@ -16,7 +16,8 @@ $(document).ready(function () {
 			{
 			nodes: parseInt($('#numNodes').val()),
 			loss: parseFloat($("#lossSlider").val()),
-			termination: parseInt($('#termination').val())
+			termination: parseInt($('#termination').val()),
+			seed: parseInt($("#randomSeed").val()),
 			}, 
 			function(response){
 				var result;
