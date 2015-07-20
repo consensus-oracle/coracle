@@ -145,8 +145,10 @@ This week focuses on supporting clients and VRR.
   - [ ] parameter to set number of clients
   - [ ] parameter to set regularly of client requires
 - [ ] Adding tabs (or similar) to make more space on the page e.g. seperate 'parmeters' and 'results' tabs and seperate 'general', 'raft' and 'vrr' tabs within the 'parameters page'
+- [ ] Change JSON file naming from UUID to date,time,seed
 
 ###### Demo \& Housekeeping
+- [ ] Add web demo setup instruction to Readme
 
 #### Plan (2/8)
 This week focuses on supporting inputting heterozygous networks.
