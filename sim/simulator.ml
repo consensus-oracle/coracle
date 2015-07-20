@@ -18,10 +18,10 @@ module Simulate =
 
   let start n loss term config trace output_file no_sanity seed = 
     let para = match config with
-      | None -> Parameters.({n;term;loss})
-      | Some filename -> Parameters.of_json filename in
+      | None -> Parameters.({n;term;loss;seed})
+      | Some filename -> Json_parser.parameters_from_file filename in
     if no_sanity then (* no sanity checking () *) () else Parameters.check_sanity para;
-    Numbergen.init seed;
+    Numbergen.init para.seed;
     let config = C.parse_config "" in
     run (States.init (fun n -> C.init n config) para) (Events.init para) trace output_file
 
