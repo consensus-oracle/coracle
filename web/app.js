@@ -34,6 +34,7 @@ app.post('/runSim', function(req,res){
 		nodes: parseInt(req.body.nodes),
 		loss: parseFloat(req.body.loss),
 		termination: parseInt(req.body.termination)
+		seed: parseInt(req.body.seed)
 	}),function(err){
 		if(err){
 			return console.log(err);
