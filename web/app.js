@@ -33,7 +33,7 @@ app.post('/runSim', function(req,res){
 	fs.writeFile(filename,JSON.stringify({
 		nodes: parseInt(req.body.nodes),
 		loss: parseFloat(req.body.loss),
-		termination: parseInt(req.body.termination)
+		termination: parseInt(req.body.termination),
 		seed: parseInt(req.body.seed)
 	}),function(err){
 		if(err){
