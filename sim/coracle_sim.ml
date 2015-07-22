@@ -9,11 +9,11 @@ let pull = function
 let protocol_selector config_file trace output_file no_sanity =
   match Json_handler.get_protocol config_file with
   | `Raft -> 
-    let module R = Simulator.Simulate(Raft) in 
-    R.start config_file trace output_file no_sanity
+     let module R = Simulator.Simulate(Raft) in
+     R.start config_file trace output_file no_sanity
   | `Dummy -> 
-    let module R = Simulator.Simulate(Dummy) in 
-    R.start config_file trace output_file no_sanity
+    let module D = Simulator.Simulate(Dummy) in 
+    D.start config_file trace output_file no_sanity
 
 
 let t =
