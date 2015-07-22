@@ -1,6 +1,7 @@
 open Common
 open Rpcs
 open Io
+open State
 
 type eventsig = State.t -> State.t option * rpc output list
 
@@ -62,7 +63,8 @@ let dispatch_vote_request (state:State.t) id =
   last_term=state.last_term; })
 
 let start_follower state = 
-  let timeout = Numbergen.uniform 0 2000 in
+  let (min,max) = state.config.election_timeout in
+  let timeout = Numbergen.uniform min max in
   (None, [SetTimeout (to_span timeout,Heartbeat)])
 
 let start_election (state:State.t) = 

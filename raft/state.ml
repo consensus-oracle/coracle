@@ -33,7 +33,7 @@ let string_of_mode_state = function
   | Leader _ -> "Leader"
 
 type config = {
-  timeout: int;
+  election_timeout: int * int;
 }
 
 type t = {
