@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 1ce679970d72eed6fc74e314be537e3e)
+# DO NOT EDIT (digest: 98d70713ed680974825d298634f2bb91)
 version = "0.1"
 description = "Simulation of consensus algorithms in heterogeneous networks"
-requires = "lib sexplib sexplib.syntax"
+requires = "lib sexplib sexplib.syntax yojson"
 archive(byte) = "raft.cma"
 archive(byte, plugin) = "raft.cma"
 archive(native) = "raft.cmxa"

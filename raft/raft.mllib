@@ -1,8 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 209958a4923385ebcb4f7bb0046c7e26)
+# DO NOT EDIT (digest: 312f0b255df0ff1ad77f63190e9b1c85)
 Election
 Election_io
 State
+Json_parser
 Rpcs
 Raft
 # OASIS_STOP

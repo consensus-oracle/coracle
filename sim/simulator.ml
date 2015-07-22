@@ -16,13 +16,13 @@ module Simulate =
       | None -> Events.output_of_stats es output_file in 
   eval ss es
 
-  let start n loss term config trace output_file no_sanity seed = 
-    let para = match config with
-      | None -> Parameters.({n;term;loss;seed})
-      | Some filename -> Json_parser.parameters_from_file filename in
-    if no_sanity then (* no sanity checking () *) () else Parameters.check_sanity para;
+  let start config_file trace output_file no_sanity = 
+    let json = Json_handler.json_from_file config_file in
+    let para = Json_handler.parameters_from_json json in
+    let protocol_json = Json_handler.proto_json_from_json json in
+    if no_sanity then () else Parameters.check_sanity para;
     Numbergen.init para.seed;
-    let config = C.parse_config "" in
+    let config = C.parse_config protocol_json in
     run (States.init (fun n -> C.init n config) para) (Events.init para) trace output_file
 
 end

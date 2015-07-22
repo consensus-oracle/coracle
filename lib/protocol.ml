@@ -1,11 +1,12 @@
 open Common
 open Io
+open Yojson.Safe
 
 module type CONSENSUS = sig
   
 type state
 type config
-val parse_config: string -> config
+val parse_config: json -> config
 val init: id list -> config -> state
 val add_peers: id list -> state -> state
 val state_to_string: state -> string 

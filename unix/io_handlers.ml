@@ -1,6 +1,7 @@
 open Lwt
 open Io
 open Common
+open Yojson
 
 module UnixInterface = 
   functor (C: Protocol.CONSENSUS) -> struct
@@ -72,10 +73,11 @@ module UnixInterface =
     Lwt.on_cancel t (fun () -> cont := false);
     t
 
-  let setup id max =
+  let setup id max config_file =
     Printf.printf "Starting up";
     let peers = create_nodes max id 0 in
-    set_state (Some (C.init peers (C.parse_config "")));
+    let json = Safe.from_file config_file in
+    set_state (Some (C.init peers (C.parse_config json)));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in
     let fd = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
