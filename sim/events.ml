@@ -4,14 +4,36 @@ open Io
 type 'msg event = time * id * 'msg input
 type 'msg queue = 'msg event list
 
-type 'msg t = {
-  queue: 'msg queue;
-  queue_id: id;
+type data = {
   msgsent: int;
   msgrecv: int;
   msgdrop: int;
+  msgflight: int;
+}
+
+let inital_data = {
+  msgsent = 0;
+  msgrecv = 0;
+  msgdrop = 0;
+  msgflight = 0;
+}
+
+type 'msg t = {
+  queue: 'msg queue;
+  queue_id: id;
+  data: data;
   p: Parameters.t;
   }
+
+let receive_msgs n t =
+  { t with data = {t.data with msgrecv=t.data.msgrecv+n; msgflight=t.data.msgflight-n}}
+
+let dispatch_msgs n t =
+  { t with data = {t.data with msgsent=t.data.msgsent+n; msgflight=t.data.msgflight+n}}
+
+let drop_msgs n t =
+  { t with data = {t.data with msgdrop=t.data.msgdrop+n}}
+
 
 let count f qu = 
   List.length (List.filter f qu)
@@ -33,9 +55,7 @@ let init p =
   let n = Parameters.(p.n) in
   {queue = start_events 0 n; 
   queue_id = 0;
-  msgsent=0;
-  msgrecv=0;
-  msgdrop=0;
+  data=inital_data;
   p}
 
 
@@ -47,7 +67,7 @@ let next t =
     if (time>=t.p.term) then None 
     else
       (match (time,n,e) with
-      | (_,_,PacketArrival (_,_)) -> {t with msgrecv=t.msgrecv+1}
+      | (_,_,PacketArrival (_,_)) -> receive_msgs 1 t
       | _ -> t)
     |> fun t_new -> Some ((time,n,e), {t_new with queue=xs})
 
@@ -84,9 +104,11 @@ let add id time output_events t =
   let q = cancel_timers id t.queue output_events in
   let t = {t with queue=q} in 
   let input_events = map_filter (output_to_input t id time) output_events in
-  let dispatch = count (function PacketDispatch (_,_) -> true | _ -> false) output_events in 
-  let send = count (function (_,_,PacketArrival (_,_)) -> true | _ -> false) input_events in 
-  {t with msgsent= t.msgsent+dispatch; msgdrop=t.msgdrop+(dispatch-send)}
+  let dispatched = count (function PacketDispatch (_,_) -> true | _ -> false) output_events in 
+  let sent = count (function (_,_,PacketArrival (_,_)) -> true | _ -> false) input_events in 
+  t
+  |> dispatch_msgs dispatched
+  |> dispatch_msgs (dispatched-sent)
   |> fun t_new -> List.fold_left add_one t_new input_events
 
 
@@ -97,8 +119,9 @@ let json_of_stats t =
     ("packets dispatched", `Int t.msgsent);
     ("packets received", `Int t.msgrecv);
     ("packets dropped", `Int t.msgdrop);
+    ("packets inflight", `Int t.msgflight);
     ]
 
 let output_of_stats t = function
-  | None -> to_channel stdout (json_of_stats t)
-  | Some filename -> to_file filename (json_of_stats t)
+  | None -> to_channel stdout (json_of_stats t.data)
+  | Some filename -> to_file filename (json_of_stats t.data)
