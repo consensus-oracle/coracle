@@ -1,3 +1,4 @@
+open Common
 open Yojson.Safe
 
 val json_from_file: string -> json

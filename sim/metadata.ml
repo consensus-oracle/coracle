@@ -1,12 +1,4 @@
-(* metadata for each simulation parameter *)
-type 'a parameter = {
-  name: string;
-  sname: string;
-  doc: string;
-  default: 'a option;
-  min: 'a option;
-  max: 'a option;
-}
+open Common
 
 let n = {
     name = "nodes";
