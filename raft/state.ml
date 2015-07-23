@@ -34,6 +34,7 @@ let string_of_mode_state = function
 
 type config = {
   election_timeout: int * int;
+  heartbeat_interval: int;
 }
 
 type t = {

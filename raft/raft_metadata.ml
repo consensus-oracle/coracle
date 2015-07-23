@@ -15,3 +15,12 @@ let election_timer_max = {
     min = Some 0; (*actually it must be more than election timer min *)
     max = None;
   }
+
+ let heartbeat_interval = {
+    name = "heartbeat_interval";
+    sname = "h";
+    doc = "How regularly a Raft leader broadcasts a heartbeat AppendEntries RPC to all other nodes";
+    default = Some 100;
+    min = Some 0;
+    max = None;
+  }
