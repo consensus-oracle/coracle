@@ -90,12 +90,6 @@ let add id time output_events t =
   |> fun t_new -> List.fold_left add_one t_new input_events
 
 
-
-let string_of_stats t =
-  Printf.sprintf 
-  "packets dispatched: %i\npackets received: %i\npackets dropped: %i\n"
-  t.msgsent t.msgrecv t.msgdrop
-
 open Yojson.Safe
 
 let json_of_stats t =

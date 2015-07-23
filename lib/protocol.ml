@@ -14,7 +14,7 @@ val state_to_string: state -> string
 type msg
 val msg_serialize: msg -> string
 val msg_deserialize: string -> msg
-val msg_to_string: msg -> string
+val msg_to_json: msg -> json
 val eval: msg input -> state -> state option * msg output list  
 
 end 

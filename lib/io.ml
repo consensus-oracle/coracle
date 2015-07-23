@@ -2,8 +2,14 @@
 	between pure algorithm backends and the simulation/lwt frontends *)
 
 open Common
+open Yojson.Safe
 
 type timer = Election | Heartbeat | Leadership
+
+let timer_to_string = function
+  | Election -> "election"
+  | Heartbeat -> "heartbeat"
+  | Leadership -> "leadership"
 
 type 'rpc input = 
   | Startup of id 
@@ -15,12 +21,32 @@ type 'rpc output =
   | SetTimeout of span * timer
   | CancelTimeout of timer
 
-let input_to_string rpc_to_string = function
-  | Startup id -> "startup "^ (string_of_id id)
-  | PacketArrival (id,pkt) -> "from: "^(string_of_id id) ^" payload: "^(rpc_to_string pkt)
-  | Timeout _-> "timeout"
+let input_to_json rpc_to_json = function
+  | Startup id -> 
+    `Assoc [
+      ("event",`String "startup node")]
+  | PacketArrival (id,pkt) ->
+    `Assoc [
+      ("event",`String "packet arrival");
+      ("from", `Int id);
+      ("payload", rpc_to_json pkt)]
+  | Timeout timer -> 
+      `Assoc [
+      ("event",`String "timeout trigger");
+      ("timeout type", `String (timer_to_string timer))]
 
-let output_to_string rpc_to_string  = function
-  | PacketDispatch (id,pkt) -> "to: "^(string_of_id id) ^" payload: "^(rpc_to_string pkt)
-  | SetTimeout (s,timer) -> "set timeout for"^string_of_float (sec_of_span s)
-  | CancelTimeout timer -> "cancel timeout"
+let output_to_json rpc_to_json  = function
+  | PacketDispatch (id,pkt) ->
+    `Assoc [
+      ("event",`String "packet dispatch");
+      ("to", `Int id);
+      ("payload", rpc_to_json pkt)]
+  | SetTimeout (s,timer) ->
+    `Assoc [
+      ("event",`String "starting timer");
+      ("timeout type", `String (timer_to_string timer));
+      ("time", `Int s)]
+  | CancelTimeout timer ->   
+    `Assoc [
+      ("event",`String "cancelling timer");
+      ("timeout type", `String (timer_to_string timer));]

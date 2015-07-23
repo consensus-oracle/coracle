@@ -1,7 +1,7 @@
 open Lwt
 open Io
 open Common
-open Yojson
+open Yojson.Safe
 
 module UnixInterface = 
   functor (C: Protocol.CONSENSUS) -> struct
@@ -30,7 +30,7 @@ module UnixInterface =
     List.exists ((=) t) !cancelled_timers
 
   let rec dispatcher fd event = 
-    Printf.printf "%s\n%!"(output_to_string C.msg_to_string event);
+    to_channel stdout (output_to_json C.msg_to_json event);
     match event with
     | PacketDispatch (id,pkt) -> 
         let buf = Lwt_bytes.of_string (C.msg_serialize pkt) in
@@ -44,7 +44,7 @@ module UnixInterface =
         cancel_timer t
 
   and pass_to_raft fd event = 
-    Printf.printf "%s\n%!"(input_to_string C.msg_to_string event);
+    to_channel stdout (input_to_json C.msg_to_json event);
     let (s,e) = C.eval event (get_state()) in 
     set_state s;
     C.state_to_string (get_state ())
@@ -76,7 +76,7 @@ module UnixInterface =
   let setup id max config_file =
     Printf.printf "Starting up";
     let peers = create_nodes max id 0 in
-    let json = Safe.from_file config_file in
+    let json = from_file config_file in
     set_state (Some (C.init peers (C.parse_config json)));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in

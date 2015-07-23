@@ -20,11 +20,11 @@ let add_peers new_peers s = {s with peers=s.peers@new_peers}
 let state_to_string s = string_of_int s.counter
 
 type msg = Hello | HelloBack
-let msg_to_string = function
-  | Hello -> "hello"
-  | HelloBack -> "hello back"
+let msg_to_json = function
+  | Hello -> `String "hello"
+  | HelloBack -> `String "hello back"
 
-let msg_serialize = msg_to_string
+let msg_serialize x = to_string (msg_to_json x)
 
 let msg_deserialize = function
   | "hello" -> Hello
