@@ -43,6 +43,7 @@ let json_from_file filename =
       loss = find_float loss config;
       term = find_int term config;
       seed = find_int_option seed config;
+      latency = find_int latency config;
       }
    | _ -> raise JSON_parsing_failure
 

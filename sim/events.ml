@@ -84,7 +84,7 @@ let rec add_one t ((time,_,_) as y) =
 let output_to_input t origin time = function
   | PacketDispatch (dest,pkt) -> 
   if (Numbergen.maybe Parameters.(t.p.loss)) then None
-  else Some (incr time (to_span 30), dest, PacketArrival (origin,pkt))
+  else Some (incr time t.p.latency, dest, PacketArrival (origin,pkt))
   | SetTimeout (n,timer) -> Some (incr time n,origin,Timeout timer)
   | CancelTimeout _ -> 
     (*should have been removed by cancel_timers *)

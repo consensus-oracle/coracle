@@ -71,3 +71,12 @@ let output_file = {
     min = None;
     max = None;
 }
+
+let latency = {
+    name = "latency";
+    sname = "l";
+    doc = "simulated packet latency";
+    default = Some 10;
+    min = Some 0;
+    max = None;
+  }
