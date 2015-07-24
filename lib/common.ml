@@ -58,3 +58,27 @@ let rec create_nodes max me now =
 exception Not_implemented of string
 
 let bugs_to = "bug reports to https://github.com/consensus-oracle/coracle/issues"
+
+(* metadata for each simulation parameter *)
+type 'a parameter = {
+  name: string;
+  sname: string;
+  doc: string;
+  default: 'a option;
+  min: 'a option;
+  max: 'a option;
+}
+
+exception Sanity_check_failure of string
+
+let check_parameter x meta =
+  match meta.min with
+  | None -> (* no min to check *) ()
+  | Some m when m<=x -> (* value is above min *) ()
+  | Some m -> raise (Sanity_check_failure (
+    Printf.sprintf "%s is %i, it must above (or equal to) %i." meta.name x m));
+  match meta.max with 
+  | None -> (* no max to check *) ()
+  | Some m when m>=x -> (* value is below max *) ()
+  | Some m -> raise (Sanity_check_failure (
+    Printf.sprintf "%s is %i, it must below (or equal to) %i." meta.name x m))

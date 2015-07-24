@@ -1,12 +1,4 @@
-(* metadata for each simulation parameter *)
-type 'a parameter = {
-  name: string;
-  sname: string;
-  doc: string;
-  default: 'a option;
-  min: 'a option;
-  max: 'a option;
-}
+open Common
 
 let n = {
     name = "nodes";
@@ -79,3 +71,12 @@ let output_file = {
     min = None;
     max = None;
 }
+
+let latency = {
+    name = "latency";
+    sname = "l";
+    doc = "simulated packet latency";
+    default = Some 10;
+    min = Some 0;
+    max = None;
+  }

@@ -1,3 +1,4 @@
+open Common
 open Yojson
 open Metadata
 open Parameters
@@ -32,12 +33,30 @@ let find_float meta assoc_list =
 
 
 (* given a json file, return record of parameters *)
- let parameters_from_file filename = 
-   match Safe.from_file filename with
+let json_from_file filename = 
+  try Safe.from_file filename with
+   _ -> raise JSON_parsing_failure
+
+ let parameters_from_json = function
    | `Assoc config -> {
       n = find_int n config; 
       loss = find_float loss config;
       term = find_int term config;
       seed = find_int_option seed config;
+      latency = find_int latency config;
       }
    | _ -> raise JSON_parsing_failure
+
+let get_protocol filename = try (
+  Safe.from_file filename
+  |> function `Assoc config -> config
+  |> List.assoc "consensus"
+  |> function `Assoc proto -> proto
+  |> List.assoc "protocol" 
+  |> function `String str -> str
+  |> function "raft" -> `Raft | "vrr" -> `VRR | "dummy" -> `Dummy
+  ) with _ -> raise JSON_parsing_failure
+
+let proto_json_from_json = function 
+  | `Assoc config -> List.assoc "consensus" config
+  | _ -> raise JSON_parsing_failure

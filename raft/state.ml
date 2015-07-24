@@ -1,4 +1,5 @@
-open Common 
+open Common
+open Yojson.Safe
 
 type follower = {
   voted_for: id option;
@@ -32,11 +33,8 @@ let string_of_mode_state = function
   | Leader _ -> "Leader"
 
 type config = {
-  timeout: int;
-}
-
-let parse_config _ = {
-  timeout = 200;
+  election_timeout: int * int;
+  heartbeat_interval: int;
 }
 
 type t = {

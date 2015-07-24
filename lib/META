@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5765442de6840817c82e72254cde3c19)
+# DO NOT EDIT (digest: 5b92f464f2468df51d471663d92efef1)
 version = "0.1"
 description = "Simulation of consensus algorithms in heterogeneous networks"
-requires = "sexplib sexplib.syntax cmdliner"
+requires = "sexplib sexplib.syntax cmdliner yojson"
 archive(byte) = "lib.cma"
 archive(byte, plugin) = "lib.cma"
 archive(native) = "lib.cmxa"

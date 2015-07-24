@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 7e8a0b875370d42e4e2f2771da6e57ec)
+# DO NOT EDIT (digest: b0f94e4eadf1beb9c99b7fb772730ac6)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -24,12 +24,21 @@ true: annot, bin_annot
 <lib/*.ml{,i,y}>: pkg_cmdliner
 <lib/*.ml{,i,y}>: pkg_sexplib
 <lib/*.ml{,i,y}>: pkg_sexplib.syntax
+<lib/*.ml{,i,y}>: pkg_yojson
 # Library raft
 "raft/raft.cmxs": use_raft
 <raft/*.ml{,i,y}>: pkg_cmdliner
 <raft/*.ml{,i,y}>: pkg_sexplib
 <raft/*.ml{,i,y}>: pkg_sexplib.syntax
+<raft/*.ml{,i,y}>: pkg_yojson
 <raft/*.ml{,i,y}>: use_lib
+# Library dummy
+"dummy/dummy.cmxs": use_dummy
+<dummy/*.ml{,i,y}>: pkg_cmdliner
+<dummy/*.ml{,i,y}>: pkg_sexplib
+<dummy/*.ml{,i,y}>: pkg_sexplib.syntax
+<dummy/*.ml{,i,y}>: pkg_yojson
+<dummy/*.ml{,i,y}>: use_lib
 # Library unix
 "unix/unix.cmxs": use_unix
 # Library simulator
@@ -41,6 +50,7 @@ true: annot, bin_annot
 "sim/coracle_sim.byte": pkg_sexplib
 "sim/coracle_sim.byte": pkg_sexplib.syntax
 "sim/coracle_sim.byte": pkg_yojson
+"sim/coracle_sim.byte": use_dummy
 "sim/coracle_sim.byte": use_lib
 "sim/coracle_sim.byte": use_raft
 "sim/coracle_sim.byte": use_simulator
@@ -50,6 +60,7 @@ true: annot, bin_annot
 <sim/*.ml{,i,y}>: pkg_sexplib
 <sim/*.ml{,i,y}>: pkg_sexplib.syntax
 <sim/*.ml{,i,y}>: pkg_yojson
+<sim/*.ml{,i,y}>: use_dummy
 <sim/*.ml{,i,y}>: use_lib
 <sim/*.ml{,i,y}>: use_raft
 <sim/*.ml{,i,y}>: use_simulator
@@ -63,6 +74,7 @@ true: annot, bin_annot
 "unix/coracle_unix.byte": pkg_lwt.unix
 "unix/coracle_unix.byte": pkg_sexplib
 "unix/coracle_unix.byte": pkg_sexplib.syntax
+"unix/coracle_unix.byte": pkg_yojson
 "unix/coracle_unix.byte": use_lib
 "unix/coracle_unix.byte": use_raft
 "unix/coracle_unix.byte": use_unix
@@ -75,6 +87,7 @@ true: annot, bin_annot
 <unix/*.ml{,i,y}>: pkg_lwt.unix
 <unix/*.ml{,i,y}>: pkg_sexplib
 <unix/*.ml{,i,y}>: pkg_sexplib.syntax
+<unix/*.ml{,i,y}>: pkg_yojson
 <unix/*.ml{,i,y}>: use_lib
 <unix/*.ml{,i,y}>: use_raft
 <unix/*.ml{,i,y}>: use_unix

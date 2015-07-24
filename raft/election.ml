@@ -1,6 +1,7 @@
 open Common
 open Rpcs
 open Io
+open State
 
 type eventsig = State.t -> State.t option * rpc output list
 
@@ -51,7 +52,7 @@ let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) =
   | Higher,_ ->
     (Some {state with term=pkt.term;
         mode= Follower {voted_for= Some id}},
-      [PacketDispatch (id, reply state.term true)])
+      [PacketDispatch (id, reply pkt.term true)])
 
 let dispatch_vote_request (state:State.t) id = 
   let open RequestVoteArg in 
@@ -62,7 +63,8 @@ let dispatch_vote_request (state:State.t) id =
   last_term=state.last_term; })
 
 let start_follower state = 
-  let timeout = Numbergen.uniform 0 2000 in
+  let (min,max) = state.config.election_timeout in
+  let timeout = Numbergen.uniform min max in
   (None, [SetTimeout (to_span timeout,Heartbeat)])
 
 let start_election (state:State.t) = 
@@ -71,10 +73,6 @@ let start_election (state:State.t) =
    CancelTimeout Heartbeat ::
    SetTimeout (timeout,Election) ::
    List.map (dispatch_vote_request state) state.node_ids)
-
-let start_leader (state:State.t) =
-  (Some {state with mode=State.leader},
-  [CancelTimeout Election])
 
 let won (state:State.t) = 
   match state.mode with
@@ -91,7 +89,7 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) =
       let state = 
         {state with mode = Candidate 
         {cand with votes_from= add_unique id cand.votes_from}} in
-      if won state then start_leader state else (Some state,[]) 
+      if won state then Replication.start_leader state else (Some state,[]) 
     | false -> (None,[]))
   | Same, Leader _ | Higher, Leader _ ->
     (* ignore votes as no longer needed *)
