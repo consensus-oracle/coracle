@@ -123,49 +123,51 @@ The current codebase is structured as follows:
 This week focuses on supporting clients and VRR.
 
 ###### Common backend
-- [ ] Adding support for client and client based events
-- [ ] Remove redundency in parsing logic between the JSON and command line interfaces
-- [ ] Adding protocol specific parameters
+- [x] Remove redundency in parsing logic between the JSON and command line interfaces
+- [x] Adding protocol specific parameters
 
 ###### Raft
-- [ ] Support AppendEntries
-- [ ] Support Client Interation
+- [x] Support AppendEntries
+
 
 ###### VRR
 - [ ] Implement basic VRR (assuming access to persistent storage)
 
 
 ###### Simulation frontend (OCaml)
-- [ ] Support for simulating clients
-- [ ] Support for basic client workload
-- [ ] Allow random seed to be set by JSON/command line interface
+- [x] Allow random seed to be set by JSON/command line interface
 
 ###### Simulation frontend (JS)
-- [ ] Basic client support 
-  - [ ] parameter to set number of clients
-  - [ ] parameter to set regularly of client requires
 - [ ] Adding tabs (or similar) to make more space on the page e.g. seperate 'parmeters' and 'results' tabs and seperate 'general', 'raft' and 'vrr' tabs within the 'parameters page'
 - [ ] Change JSON file naming from UUID to date,time,seed
 
 ###### Demo \& Housekeeping
 - [ ] Add web demo setup instruction to Readme
+- [ ] add web/ and other file change to file overview in Readme
 
 #### Plan (2/8)
-This week focuses on supporting inputting heterozygous networks.
+This week focuses on supporting inputting heterozygous networks and supporting clients.
 
 ###### Common backend
 - [ ] Support for simulated node failure
+- [ ] Adding support for client and client based events
 
 ###### Raft
+- [ ] Support Client Interation
 
 ###### VRR
 
 ###### Simulation frontend (OCaml)
 - [ ] Ability to store and query hetrozengous networks, later labelled with parameters like node failure rates, link direction, link latency, probability of packet loss, bandwidth etc..
+- [ ] Support for simulating clients
+- [ ] Support for basic client workload
 
 ###### Simulation frontend (JS)
 - [ ] Allow the user to select between a set of sample network topologies
 - [ ] Allow the user to draw static network topologies and label it
+- [ ] Basic client support 
+  - [ ] parameter to set number of clients
+  - [ ] parameter to set regularly of client requires
 
 ###### Demo \& Housekeeping
 
@@ -173,6 +175,7 @@ This week focuses on supporting inputting heterozygous networks.
 This week focuses on presenting simulation results.
 
 ###### Common backend
+
 
 ###### Raft
 
