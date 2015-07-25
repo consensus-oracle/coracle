@@ -30,6 +30,7 @@ $(document).ready(function () {
 					result = createTable(JSON.parse(response.stdout));
 				}
         $('#resultsPanel').removeClass('hidden');
+        $('#resultsTab').tab('show');
 				$('#SimResults').html(result);
 				$('#runSim').html(oldButtonText);
 				$('#runSim').removeAttr("disabled");
