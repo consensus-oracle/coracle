@@ -43,7 +43,7 @@ Library simulator
   Path:       sim
   Findlibname: simulator
   Modules:
-    Events, Metadata, Parameters, Json_handler, States, Simulator
+    Events, Metadata, Parameters, Json_handler, Network, States, Simulator
   BuildDepends: lwt, lwt.unix, lib, yojson
   
 Executable coracle_sim
