@@ -29,7 +29,12 @@
 					{"id":4, "type":"s", "active":true},
 					{"id":5, "type":"s", "active":true},
 					{"id":6, "type":"s", "active":true},
-			 	] 
+			 	],
+			 	"nodes": [
+			    {"id":1, "active": true},
+			    {"id":2, "active": true},
+			    {"id":3, "active": true},
+			 	]
 		} ]
 	}
 }
