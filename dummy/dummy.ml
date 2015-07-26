@@ -17,7 +17,7 @@ let parse_config (json:json) =
 
 let init peers id = {peers; counter=0; say_hello_to=id}
 let add_peers new_peers s = {s with peers=s.peers@new_peers}
-let state_to_string s = string_of_int s.counter
+let state_to_json s = `Assoc [("counter", `Int s.counter)]
 
 type msg = Hello | HelloBack
 let msg_to_json = function

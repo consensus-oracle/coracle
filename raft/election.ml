@@ -37,6 +37,12 @@ let reply term yes =
   votegranted=yes;
   }
 
+let cancel_timers (state:State.t) = 
+ match state.mode with
+  | Follower _ -> [CancelTimeout Heartbeat]
+  | Candidate _ -> [CancelTimeout Election]
+  | Leader _ -> [CancelTimeout Leadership]
+
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) =
   match check_terms pkt.term state, state.mode with
@@ -82,8 +88,13 @@ let won (state:State.t) =
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) =
   match check_terms pkt.term state, state.mode with
-  | Invalid, _ -> (None,[])
-  | Same, Candidate cand | Higher, Candidate cand -> (
+  | Invalid, _ -> 
+    (* packet is from a behind node, ignore it *)
+    (None,[])
+  | Same, Follower _ ->
+    (* invalid vote *)
+    (None,[])
+  | Same, Candidate cand -> (
     match pkt.votegranted with
     | true -> 
       let state = 
@@ -91,9 +102,11 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) =
         {cand with votes_from= add_unique id cand.votes_from}} in
       if won state then Replication.start_leader state else (Some state,[]) 
     | false -> (None,[]))
-  | Same, Leader _ | Higher, Leader _ ->
-    (* ignore votes as no longer needed *)
+  | Same, Leader _ ->
+    (* ignore votes as no longer needed, I've already won *)
     (None,[])
-  | Same, Follower _ | Higher, Follower _ ->
-    (* invalid vote *)
-    assert false
+  | Higher, _ -> 
+    (* I am behind and need to update *)
+    let (_,events) = start_follower state in
+    (Some {state with term=pkt.term; mode=State.follower},
+      (cancel_timers state) @ events)

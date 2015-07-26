@@ -47,3 +47,6 @@ type 'a parameter = {
 
 exception Sanity_check_failure of string
 val check_parameter: int -> int parameter -> unit
+
+(* List.assoc for string with more helpful exception *)
+val json_assoc: string -> (string * 'a) list -> 'a

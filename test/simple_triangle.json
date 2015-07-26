@@ -10,7 +10,7 @@
 		"nodes":[
 			{"type":"server", "id":1},
 			{"type":"server", "id":2},
-			{"type":"server", "id":3},
+			{"type":"server", "id":3}
 		],
 		"links":[
 			{"start":1, "end":2, "id":1},
@@ -18,7 +18,7 @@
 			{"start":1, "end":3, "id":3},
 			{"start":3, "end":1, "id":4},
 			{"start":2, "end":3, "id":5},
-			{"start":3, "end":2, "id":6},
+			{"start":3, "end":2, "id":6}
 		],
 		"events": [ {
 				"time":0,
@@ -28,12 +28,12 @@
 					{"id":3, "type":"s", "active":true},
 					{"id":4, "type":"s", "active":true},
 					{"id":5, "type":"s", "active":true},
-					{"id":6, "type":"s", "active":true},
+					{"id":6, "type":"s", "active":true}
 			 	],
 			 	"nodes": [
 			    {"id":1, "active": true},
 			    {"id":2, "active": true},
-			    {"id":3, "active": true},
+			    {"id":3, "active": true}
 			 	]
 		} ]
 	}

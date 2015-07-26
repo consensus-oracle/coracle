@@ -9,7 +9,7 @@ type config
 val parse_config: json -> config
 val init: id list -> config -> state
 val add_peers: id list -> state -> state
-val state_to_string: state -> string 
+val state_to_json: state -> json
 
 type msg
 val msg_serialize: msg -> string

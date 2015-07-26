@@ -5,18 +5,44 @@ open Yojson.Safe
 module Simulate = 
   functor (C: Protocol.CONSENSUS) -> struct
 
-  let event_to_json time id event = 
-    pretty_to_channel ~std:true stdout (`Assoc [
+  let json_to_stdout json = 
+    pretty_to_channel ~std:true stdout json
+
+  let input_event_to_json time id event = 
+    `Assoc [
+      ("time", `Int time);
+      ("id", `Int id);
+      ("event", input_to_json C.msg_to_json event); 
+    ]
+
+  let output_event_to_json time id event = 
+    `Assoc [
+      ("time", `Int time);
+      ("id", `Int id);
+      ("event", output_to_json C.msg_to_json event); 
+    ]
+
+  let output_events_to_json time id events = 
+    `List (List.map (output_event_to_json time id) events)
+
+
+  let state_to_json time id state = 
+    `Assoc [
      ("time", `Int time);
      ("id", `Int id);
-     ("event", input_to_json C.msg_to_json event); ])
+     ("event", C.state_to_json state); ]
 
   let rec run ss es trace output_file =
     let rec eval ss es =
       match Events.next es with
       | Some ((t,n,e),new_es) ->
-        if trace then event_to_json t n e else ();
-        let (new_s,new_e) = C.eval e (States.get n ss) in
+        if trace then json_to_stdout (input_event_to_json t n e) else ();
+        let (new_s,new_e) = C.eval e (States.get n ss) in 
+        if trace then json_to_stdout (output_events_to_json t n new_e) else ();
+        (
+        match trace, new_s with
+        | true, Some state -> json_to_stdout (state_to_json t n state)
+        | _ -> ());
         eval (States.set n new_s ss) (Events.add n t new_e new_es)
       | None -> Events.output_of_stats es output_file in 
   eval ss es

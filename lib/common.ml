@@ -49,9 +49,10 @@ let rec merge char = function
   | x::xs -> (f x) ^ (string_of_list f xs)
   | [] -> ""
 
-
+(* given min id, max id and node id, create_nodes returns a list of peers 
+  e.g. create_nodes 3 1 1 returns 2 3 *)
 let rec create_nodes max me now =
-	if now=max then []
+	if now>max then []
 	else if now=me then create_nodes max me (now+1)
     else now :: (create_nodes max me (now+1))
 
@@ -82,3 +83,10 @@ let check_parameter x meta =
   | Some m when m>=x -> (* value is below max *) ()
   | Some m -> raise (Sanity_check_failure (
     Printf.sprintf "%s is %i, it must below (or equal to) %i." meta.name x m))
+
+open Yojson.Safe
+
+exception Json_parser_cannot_find_key of string
+
+let json_assoc key js =
+  try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)

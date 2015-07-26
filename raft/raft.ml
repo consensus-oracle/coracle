@@ -7,7 +7,7 @@ type config = State.config
 let parse_config = Json_parser.config_from_json
 let init = State.init
 let add_peers = State.add_nodes
-let state_to_string = State.to_string
+let state_to_json = State.to_json
 
 type msg = Rpcs.rpc
 let msg_to_json = Rpcs.rpc_to_json

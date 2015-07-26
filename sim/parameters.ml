@@ -3,16 +3,11 @@ open Metadata
 
 (* only the input parameters from JSON *)
 type t = {
-  n: int;
-  loss: float;
   term: int;
   seed: int option;
-  latency: int;
+  network: Network.t;
   }
 
 
 let check_sanity (input:t) = 
-  check_parameter input.n n;
-(*   check_parameter input.loss loss; *)
   check_parameter input.term term;
-  check_parameter input.latency latency

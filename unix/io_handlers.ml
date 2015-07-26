@@ -47,8 +47,7 @@ module UnixInterface =
     to_channel stdout (input_to_json C.msg_to_json event);
     let (s,e) = C.eval event (get_state()) in 
     set_state s;
-    C.state_to_string (get_state ())
-    |> Printf.printf "%s\n";
+    to_channel stdout (C.state_to_json (get_state ()));
     Lwt_list.iter_p (dispatcher fd) e
 
   let process buf len dst fd = 

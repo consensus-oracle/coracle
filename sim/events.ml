@@ -46,14 +46,14 @@ let rec map_filter f = function
     | Some y -> y :: (map_filter f xs))
 
 let rec start_events m n =
-    if m=n then [] 
+    if m>n then [] 
   else 
     let id = id_of_int m in 
     (to_time 0, id, Startup id) :: (start_events (m+1) n)
 
 let init p = 
-  let n = Parameters.(p.n) in
-  {queue = start_events 0 n; 
+  let n = Parameters.(Network.count_servers p.network) in
+  {queue = start_events 1 n; 
   queue_id = 0;
   data=inital_data;
   p}
@@ -82,9 +82,10 @@ let rec add_one t ((time,_,_) as y) =
 
 
 let output_to_input t origin time = function
-  | PacketDispatch (dest,pkt) -> 
-  if (Numbergen.maybe Parameters.(t.p.loss)) then None
-  else Some (incr time t.p.latency, dest, PacketArrival (origin,pkt))
+  | PacketDispatch (dest,pkt) -> (
+    match Network.find_path origin dest time t.p.network with 
+    | None -> (* no path *) None
+    | Some latency -> Some (incr time latency, dest, PacketArrival (origin,pkt)) )
   | SetTimeout (n,timer) -> Some (incr time n,origin,Timeout timer)
   | CancelTimeout _ -> 
     (*should have been removed by cancel_timers *)
