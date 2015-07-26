@@ -36,7 +36,15 @@ block content
                 input.form-control#randomSeed(type='number',min='0',max='10000',value=parseInt(Math.random()*10000))
           
           button.btn.btn-primary#runSim Run Simulation
-          
+  
+        div.well#networkView
+          svg#networkViewCanvas(width = 500, height=500)
+            circle.masterNode.draggable(cx='50',cy='50')#masterNode
+            text.label(x='40',y='70') Node
+            rect.masterConnector(x='45',y='75',width='10', height='10')#masterConnector
+            text.label(x='40',y='100') Connector
+            line.separator(x1='100',y1='0',x2='100',y2='500')
+            
       div.tab-pane#resultsTabContent(role='tabpanel')
         div.panel.panel-default.hidden#resultsPanel
           div.panel-heading Results
@@ -46,4 +54,6 @@ block content
   script(src="/javascripts/main.js")
   script(src='/javascripts/bootstrap-slider.js')
   script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js//bootstrap.min.js')
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js")
+  script(src='/javascripts/dragDropBehaviour.js')
   link(href='/stylesheets/bootstrap-slider.css',rel='stylesheet')

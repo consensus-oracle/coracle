@@ -6,3 +6,26 @@ body {
 a {
   color: #00B7FF;
 }
+
+circle.masterNode{
+  fill: green;
+  r:10;
+}
+
+circle.node{
+  fill: red;
+  r:10;
+}
+
+rect.masterConnector{
+  fill: yellow;
+}
+
+rect.connector{
+  fill: blue;
+}
+
+line.separator{
+  stroke-width:2;
+  stroke:gray;
+}
