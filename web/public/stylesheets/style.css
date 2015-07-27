@@ -6,3 +6,64 @@ body {
 a {
   color: #00B7FF;
 }
+
+rect.border{
+  opacity:0.1;
+}
+
+circle.masterServer{
+  fill: green;
+  r:10;
+}
+
+circle.server{
+  fill: red;
+  r:10;
+}
+
+circle.server.clickable{
+  fill:pink;
+}
+
+rect.masterHub{
+  fill: yellow;
+}
+
+rect.hub{
+  fill: blue;
+}
+
+rect.hub.clickable{
+  fill:pink;
+}
+
+line.separator{
+  stroke-width:2;
+  stroke:gray;
+}
+
+line.masterLLink{
+  stroke-width:2;
+  stroke:red;
+  pointer-events: none;
+}
+
+line.link{
+  stroke-width:2;
+  stroke:red;
+  pointer-events: none;
+}
+
+rect.masterLLinkButton{
+  fill:white;
+  stroke:blue;
+}
+
+rect.masterLLinkButton.mouseover{
+  fill:blue;
+  stroke:red;
+}
+
+text.label{
+  pointer-events: none;
+}

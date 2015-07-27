@@ -30,12 +30,7 @@ app.post('/runSim', function(req,res){
     console.log(req.body);
 	var id = uuid.v1();
 	var filename = 'requests/' + id + '.json'
-	fs.writeFile(filename,JSON.stringify({
-		nodes: parseInt(req.body.nodes),
-		loss: parseFloat(req.body.loss),
-		termination: parseInt(req.body.termination),
-		seed: parseInt(req.body.seed)
-	}),function(err){
+	fs.writeFile(filename,parseRequest(req),function(err){
 		if(err){
 			return console.log(err);
 		}
@@ -83,5 +78,17 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+function parseRequest(req){
+  /*return JSON.stringify({
+		nodes: parseInt(req.body.nodes),
+		loss: parseFloat(req.body.loss),
+		termination: parseInt(req.body.termination),
+		seed: parseInt(req.body.seed)
+	})
+  */
+  console.log(req.body);
+  return JSON.stringify(req.body);
+}
 
 module.exports = app;
