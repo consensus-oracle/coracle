@@ -24,7 +24,9 @@ let dispatch_heartbeat (state:State.t) global =
 
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
 let receive_append_request id pkt (state:State.t) global =
-	let global = Global.update `AE_RCV global in
+	let global = global
+		|> Global.update `AE_RCV
+		|> Global.update `AE_SND in
 	(None, [form_heartbeat_reply state id], global)
 
 let receive_append_reply id pkt (state:State.t) global =

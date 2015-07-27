@@ -28,19 +28,19 @@ let init = {
 let to_json g = 
 	`Assoc [
 		("append entries packets", `Assoc [
-			("recieved", `Int g.ae_pkts_rcv); 
+			("received", `Int g.ae_pkts_rcv); 
 			("dispatched", `Int g.ae_pkts_snd);
 		]);
 		("request votes packets", `Assoc [
-			("recieved", `Int g.rv_pkts_rcv); 
+			("received", `Int g.rv_pkts_rcv); 
 			("dispatched", `Int g.rv_pkts_snd);
 		]);
 		("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
 		("number of elections", `Assoc [
 			("started", `Int g.ele_start);
 			("won", `Int g.ele_won);
-			("lossed due to insuffient votes", `Int g.ele_restart);
-			("lossed due to step down", `Int g.ele_stepdown);
+			("lost due to insuffient votes", `Int g.ele_restart);
+			("lost due to step down", `Int g.ele_stepdown);
 		]);
 	]
 
