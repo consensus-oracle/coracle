@@ -5,8 +5,23 @@ open Yojson.Safe
 module Simulate = 
   functor (C: Protocol.CONSENSUS) -> struct
 
+  let trace_buffer = ref []
+
+  let buffer json = trace_buffer := json :: !trace_buffer
+  let buffer_many jsons = trace_buffer := jsons @ !trace_buffer
+
   let json_to_stdout json = 
     pretty_to_channel ~std:true stdout json
+
+  let flush_buffer general protocol = 
+    json_to_stdout (
+      `Assoc [
+        ("trace", `List !trace_buffer);
+        ("results", `Assoc [
+          ("general", general);
+          ("protocol specific", protocol);
+        ]);
+      ])
 
   let input_event_to_json time id event = 
     `Assoc [
@@ -23,7 +38,7 @@ module Simulate =
     ]
 
   let output_events_to_json time id events = 
-    `List (List.map (output_event_to_json time id) events)
+    List.map (output_event_to_json time id) events
 
 
   let state_to_json time id state = 
@@ -37,17 +52,16 @@ module Simulate =
       let open Events in 
       match Events.next es with
       | Next ((t,n,e),new_es) ->
-        if trace then json_to_stdout (input_event_to_json t n e) else ();
+        if trace then buffer (input_event_to_json t n e) else ();
         let (new_s,new_e,new_g) = C.eval e (States.get n ss) g in 
-        if trace then json_to_stdout (output_events_to_json t n new_e) else ();
+        if trace then buffer_many (output_events_to_json t n new_e) else ();
         (
         match trace, new_s with
-        | true, Some state -> json_to_stdout (state_to_json t n state)
+        | true, Some state -> buffer (state_to_json t n state)
         | _ -> ());
         eval (States.set n new_s ss) (Events.add n t new_e new_es) new_g
       | NoNext new_es -> 
-        Events.output_of_stats new_es output_file;
-        json_to_stdout (C.global_to_json g) in 
+        flush_buffer (Events.json_of_stats new_es) (C.global_to_json g) in 
   eval ss es global
 
   let start config_file trace output_file no_sanity = 

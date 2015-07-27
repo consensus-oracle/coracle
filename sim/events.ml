@@ -131,13 +131,9 @@ open Yojson.Safe
 
 let json_of_stats t =
   `Assoc [
-    ("packets dispatched", `Int t.msgsent);
-    ("packets received", `Int t.msgrecv);
-    ("packets dropped", `Int t.msgdrop);
-    ("packets inflight", `Int t.msgflight);
-    ("termination reason", `String (term_to_string t.reason));
+    ("packets dispatched", `Int t.data.msgsent);
+    ("packets received", `Int t.data.msgrecv);
+    ("packets dropped", `Int t.data.msgdrop);
+    ("packets inflight", `Int t.data.msgflight);
+    ("termination reason", `String (term_to_string t.data.reason));
     ]
-
-let output_of_stats t = function
-  | None -> to_channel stdout (json_of_stats t.data)
-  | Some filename -> to_file filename (json_of_stats t.data)

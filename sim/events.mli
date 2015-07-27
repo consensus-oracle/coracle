@@ -1,6 +1,7 @@
 (* Events manages the event queue for a DES *)
 open Common
 open Io
+open Yojson.Safe
 
 type 'msg event = time * id * 'msg input
 type 'msg queue = 'msg event list
@@ -18,4 +19,4 @@ val add: id -> time -> 'msg output list -> 'msg t -> 'msg t
 
 val output_to_input: 'msg t -> id -> time -> 'msg output -> 'msg event option
 
-val output_of_stats: 'msg t -> string option -> unit
+val json_of_stats: 'msg t  -> json
