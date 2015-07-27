@@ -11,13 +11,6 @@ type term_checker =
   | Same
   | Higher
 
-type mode = Follower | Candidate | Leader
-
-let string_of_mode = function
-  | Follower -> "Follower"
-  | Candidate -> "Candidate"
-  | Leader -> "Leader"
-
 (* check term of incoming packet relative to local term *)
 let check_terms incoming_term (state:State.t) = 
   if incoming_term > state.term then Higher
