@@ -124,7 +124,7 @@ $(document).ready(function () {
     
     data.links.forEach(function(link){
       //console.log(link);
-      result.network.events[0].links.push({id:link.id,active:true});
+      result.network.events[0].links.push({id:link.id,active:true,type:'s'});
     });
     var string = JSON.stringify(result,null,'\t');
     console.log(result);
