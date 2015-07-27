@@ -85,6 +85,9 @@ let start_election (state:State.t) global =
    List.map (dispatch_vote_request state) state.node_ids,
    global)
 
+let restart_election state global = 
+  start_election state (Global.update `ELE_RESTART global)
+
 let won (state:State.t) = 
   match state.mode with
   | Candidate cand -> List.length cand.votes_from > 

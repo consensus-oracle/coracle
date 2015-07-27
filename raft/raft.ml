@@ -30,7 +30,7 @@ let receive_pkt id pkt state =
 let receive_timeout timer (state:State.t) = 
   match timer,state.mode with
   | Heartbeat, Follower _ -> Election.start_election state
-  | Election, Candidate _ -> Election.start_election state
+  | Election, Candidate _ -> Election.restart_election state
   | Leadership, Leader _ -> Replication.dispatch_heartbeat state
 
 let eval event state global =
