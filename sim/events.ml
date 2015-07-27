@@ -4,11 +4,19 @@ open Io
 type 'msg event = time * id * 'msg input
 type 'msg queue = 'msg event list
 
+type termination = Unknown | OutofTime of time * time | OutofEvents
+
+let term_to_string = function
+  | Unknown -> "unknown"
+  | OutofTime (next,limit)-> Printf.sprintf "timeout at %i next event is at %i" limit next
+  | OutofEvents -> "out of events"
+
 type data = {
   msgsent: int;
   msgrecv: int;
   msgdrop: int;
   msgflight: int;
+  reason: termination;
 }
 
 let inital_data = {
@@ -16,6 +24,7 @@ let inital_data = {
   msgrecv = 0;
   msgdrop = 0;
   msgflight = 0;
+  reason = Unknown;
 }
 
 type 'msg t = {
@@ -25,6 +34,8 @@ type 'msg t = {
   p: Parameters.t;
   }
 
+type 'msg outcome = Next of ('msg event * 'msg t) | NoNext of 'msg t
+
 let receive_msgs n t =
   { t with data = {t.data with msgrecv=t.data.msgrecv+n; msgflight=t.data.msgflight-n}}
 
@@ -33,6 +44,9 @@ let dispatch_msgs n t =
 
 let drop_msgs n t =
   { t with data = {t.data with msgdrop=t.data.msgdrop+n}}
+
+let termination_reason r t =
+  { t with data = {t.data with reason=r}}
 
 
 let count f qu = 
@@ -62,14 +76,14 @@ let init p =
 
 let next t = 
   match t.queue with
- | [] -> None
+ | [] -> NoNext (termination_reason OutofEvents t)
  | (time,n,e)::xs -> 
-    if (time>=t.p.term) then None 
+    if (time>=t.p.term) then NoNext (termination_reason (OutofTime(time,t.p.term)) t)
     else
       (match (time,n,e) with
       | (_,_,PacketArrival (_,_)) -> receive_msgs 1 t
       | _ -> t)
-    |> fun t_new -> Some ((time,n,e), {t_new with queue=xs})
+    |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
 
 let rec add_one t ((time,_,_) as y) = 
   match t.queue with
@@ -121,6 +135,7 @@ let json_of_stats t =
     ("packets received", `Int t.msgrecv);
     ("packets dropped", `Int t.msgdrop);
     ("packets inflight", `Int t.msgflight);
+    ("termination reason", `String (term_to_string t.reason));
     ]
 
 let output_of_stats t = function

@@ -9,13 +9,13 @@ let string_of_id = string_of_int
 let int_of_id = ident
 let id_of_int = ident
 
-type time = int (* milliseconds *)
-type span = int (* milliseconds *)
+type time = int 
+type span = int 
 
-let to_span ?s:(s=0) ms = ms + (1000*s)
+let to_span ms = ms 
 let to_time = to_span
 let compare_time = compare
-let sec_of_span n = float_of_int n /. 1000.0
+let sec_of_span = float_of_int 
 let incr x y = x+y
 let int_of_time = ident
 

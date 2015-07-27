@@ -43,3 +43,20 @@ let to_json g =
 			("lossed due to step down", `Int g.ele_stepdown);
 		]);
 	]
+
+let update tick t = 
+	match tick with 
+	| `AE_SND ->  {t with ae_pkts_snd = t.ae_pkts_snd +1 }
+	| `AE_RCV ->  {t with ae_pkts_rcv = t.ae_pkts_rcv +1 }
+	| `RV_SND -> {t with rv_pkts_snd = t.rv_pkts_snd +1 }
+	| `RV_RCV -> {t with rv_pkts_rcv = t.rv_pkts_rcv +1 }
+	| `ELE_WON -> {t with ele_won = t.ele_won +1 }
+	| `ELE_START -> {t with ele_start = t.ele_start +1 }
+	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
+	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
+
+let rec update_n tick n t = 
+	match n with
+	| 0 -> t
+	| 1 -> update tick t
+	| n -> update_n tick (n-1) (update tick t)

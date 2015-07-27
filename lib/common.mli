@@ -13,8 +13,8 @@ val id_of_int: int -> id
 
 type time = int
 type span = int
-val to_span: ?s:int -> int -> span
-val to_time: ?s:int -> int -> time
+val to_span:  int -> span
+val to_time: int -> time
 val compare_time: time -> time -> int
 val incr: time -> span -> time
 (* returns span in seconds, suitable for sleep *)

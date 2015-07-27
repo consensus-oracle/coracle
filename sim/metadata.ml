@@ -19,7 +19,7 @@ let loss = {
   }
 
 let term = {
-    name = "term";
+    name = "termination";
     sname = "t";
     doc = "number of time units to simulate";
     default = Some 100;

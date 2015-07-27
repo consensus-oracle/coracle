@@ -45,6 +45,7 @@ let cancel_timers (state:State.t) =
 
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
+  let global = Global.update `RV_RCV global in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
     (None, [PacketDispatch (id,reply state.term false)], global)
@@ -73,7 +74,10 @@ let start_follower state global =
   let timeout = Numbergen.uniform min max in
   (None, [SetTimeout (to_span timeout,Heartbeat)], global)
 
-let start_election (state:State.t) global = 
+let start_election (state:State.t) global =
+  let global = global
+    |> Global.update `ELE_START
+    |> Global.update_n `RV_SND (List.length state.node_ids) in 
   let timeout = Numbergen.uniform 0 2000 in
   (Some {state with term=state.term+1; mode=State.candidate},
    CancelTimeout Heartbeat ::
@@ -88,6 +92,7 @@ let won (state:State.t) =
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =
+  let global = Global.update `RV_RCV global in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ -> 
     (* packet is from a behind node, ignore it *)
@@ -108,6 +113,7 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.
     (None,[], global)
   | Higher, _ -> 
     (* I am behind and need to update *)
+    let global = Global.update `ELE_DOWN global in
     let (_,events, global) = start_follower state global in
     (Some {state with term=pkt.term; mode=State.follower},
       (cancel_timers state) @ events, global)

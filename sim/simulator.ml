@@ -34,8 +34,9 @@ module Simulate =
 
   let rec run ss es trace output_file global =
     let rec eval ss es g =
+      let open Events in 
       match Events.next es with
-      | Some ((t,n,e),new_es) ->
+      | Next ((t,n,e),new_es) ->
         if trace then json_to_stdout (input_event_to_json t n e) else ();
         let (new_s,new_e,new_g) = C.eval e (States.get n ss) g in 
         if trace then json_to_stdout (output_events_to_json t n new_e) else ();
@@ -44,9 +45,9 @@ module Simulate =
         | true, Some state -> json_to_stdout (state_to_json t n state)
         | _ -> ());
         eval (States.set n new_s ss) (Events.add n t new_e new_es) new_g
-      | None -> 
-        Events.output_of_stats es output_file;
-        json_to_stdout (C.global_to_json global) in 
+      | NoNext new_es -> 
+        Events.output_of_stats new_es output_file;
+        json_to_stdout (C.global_to_json g) in 
   eval ss es global
 
   let start config_file trace output_file no_sanity = 
