@@ -13,12 +13,7 @@ $(document).ready(function () {
 			$('#runSim').html('Running...');
 			$('#runSim').attr("disabled", true)
 			$.post( '/runSim',
-			{
-			nodes: parseInt($('#numNodes').val()),
-			loss: parseFloat($("#lossSlider").val()),
-			termination: parseInt($('#termination').val()),
-			seed: parseInt($("#randomSeed").val()),
-			}, 
+			generateJSON(), 
 			function(response){
 				var result;
         //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
@@ -49,6 +44,7 @@ $(document).ready(function () {
 	
 	function validateSettings(){
 		var valid = true;
+    /*
 		if (!checkBounds(parseInt($('#numNodes').val()),2,maxNodes)){
 			$('#nodesDiv').after(validationError("Must be an integer between 2 and " + maxNodes));
       $('#nodesDiv').addClass('has-error');
@@ -60,7 +56,7 @@ $(document).ready(function () {
       $('#lossDiv').addClass('has-error');
 			valid = false;
 		}
-		
+		*/
 		if (!checkBounds(parseInt($('#termination').val()),1,maxTermination)){
 			$('#terminationDiv').after(validationError("Must be an integer between 1 and " + maxTermination));
       $('#terminationDiv').addClass('has-error');
@@ -91,4 +87,45 @@ $(document).ready(function () {
 		
 		return table;
 	}
+  
+  function generateJSON(){
+    /*
+      return 			{
+			nodes: parseInt($('#numNodes').val()),
+			loss: parseFloat($("#lossSlider").val()),
+			termination: parseInt($('#termination').val())
+			};
+    */
+    
+    var result = {
+      termination: parseInt($('#termination').val()),
+      consensus: {
+        protocol:"raft",
+        election_timeout_min:30, 
+        election_timeout_max:300, 
+        heartbeat_interval:30
+      },
+      network:{
+        nodes:data.nodes,
+        links:data.links,
+        events:[{
+          time:0,
+          links:[],
+          nodes:[]
+          }
+        ]
+      }
+    };
+    
+    for (var node in data.nodes.filter(serverFilter)){
+      result.network.events[0].nodes.push({id:node.id,active:true});
+    }
+    
+    for (var link in data.links){
+      result.network.events[0].links.push({id:link.id,active:true});
+    }
+    console.log(result);
+    return result;
+  }
+  
 });

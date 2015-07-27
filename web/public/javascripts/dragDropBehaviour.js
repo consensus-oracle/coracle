@@ -1,7 +1,8 @@
-$(document).ready(function () {
-  var svg = d3.select('svg');
   var data = {nodes:[],
   links:[]};
+  
+$(document).ready(function () {
+  var svg = d3.select('svg');
   
   var masterServerDrag = d3.behavior.drag();
   d3.select('.masterServer').call(masterServerDrag);
@@ -154,14 +155,6 @@ $(document).ready(function () {
       .classed('link',true);
   }
   
-  function serverFilter(d){
-    return d.type == 'Server';
-  }
-  
-  function hubFilter(d){
-    return d.type == 'Hub';
-  }
-  
   function getLinkX1CoOrd(d){
     if (data.nodes[d.start -1].cx != null){
       return data.nodes[d.start -1].cx;
@@ -205,3 +198,11 @@ $(document).ready(function () {
   }
     
 });
+
+  function serverFilter(d){
+    return d.type == 'Server';
+  }
+  
+  function hubFilter(d){
+    return d.type == 'Hub';
+  }
