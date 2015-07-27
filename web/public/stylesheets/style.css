@@ -11,29 +11,29 @@ rect.border{
   opacity:0.1;
 }
 
-circle.masterNode{
+circle.masterServer{
   fill: green;
   r:10;
 }
 
-circle.node{
+circle.server{
   fill: red;
   r:10;
 }
 
-circle.node.clickable{
+circle.server.clickable{
   fill:pink;
 }
 
-rect.masterConnector{
+rect.masterHub{
   fill: yellow;
 }
 
-rect.connector{
+rect.hub{
   fill: blue;
 }
 
-rect.connector.clickable{
+rect.hub.clickable{
   fill:pink;
 }
 

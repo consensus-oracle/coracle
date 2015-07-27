@@ -1,65 +1,65 @@
 $(document).ready(function () {
   var svg = d3.select('svg');
-  var data = [];
-  var links = [];
+  var data = {nodes:[],
+  links:[]};
   
-  var masterNodeDrag = d3.behavior.drag();
-  d3.select('.masterNode').call(masterNodeDrag);
+  var masterServerDrag = d3.behavior.drag();
+  d3.select('.masterServer').call(masterServerDrag);
   
-  masterNodeDrag.on('dragstart',function(){
+  masterServerDrag.on('dragstart',function(){
     console.log("drag started");
-    data.push({id:data.length+1,cx:0,cy:0,type:'Node'});
+    data.nodes.push({id:data.nodes.length+1,cx:0,cy:0,type:'Server'});
     console.log(d3.event);
   });
   
-  masterNodeDrag.on('drag',function(){
+  masterServerDrag.on('drag',function(){
     console.log('dragging');
     //console.log(d3.event);
-    data[data.length -1].cx = d3.event.x;
-    data[data.length -1].cy = d3.event.y;
+    data.nodes[data.nodes.length -1].cx = d3.event.x;
+    data.nodes[data.nodes.length -1].cy = d3.event.y;
     //console.log(d3.event);
     updateNodes();
   });
   
-  masterNodeDrag.on('dragend',function(){
+  masterServerDrag.on('dragend',function(){
     console.log('drag ended');
   });
   
-  var nodeDrag = d3.behavior.drag();
-  d3.selectAll('.node').call(nodeDrag);
+  var serverDrag = d3.behavior.drag();
+  d3.selectAll('.server').call(serverDrag);
   
-  nodeDrag.on('drag',function(){
+  serverDrag.on('drag',function(){
     d3.select(this).data()[0].cx = d3.event.x;
     d3.select(this).data()[0].cy = d3.event.y;
     updateNodes();
   });
   
-  var masterConnectorDrag = d3.behavior.drag();
-  d3.select('.masterConnector').call(masterConnectorDrag);
+  var masterHubDrag = d3.behavior.drag();
+  d3.select('.masterHub').call(masterHubDrag);
   
-  masterConnectorDrag.on('dragstart',function(){
+  masterHubDrag.on('dragstart',function(){
     console.log("drag started");
-    data.push({id:data.length+1,x:0,y:0,type:'Connector'});
+    data.nodes.push({id:data.nodes.length+1,x:0,y:0,type:'Hub'});
     console.log(d3.event);
   });
   
-  masterConnectorDrag.on('drag',function(){
+  masterHubDrag.on('drag',function(){
     console.log('dragging');
     //console.log(d3.event);
-    data[data.length -1].x = d3.event.x;
-    data[data.length -1].y = d3.event.y;
+    data.nodes[data.nodes.length -1].x = d3.event.x;
+    data.nodes[data.nodes.length -1].y = d3.event.y;
     //console.log(d3.event);
     updateNodes();
   });
   
-  masterConnectorDrag.on('dragend',function(){
+  masterHubDrag.on('dragend',function(){
     console.log('drag ended');
   });
   
-  var connectorDrag = d3.behavior.drag();
-  d3.selectAll('.connector').call(connectorDrag);
+  var hubDrag = d3.behavior.drag();
+  d3.selectAll('.hub').call(hubDrag);
   
-  connectorDrag.on('drag',function(){
+  hubDrag.on('drag',function(){
     d3.select(this).data()[0].x = d3.event.x;
     d3.select(this).data()[0].y = d3.event.y;
     updateNodes();
@@ -86,32 +86,32 @@ $(document).ready(function () {
   
   
   function updateNodes(){
-    var nodes = svg.selectAll('circle.node')
-      .data(data.filter(nodeFilter),function(d) { return d.id;})
-      .call(nodeDrag);
+    var servers = svg.selectAll('circle.server')
+      .data(data.nodes.filter(serverFilter),function(d) { return d.id;})
+      .call(serverDrag);
       
-    nodes.attr('cx',function(d){return d.cx;})
+    servers.attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;});
       
-    nodes.enter().append('circle')
+    servers.enter().append('circle')
       .attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;})
-      .classed('node',true)
+      .classed('server',true)
       .classed('nodes',true);
       
-    var connectors = svg.selectAll('rect.connector')
-      .data(data.filter(connectorFilter),function(d) { return d.id;})
-      .call(connectorDrag);
+    var hubs = svg.selectAll('rect.hub')
+      .data(data.nodes.filter(hubFilter),function(d) { return d.id;})
+      .call(hubDrag);
       
-    connectors.attr('x',function(d){return d.x;})
+    hubs.attr('x',function(d){return d.x;})
       .attr('y',function(d){return d.y;});
       
-    connectors.enter().append('rect')
+    hubs.enter().append('rect')
       .attr('x',function(d){return d.x;})
       .attr('y',function(d){return d.y;})
       .attr('width',10)
       .attr('height',10)
-      .classed('connector',true)
+      .classed('hub',true)
       .classed('nodes',true);
       
     var clickableNodes = d3.selectAll('.nodes.clickable');
@@ -120,16 +120,16 @@ $(document).ready(function () {
         return;
       }
       if (start == null){
-        links.push({start:d3.select(this).data()[0].id,id:links.length});
+        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length});
         d3.select(this).classed('clickable',false);
-        console.log(links);
+        console.log(data.links);
         start = d3.select(this).data()[0].id;
         updateNodes();
         return;
       }
-      links[links.length -1].end = d3.select(this).data()[0].id;
+      data.links[data.links.length -1].end = d3.select(this).data()[0].id;
       clickableNodes.classed('clickable',false);
-      console.log(links);
+      console.log(data.links);
       start = null;
       updateNodes();
     });
@@ -139,7 +139,7 @@ $(document).ready(function () {
   
   function updateLinks(){
     var paths = svg.selectAll('.link')
-      .data(links,function(d) { return d.id;});
+      .data(data.links,function(d) { return d.id;});
       
     paths.attr('x1',getLinkX1CoOrd)
       .attr('x2',getLinkX2CoOrd)
@@ -154,28 +154,28 @@ $(document).ready(function () {
       .classed('link',true);
   }
   
-  function nodeFilter(d){
-    return d.type == 'Node';
+  function serverFilter(d){
+    return d.type == 'Server';
   }
   
-  function connectorFilter(d){
-    return d.type == 'Connector';
+  function hubFilter(d){
+    return d.type == 'Hub';
   }
   
   function getLinkX1CoOrd(d){
-    if (data[d.start -1].cx != null){
-      return data[d.start -1].cx;
+    if (data.nodes[d.start -1].cx != null){
+      return data.nodes[d.start -1].cx;
     }
-    return data[d.start -1].x;
+    return data.nodes[d.start -1].x;
   }
   
   function getLinkX2CoOrd(d){
     if (d.end != null){
-      if (data[d.end -1].cx != null){
-        return data[d.end -1].cx
+      if (data.nodes[d.end -1].cx != null){
+        return data.nodes[d.end -1].cx
       }
       else{
-        return data[d.end -1].x
+        return data.nodes[d.end -1].x
       }
     }
     var coordinates = [0, 0];
@@ -184,19 +184,19 @@ $(document).ready(function () {
   }
   
   function getLinkY1CoOrd(d){
-    if (data[d.start -1].cy != null){
-      return data[d.start -1].cy;
+    if (data.nodes[d.start -1].cy != null){
+      return data.nodes[d.start -1].cy;
     }
-    return data[d.start -1].y;
+    return data.nodes[d.start -1].y;
   }
   
   function getLinkY2CoOrd(d){
     if (d.end != null){
-      if (data[d.end -1].cy != null){
-        return data[d.end -1].cy
+      if (data.nodes[d.end -1].cy != null){
+        return data.nodes[d.end -1].cy
       }
       else{
-        return data[d.end -1].y
+        return data.nodes[d.end -1].y
       }
     }
     var coordinates = [0, 0];
