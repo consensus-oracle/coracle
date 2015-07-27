@@ -23,7 +23,7 @@ $(document).ready(function () {
 					result = validationError("Failed: " + response.stderr);
 				}
 				else{
-					result = createTable(JSON.parse(response.stdout));
+					result = response.stdout; //createTable(JSON.parse(response.stdout));
 				}
         $('#resultsPanel').removeClass('hidden');
         $('#resultsTab').tab('show');
