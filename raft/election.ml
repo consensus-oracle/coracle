@@ -45,7 +45,9 @@ let cancel_timers (state:State.t) =
 
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
-  let global = Global.update `RV_RCV global in
+  let global = 
+    Global.update `RV_RCV global
+    |> Global.update `RV_SND  in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
     (None, [PacketDispatch (id,reply state.term false)], global)
@@ -79,8 +81,8 @@ let start_election (state:State.t) global =
     |> Global.update `ELE_START
     |> Global.update_n `RV_SND (List.length state.node_ids) in 
   let timeout = Numbergen.uniform 0 2000 in
-  (Some {state with term=state.term+1; mode=State.candidate},
-   CancelTimeout Heartbeat ::
+  let state = {state with term=state.term+1; mode=State.candidate} in
+  (Some state,
    SetTimeout (timeout,Election) ::
    List.map (dispatch_vote_request state) state.node_ids,
    global)
@@ -90,8 +92,8 @@ let restart_election state global =
 
 let won (state:State.t) = 
   match state.mode with
-  | Candidate cand -> List.length cand.votes_from > 
-  (List.length state.node_ids) *2 
+  | Candidate cand -> (List.length cand.votes_from +1) *2 > 
+  (List.length state.node_ids)
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =

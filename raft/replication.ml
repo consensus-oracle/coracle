@@ -6,13 +6,6 @@ open Rpcs
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
 
-(* start leader, called after winning an election *)
-let start_leader (state:State.t) global =
-	let global = Global.update `ELE_WON global in
-  (Some {state with mode=State.leader},
-  [CancelTimeout Election; 
-  SetTimeout (to_span state.config.heartbeat_interval,Leadership)],
-	global)
 
 (* form the heartbeat packet *)
 let form_heartbeat (state:State.t) id = 
@@ -37,3 +30,11 @@ let receive_append_request id pkt (state:State.t) global =
 let receive_append_reply id pkt (state:State.t) global =
 	let global = Global.update `AE_RCV global in
 	(None, [], global)
+
+(* start leader, called after winning an election *)
+let start_leader (state:State.t) global =
+	let global = Global.update `ELE_WON global in
+	let (state,events,global) = dispatch_heartbeat {state with mode=State.leader} global in
+  (state,
+  CancelTimeout Election :: events,
+	global)
