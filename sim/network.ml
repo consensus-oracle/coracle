@@ -6,6 +6,7 @@ type node_type = Server | Client | Hub
 let parse_node_type (json:json) :node_type = 
   json 
   |> function `String s -> s
+  |> String.lowercase
   |> function
     | "server" -> Server
     | "client" -> Client

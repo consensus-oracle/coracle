@@ -36,7 +36,8 @@ let receive_append_reply id pkt (state:State.t) global =
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =
 	let global = Global.update `ELE_WON global in
-	let (state,events,global) = dispatch_heartbeat {state with mode=State.leader} global in
-  (state,
+	let state = {state with mode=State.leader} in 
+	let (_,events,global) = dispatch_heartbeat state global in
+  (Some state,
   CancelTimeout Election :: events,
 	global)

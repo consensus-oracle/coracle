@@ -17,6 +17,6 @@ val next: 'msg t -> 'msg outcome
 
 val add: id -> time -> 'msg output list -> 'msg t -> 'msg t
 
-val output_to_input: 'msg t -> id -> time -> 'msg output -> 'msg event option
+val output_to_input:  id -> time -> 'msg t -> 'msg output -> 'msg t * 'msg event option
 
 val json_of_stats: 'msg t  -> json

@@ -20,7 +20,12 @@
       {"start":2, "end":6, "id":2},
       {"start":3, "end":6, "id":3},
       {"start":4, "end":6, "id":4},
-      {"start":5, "end":6, "id":5}
+      {"start":5, "end":6, "id":5},
+      {"start":6, "end":1, "id":6},
+      {"start":6, "end":2, "id":7},
+      {"start":6, "end":3, "id":8},
+      {"start":6, "end":4, "id":9},
+      {"start":6, "end":5, "id":10}
     ],
     "events": [ {
         "time":0,
@@ -29,7 +34,12 @@
           {"id":2, "type":"s", "active":true},
           {"id":3, "type":"s", "active":true},
           {"id":4, "type":"s", "active":true},
-          {"id":5, "type":"s", "active":true}
+          {"id":5, "type":"s", "active":true},
+          {"id":6, "type":"s", "active":true},
+          {"id":7, "type":"s", "active":true},
+          {"id":8, "type":"s", "active":true},
+          {"id":9, "type":"s", "active":true},
+          {"id":10, "type":"s", "active":true}
         ],
         "nodes": [
           {"id":1, "active": true},

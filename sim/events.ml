@@ -17,6 +17,7 @@ type data = {
   msgdrop: int;
   msgflight: int;
   reason: termination;
+  latency: int list;
 }
 
 let inital_data = {
@@ -25,6 +26,7 @@ let inital_data = {
   msgdrop = 0;
   msgflight = 0;
   reason = Unknown;
+  latency = [];
 }
 
 type 'msg t = {
@@ -43,14 +45,20 @@ let dispatch_msgs n t =
   { t with data = {t.data with msgsent=t.data.msgsent+n; msgflight=t.data.msgflight+n}}
 
 let drop_msgs n t =
-  { t with data = {t.data with msgdrop=t.data.msgdrop+n}}
+  { t with data = {t.data with msgdrop=t.data.msgdrop+n; msgflight=t.data.msgflight-n}}
 
 let termination_reason r t =
   { t with data = {t.data with reason=r}}
 
+let add_latency n t = 
+  { t with data = {t.data with latency=n::t.data.latency}}
 
 let count f qu = 
   List.length (List.filter f qu)
+
+let average = function
+  | [] -> 0
+  | xs -> List.fold_left (+) 0 xs / List.length xs
 
 let rec map_filter f = function
   | [] -> []
@@ -58,6 +66,14 @@ let rec map_filter f = function
     match f x with 
     | None -> map_filter f xs 
     | Some y -> y :: (map_filter f xs))
+
+let rec map_filter_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    match f t x with 
+    | (t, None) -> map_filter_fold f t acc xs
+    | (t, Some y) -> map_filter_fold f t (y::acc) xs)
+
 
 let rec start_events m n =
     if m>n then [] 
@@ -95,15 +111,16 @@ let rec add_one t ((time,_,_) as y) =
   | [] -> {t with queue=[y]}
 
 
-let output_to_input t origin time = function
+let output_to_input origin time t = function
   | PacketDispatch (dest,pkt) -> (
+    let t = dispatch_msgs 1 t in
     match Network.find_path origin dest time t.p.network with 
-    | None -> (* no path *) None
-    | Some latency -> Some (incr time latency, dest, PacketArrival (origin,pkt)) )
-  | SetTimeout (n,timer) -> Some (incr time n,origin,Timeout timer)
+    | None -> (* no path *) (drop_msgs 1 t, None)
+    | Some lat -> (add_latency lat t, Some (incr time lat, dest, PacketArrival (origin,pkt)) ))
+  | SetTimeout (n,timer) -> (t, Some (incr time n,origin,Timeout timer))
   | CancelTimeout _ -> 
     (*should have been removed by cancel_timers *)
-    None
+    (t, None)
     
 
 
@@ -118,13 +135,8 @@ let rec cancel_timers id q = function
 let add id time output_events t =
   let q = cancel_timers id t.queue output_events in
   let t = {t with queue=q} in 
-  let input_events = map_filter (output_to_input t id time) output_events in
-  let dispatched = count (function PacketDispatch (_,_) -> true | _ -> false) output_events in 
-  let sent = count (function (_,_,PacketArrival (_,_)) -> true | _ -> false) input_events in 
-  t
-  |> dispatch_msgs dispatched
-  |> dispatch_msgs (dispatched-sent)
-  |> fun t_new -> List.fold_left add_one t_new input_events
+  let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
+  List.fold_left add_one t input_events
 
 
 open Yojson.Safe
@@ -136,4 +148,5 @@ let json_of_stats t =
     ("packets dropped", `Int t.data.msgdrop);
     ("packets inflight", `Int t.data.msgflight);
     ("termination reason", `String (term_to_string t.data.reason));
+    ("average latency", `Int (average t.data.latency));
     ]

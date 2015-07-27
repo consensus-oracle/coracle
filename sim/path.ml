@@ -7,6 +7,11 @@ type item =
  | Self
  | Path of int * id
 
+let item_to_int = function
+ | NoPath -> 999
+ | Self -> 0
+ | Path (v,_) -> v
+
 type t = item array array
 
 type edge = id * id * int
@@ -21,6 +26,9 @@ let read t (src,dst) = t.(src-1).(dst-1)
 let read_1d t index = t.(index-1)
 let write t (src,dst) = Array.set t.(src-1) (dst-1)
 let write_1d t index = Array.set t (index-1)
+
+let print t = 
+	iterate t (fun (x,y) v -> Printf.printf "(%i,%i) %i \n" x y (item_to_int v))
 
 let relex_edge t (src,dst,weight) = 
 	iterate_starts t (fun start endpoints -> 
