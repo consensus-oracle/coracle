@@ -21,6 +21,11 @@ let parse_link_type (json:json) :link_type =
     | "m" -> Medium
     | "l" -> Large
 
+let type_to_latency = function
+  | Small -> 5
+  | Medium -> 10 
+  | Large -> 20
+
 type node = {
 	node_type: node_type;
 	id: id;
@@ -46,6 +51,10 @@ let parse_link (json:json) :link =
     dst = (json_assoc "end" config |> function `Int i -> i);
     id = (json_assoc "id" config |> function `Int i -> i);
   }
+
+let get_endpoints link_id links= 
+  let link = List.find (fun link -> link_id==link.id) links in
+  (link.src,link.dst)
 
 type link_event = {
   id: id;
@@ -91,7 +100,8 @@ let parse_event (json:json) :event =
 type t = {
   nodes: node list;
   links: link list;
-  events: event list
+  events: event list;
+  paths: (time * Path.t) list;
 }
 
 let parse_section name item_parser sections = 
@@ -99,24 +109,37 @@ let parse_section name item_parser sections =
   |> function `List lst -> lst
   |> List.map item_parser
 
+let generate_edges links (link_events: link_event list) =
+  List.filter (fun (link_event:link_event) -> link_event.active) link_events
+  |> List.map (fun (link_event:link_event) -> 
+      let (src,dst) = get_endpoints link_event.id links in
+       (src, dst, type_to_latency link_event.link_type))
+
+let generate_paths (links:link list) (events: event list) n =
+  List.map (fun event -> 
+    (event.time, Path.bellman_ford n (generate_edges links event.links))) events
+
+
 let parse (json:json) = 
   match json with
-  | `Assoc config -> {
-    nodes = (
+  | `Assoc config -> 
+    let nodes = (
       json_assoc "nodes" config
       |> function `List lst -> lst
-      |> List.map parse_node);
-    links = (
+      |> List.map parse_node) in
+    let links = (
       json_assoc "links" config
       |> function `List lst -> lst
-      |> List.map parse_link);
-    events = (
+      |> List.map parse_link) in
+    let events = (
       json_assoc "events" config
       |> function `List lst -> lst
-      |> List.map parse_event);
-  }
+      |> List.map parse_event) in
+    let paths = 
+      generate_paths links events (List.length nodes) in
+  {nodes;links;events;paths}
 
-let rec find_recent_event time events : event =
+let rec find_recent_event time events =
   (* we assume events is sorted as order is preserved since inputted JSON *)
   match events with
   | [] -> assert false
@@ -130,23 +153,30 @@ let rec find_recent_event time events : event =
     | false -> (* we don't have a past state *)
       assert false
 
+let rec find_recent_path time paths =
+  (* we assume events is sorted as order is preserved since inputted JSON *)
+  match paths with
+  | [] -> assert false
+  | [(tx,x)] -> x
+  | (tx,x)::(ty,y)::zs -> 
+    match time >= tx with
+    | true -> (* x is a past state *)
+      match time < ty with
+      | true -> x
+      | false -> find_recent_path time ((ty,y)::zs)
+    | false -> (* we don't have a past state *)
+      assert false
+
 let find_node id time t =
   find_recent_event time t.events
   |> fun event -> List.find (fun node -> node.id==id) event.nodes
   |> fun node_event -> node_event.active
 
-let find_latency = function
-  | Small -> 5 
-  | Medium -> 20 
-  | Large -> 100
-
 let find_path src dst time t =
-  (* TODO: we assume 1 hop only *)
-  let link_static = List.find (fun link -> link.src=src && link.dst=dst) t.links in
-  let event = find_recent_event time t.events in
-  let link_dyn = List.find (fun (link:link_event) -> link.id==link_static.id) event.links in
-  match link_dyn.active with
-  | true -> Some (find_latency link_dyn.link_type) 
-  | false ->  None
+  Path.find_path src dst (find_recent_path time t.paths)
 
-let count_servers t = 3
+let count_servers t = 
+  t.nodes
+  |> List.filter (fun node -> match node.node_type with Server -> true | _ -> false )
+  |> List.length
+
