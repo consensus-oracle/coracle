@@ -30,8 +30,15 @@ let msg_deserialize = function
   | "hello" -> Hello
   | "hello back" -> HelloBack
 
-let eval event state =
-  match event with
-  | PacketArrival (id,Hello) -> (None, [PacketDispatch (id, HelloBack)])
-  | PacketArrival (_,HelloBack) -> (Some {state with counter=state.counter +1}, [])
-  | Startup _ -> (None, [PacketDispatch (state.say_hello_to, Hello)])
+
+type global = unit
+let global_to_json () = `Assoc []
+let reset_global = ()
+
+let eval event state global =
+  let (new_s, new_e) =
+    match event with
+    | PacketArrival (id,Hello) -> (None, [PacketDispatch (id, HelloBack)])
+    | PacketArrival (_,HelloBack) -> (Some {state with counter=state.counter +1}, [])
+    | Startup _ -> (None, [PacketDispatch (state.say_hello_to, Hello)]) in
+  (new_s, new_e, global)

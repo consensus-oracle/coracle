@@ -32,20 +32,22 @@ module Simulate =
      ("id", `Int id);
      ("event", C.state_to_json state); ]
 
-  let rec run ss es trace output_file =
-    let rec eval ss es =
+  let rec run ss es trace output_file global =
+    let rec eval ss es g =
       match Events.next es with
       | Some ((t,n,e),new_es) ->
         if trace then json_to_stdout (input_event_to_json t n e) else ();
-        let (new_s,new_e) = C.eval e (States.get n ss) in 
+        let (new_s,new_e,new_g) = C.eval e (States.get n ss) g in 
         if trace then json_to_stdout (output_events_to_json t n new_e) else ();
         (
         match trace, new_s with
         | true, Some state -> json_to_stdout (state_to_json t n state)
         | _ -> ());
-        eval (States.set n new_s ss) (Events.add n t new_e new_es)
-      | None -> Events.output_of_stats es output_file in 
-  eval ss es
+        eval (States.set n new_s ss) (Events.add n t new_e new_es) new_g
+      | None -> 
+        Events.output_of_stats es output_file;
+        json_to_stdout (C.global_to_json global) in 
+  eval ss es global
 
   let start config_file trace output_file no_sanity = 
     let json = Json_handler.json_from_file config_file in
@@ -54,6 +56,6 @@ module Simulate =
     if no_sanity then () else Parameters.check_sanity para;
     Numbergen.init para.seed;
     let config = C.parse_config protocol_json in
-    run (States.init (fun n -> C.init n config) para) (Events.init para) trace output_file
+    run (States.init (fun n -> C.init n config) para) (Events.init para) trace output_file C.reset_global
 
 end
