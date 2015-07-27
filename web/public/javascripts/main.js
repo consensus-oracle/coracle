@@ -13,7 +13,7 @@ $(document).ready(function () {
 			$('#runSim').html('Running...');
 			$('#runSim').attr("disabled", true)
 			$.post( '/runSim',
-			generateJSON(), 
+			{data:generateJSON()}, 
 			function(response){
 				var result;
         //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
@@ -117,15 +117,18 @@ $(document).ready(function () {
       }
     };
     
-    for (var node in data.nodes.filter(serverFilter)){
+    data.nodes.filter(serverFilter).forEach(function(node){
+      //console.log(node);
       result.network.events[0].nodes.push({id:node.id,active:true});
-    }
+    });
     
-    for (var link in data.links){
+    data.links.forEach(function(link){
+      //console.log(link);
       result.network.events[0].links.push({id:link.id,active:true});
-    }
+    });
+    var string = JSON.stringify(result,null,'\t');
     console.log(result);
-    return result;
+    return string;
   }
   
 });

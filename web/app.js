@@ -27,7 +27,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/runSim', function(req,res){
-    console.log(req.body);
+    console.log(req);
 	var id = uuid.v1();
 	var filename = 'requests/' + id + '.json'
 	fs.writeFile(filename,parseRequest(req),function(err){
@@ -87,8 +87,8 @@ function parseRequest(req){
 		seed: parseInt(req.body.seed)
 	})
   */
-  console.log(req.body);
-  return JSON.stringify(req.body);
+  console.log(JSON.parse(req.body.data));
+  return req.body.data;
 }
 
 module.exports = app;
