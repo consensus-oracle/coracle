@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: 8b42254d56ae6c5a7ac1c1c30a3b317a)
+version = "0.1"
+description = "Simulation of consensus algorithms in heterogeneous networks"
+requires = "lib"
+archive(byte) = "dummy.cma"
+archive(byte, plugin) = "dummy.cma"
+archive(native) = "dummy.cmxa"
+archive(native, plugin) = "dummy.cmxs"
+exists_if = "dummy.cma"
+# OASIS_STOP
+

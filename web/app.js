@@ -33,14 +33,15 @@ app.post('/runSim', function(req,res){
 	fs.writeFile(filename,JSON.stringify({
 		nodes: parseInt(req.body.nodes),
 		loss: parseFloat(req.body.loss),
-		termination: parseInt(req.body.termination)
+		termination: parseInt(req.body.termination),
+		seed: parseInt(req.body.seed)
 	}),function(err){
 		if(err){
 			return console.log(err);
 		}
 		console.log(filename + ' saved');
 	
-		var cmd = '../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
+		var cmd = '../coracle_sim.byte --trace -f ' + process.cwd() +'/' + filename;
 		console.log('running: ' + cmd);
 		exec(cmd, function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);

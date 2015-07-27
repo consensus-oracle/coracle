@@ -13,8 +13,8 @@ val id_of_int: int -> id
 
 type time = int
 type span = int
-val to_span: ?s:int -> int -> span
-val to_time: ?s:int -> int -> time
+val to_span:  int -> span
+val to_time: int -> time
 val compare_time: time -> time -> int
 val incr: time -> span -> time
 (* returns span in seconds, suitable for sleep *)
@@ -34,3 +34,19 @@ val create_nodes: int -> int -> int -> int list
 exception Not_implemented of string
 
 val bugs_to: string
+
+(* metadata for each simulation parameter *)
+type 'a parameter = {
+  name: string;
+  sname: string;
+  doc: string;
+  default: 'a option;
+  min: 'a option;
+  max: 'a option;
+}
+
+exception Sanity_check_failure of string
+val check_parameter: int -> int parameter -> unit
+
+(* List.assoc for string with more helpful exception *)
+val json_assoc: string -> (string * 'a) list -> 'a

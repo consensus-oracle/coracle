@@ -1,6 +1,7 @@
 open Lwt
 open Io
 open Common
+open Yojson.Safe
 
 module UnixInterface = 
   functor (C: Protocol.CONSENSUS) -> struct
@@ -8,12 +9,21 @@ module UnixInterface =
   let bufsz = 4096
 
   let state = ref None
+  let global = ref None
 
   let set_state = function
   	| None -> ()
   	| Some new_state -> state := Some new_state
    
   let get_state () = match !state with
+  | None -> assert false
+  | Some s -> s
+
+  let set_global = function
+    | None -> ()
+    | Some new_state -> global := Some new_state
+   
+  let get_global () = match !global with
   | None -> assert false
   | Some s -> s
 
@@ -29,7 +39,7 @@ module UnixInterface =
     List.exists ((=) t) !cancelled_timers
 
   let rec dispatcher fd event = 
-    Printf.printf "%s\n%!"(output_to_string C.msg_to_string event);
+    to_channel stdout (output_to_json C.msg_to_json event);
     match event with
     | PacketDispatch (id,pkt) -> 
         let buf = Lwt_bytes.of_string (C.msg_serialize pkt) in
@@ -43,11 +53,11 @@ module UnixInterface =
         cancel_timer t
 
   and pass_to_raft fd event = 
-    Printf.printf "%s\n%!"(input_to_string C.msg_to_string event);
-    let (s,e) = C.eval event (get_state()) in 
+    to_channel stdout (input_to_json C.msg_to_json event);
+    let (s,e,g) = C.eval event (get_state()) (get_global())in 
     set_state s;
-    C.state_to_string (get_state ())
-    |> Printf.printf "%s\n";
+    set_global (Some g);
+    to_channel stdout (C.state_to_json (get_state ()));
     Lwt_list.iter_p (dispatcher fd) e
 
   let process buf len dst fd = 
@@ -72,10 +82,11 @@ module UnixInterface =
     Lwt.on_cancel t (fun () -> cont := false);
     t
 
-  let setup id max =
+  let setup id max config_file =
     Printf.printf "Starting up";
     let peers = create_nodes max id 0 in
-    set_state (Some (C.init peers (C.parse_config "")));
+    let json = from_file config_file in
+    set_state (Some (C.init peers (C.parse_config json)));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in
     let fd = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in

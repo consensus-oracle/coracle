@@ -13,15 +13,23 @@ Library lib
   Pack: true
   Modules:
     Common, Docs, Io, Numbergen, Protocol
-  BuildDepends: sexplib, sexplib.syntax, cmdliner
+  BuildDepends: sexplib, sexplib.syntax, cmdliner, yojson
 
 Library raft
   Path: raft
   Findlibname: raft
   Pack: false
   Modules:
-    Election, Election_io, State, Rpcs, Raft
-  BuildDepends: lib, sexplib, sexplib.syntax
+    Election, Replication, Global, State, Json_parser, Rpcs, Raft
+  BuildDepends: lib, sexplib, sexplib.syntax, yojson
+
+Library dummy
+  Path: dummy
+  Findlibname: dummy
+  Pack: false
+  Modules:
+    Dummy
+  BuildDepends: lib
 
 Library unix
   Path:       unix
@@ -35,14 +43,14 @@ Library simulator
   Path:       sim
   Findlibname: simulator
   Modules:
-    Events, Parameters, States, Simulator
+    Events, Metadata, Path, Network, Parameters, Json_handler, States, Simulator
   BuildDepends: lwt, lwt.unix, lib, yojson
   
 Executable coracle_sim
   Path:       sim
   BuildTools: ocamlbuild
   MainIs:     coracle_sim.ml
-  BuildDepends: lwt, lwt.unix, lib, raft, simulator, cmdliner
+  BuildDepends: lwt, lwt.unix, lib, raft, dummy, simulator, cmdliner
 
 Executable coracle_unix
   Path:       unix
