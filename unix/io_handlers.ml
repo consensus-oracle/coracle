@@ -9,12 +9,21 @@ module UnixInterface =
   let bufsz = 4096
 
   let state = ref None
+  let global = ref None
 
   let set_state = function
   	| None -> ()
   	| Some new_state -> state := Some new_state
    
   let get_state () = match !state with
+  | None -> assert false
+  | Some s -> s
+
+  let set_global = function
+    | None -> ()
+    | Some new_state -> global := Some new_state
+   
+  let get_global () = match !global with
   | None -> assert false
   | Some s -> s
 
@@ -45,10 +54,10 @@ module UnixInterface =
 
   and pass_to_raft fd event = 
     to_channel stdout (input_to_json C.msg_to_json event);
-    let (s,e) = C.eval event (get_state()) in 
+    let (s,e,g) = C.eval event (get_state()) (get_global())in 
     set_state s;
-    C.state_to_string (get_state ())
-    |> Printf.printf "%s\n";
+    set_global (Some g);
+    to_channel stdout (C.state_to_json (get_state ()));
     Lwt_list.iter_p (dispatcher fd) e
 
   let process buf len dst fd = 

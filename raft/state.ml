@@ -61,33 +61,28 @@ let add_node id t =
 let add_nodes ids t = 
   {t with node_ids = ids@t.node_ids}
 
-let mode_to_string = function
+let mode_to_json = function
   | Follower f ->
-    Printf.sprintf 
-      "| Mode: Follower
-       | VotedFor: %s"
-      (string_of_option string_of_int f.voted_for)
+    `Assoc [
+      ("mode type", `String "follower");
+      ("voted for", match f.voted_for with None -> `String "none" | Some id -> `Int id);
+    ]
   | Candidate c ->
-    Printf.sprintf 
-      "| Mode: Candidate
-       | Votes From: %s"
-      (string_of_list string_of_int c.votes_from)
-  | Leader l -> 
-    "| Mode: Leader"
+    `Assoc [
+      ("mode type", `String "candidate");
+      ("votes from", `List (List.map (fun id -> `Int id) c.votes_from));
+    ]
+  | Leader l ->
+    `Assoc [
+      ("mode type", `String "leader");
+    ]
 
-let to_string s =
-  Printf.sprintf 
-	"-- NODE STATE ---------------------------------
-	| Term: %i
-  | Last Log Index: %i
-	| Last Log Term: %i
-  | Node ids: %s
-  %s
-  ----------------------------------------------\n"
-  (* general state *)
-  s.term 
-  s.last_index 
-  s.last_term
-  (string_of_list string_of_int s.node_ids)
-  (mode_to_string s.mode)
+let to_json s =
+  `Assoc [
+    ("term", `Int s.term);
+    ("mode", mode_to_json s.mode);
+    ("last log index", `Int s.last_index);
+    ("last log term", `Int s.last_term);
+    ("peers", `List (List.map (fun i -> `Int i) s.node_ids));
+  ]
 

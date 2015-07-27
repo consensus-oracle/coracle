@@ -1,7 +1,7 @@
 open Common
 open Rpcs
 
-type eventsig = State.t -> State.t option * rpc Io.output list
+type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
 val start_leader: eventsig
 val dispatch_heartbeat: eventsig

@@ -3,7 +3,7 @@ open Rpcs
 open Io
 open State
 
-type eventsig = State.t -> State.t option * rpc output list
+type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
 
 type term_checker =
@@ -37,22 +37,31 @@ let reply term yes =
   votegranted=yes;
   }
 
+let cancel_timers (state:State.t) = 
+ match state.mode with
+  | Follower _ -> [CancelTimeout Heartbeat]
+  | Candidate _ -> [CancelTimeout Election]
+  | Leader _ -> [CancelTimeout Leadership]
+
 (* process incoming RequestVotes RPC *)
-let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) =
+let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
+  let global = 
+    Global.update `RV_RCV global
+    |> Global.update `RV_SND  in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
-    (None, [PacketDispatch (id,reply state.term false)])
+    (None, [PacketDispatch (id,reply state.term false)], global)
   | Same, Follower f -> (
     match check_vote f with
     | true ->
       (Some {state with mode= Follower {voted_for= Some id}},
-        [PacketDispatch (id, reply state.term true)])
+        [PacketDispatch (id, reply state.term true)], global)
     | false ->
-      (None, [PacketDispatch (id,reply state.term false)]))
+      (None, [PacketDispatch (id,reply state.term false)], global))
   | Higher,_ ->
     (Some {state with term=pkt.term;
         mode= Follower {voted_for= Some id}},
-      [PacketDispatch (id, reply pkt.term true)])
+      [PacketDispatch (id, reply pkt.term true)], global)
 
 let dispatch_vote_request (state:State.t) id = 
   let open RequestVoteArg in 
@@ -62,38 +71,54 @@ let dispatch_vote_request (state:State.t) id =
   last_index= state.last_index;
   last_term=state.last_term; })
 
-let start_follower state = 
+let start_follower state global = 
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
-  (None, [SetTimeout (to_span timeout,Heartbeat)])
+  (None, [SetTimeout (to_span timeout,Heartbeat)], global)
 
-let start_election (state:State.t) = 
+let start_election (state:State.t) global =
+  let global = global
+    |> Global.update `ELE_START
+    |> Global.update_n `RV_SND (List.length state.node_ids) in 
   let timeout = Numbergen.uniform 0 2000 in
-  (Some {state with term=state.term+1; mode=State.candidate},
-   CancelTimeout Heartbeat ::
+  let state = {state with term=state.term+1; mode=State.candidate} in
+  (Some state,
    SetTimeout (timeout,Election) ::
-   List.map (dispatch_vote_request state) state.node_ids)
+   List.map (dispatch_vote_request state) state.node_ids,
+   global)
+
+let restart_election state global = 
+  start_election state (Global.update `ELE_RESTART global)
 
 let won (state:State.t) = 
   match state.mode with
-  | Candidate cand -> List.length cand.votes_from > 
-  (List.length state.node_ids) *2 
+  | Candidate cand -> (List.length cand.votes_from +1) *2 > 
+  (List.length state.node_ids)
   | _ -> false
 
-let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) =
+let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =
+  let global = Global.update `RV_RCV global in
   match check_terms pkt.term state, state.mode with
-  | Invalid, _ -> (None,[])
-  | Same, Candidate cand | Higher, Candidate cand -> (
+  | Invalid, _ -> 
+    (* packet is from a behind node, ignore it *)
+    (None,[], global)
+  | Same, Follower _ ->
+    (* invalid vote *)
+    (None,[], global)
+  | Same, Candidate cand -> (
     match pkt.votegranted with
     | true -> 
       let state = 
         {state with mode = Candidate 
         {cand with votes_from= add_unique id cand.votes_from}} in
-      if won state then Replication.start_leader state else (Some state,[]) 
-    | false -> (None,[]))
-  | Same, Leader _ | Higher, Leader _ ->
-    (* ignore votes as no longer needed *)
-    (None,[])
-  | Same, Follower _ | Higher, Follower _ ->
-    (* invalid vote *)
-    assert false
+      if won state then Replication.start_leader state global else (Some state,[], global) 
+    | false -> (None,[], global))
+  | Same, Leader _ ->
+    (* ignore votes as no longer needed, I've already won *)
+    (None,[], global)
+  | Higher, _ -> 
+    (* I am behind and need to update *)
+    let global = Global.update `ELE_DOWN global in
+    let (_,events, global) = start_follower state global in
+    (Some {state with term=pkt.term; mode=State.follower},
+      (cancel_timers state) @ events, global)

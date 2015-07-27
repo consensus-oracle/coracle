@@ -4,11 +4,19 @@ open Io
 type 'msg event = time * id * 'msg input
 type 'msg queue = 'msg event list
 
+type termination = Unknown | OutofTime of time * time | OutofEvents
+
+let term_to_string = function
+  | Unknown -> "unknown"
+  | OutofTime (next,limit)-> Printf.sprintf "timeout at %i next event is at %i" limit next
+  | OutofEvents -> "out of events"
+
 type data = {
   msgsent: int;
   msgrecv: int;
   msgdrop: int;
   msgflight: int;
+  reason: termination;
 }
 
 let inital_data = {
@@ -16,6 +24,7 @@ let inital_data = {
   msgrecv = 0;
   msgdrop = 0;
   msgflight = 0;
+  reason = Unknown;
 }
 
 type 'msg t = {
@@ -25,6 +34,8 @@ type 'msg t = {
   p: Parameters.t;
   }
 
+type 'msg outcome = Next of ('msg event * 'msg t) | NoNext of 'msg t
+
 let receive_msgs n t =
   { t with data = {t.data with msgrecv=t.data.msgrecv+n; msgflight=t.data.msgflight-n}}
 
@@ -33,6 +44,9 @@ let dispatch_msgs n t =
 
 let drop_msgs n t =
   { t with data = {t.data with msgdrop=t.data.msgdrop+n}}
+
+let termination_reason r t =
+  { t with data = {t.data with reason=r}}
 
 
 let count f qu = 
@@ -46,14 +60,14 @@ let rec map_filter f = function
     | Some y -> y :: (map_filter f xs))
 
 let rec start_events m n =
-    if m=n then [] 
+    if m>n then [] 
   else 
     let id = id_of_int m in 
     (to_time 0, id, Startup id) :: (start_events (m+1) n)
 
 let init p = 
-  let n = Parameters.(p.n) in
-  {queue = start_events 0 n; 
+  let n = Parameters.(Network.count_servers p.network) in
+  {queue = start_events 1 n; 
   queue_id = 0;
   data=inital_data;
   p}
@@ -62,14 +76,14 @@ let init p =
 
 let next t = 
   match t.queue with
- | [] -> None
+ | [] -> NoNext (termination_reason OutofEvents t)
  | (time,n,e)::xs -> 
-    if (time>=t.p.term) then None 
+    if (time>=t.p.term) then NoNext (termination_reason (OutofTime(time,t.p.term)) t)
     else
       (match (time,n,e) with
       | (_,_,PacketArrival (_,_)) -> receive_msgs 1 t
       | _ -> t)
-    |> fun t_new -> Some ((time,n,e), {t_new with queue=xs})
+    |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
 
 let rec add_one t ((time,_,_) as y) = 
   match t.queue with
@@ -82,9 +96,10 @@ let rec add_one t ((time,_,_) as y) =
 
 
 let output_to_input t origin time = function
-  | PacketDispatch (dest,pkt) -> 
-  if (Numbergen.maybe Parameters.(t.p.loss)) then None
-  else Some (incr time t.p.latency, dest, PacketArrival (origin,pkt))
+  | PacketDispatch (dest,pkt) -> (
+    match Network.find_path origin dest time t.p.network with 
+    | None -> (* no path *) None
+    | Some latency -> Some (incr time latency, dest, PacketArrival (origin,pkt)) )
   | SetTimeout (n,timer) -> Some (incr time n,origin,Timeout timer)
   | CancelTimeout _ -> 
     (*should have been removed by cancel_timers *)
@@ -116,12 +131,9 @@ open Yojson.Safe
 
 let json_of_stats t =
   `Assoc [
-    ("packets dispatched", `Int t.msgsent);
-    ("packets received", `Int t.msgrecv);
-    ("packets dropped", `Int t.msgdrop);
-    ("packets inflight", `Int t.msgflight);
+    ("packets dispatched", `Int t.data.msgsent);
+    ("packets received", `Int t.data.msgrecv);
+    ("packets dropped", `Int t.data.msgdrop);
+    ("packets inflight", `Int t.data.msgflight);
+    ("termination reason", `String (term_to_string t.data.reason));
     ]
-
-let output_of_stats t = function
-  | None -> to_channel stdout (json_of_stats t.data)
-  | Some filename -> to_file filename (json_of_stats t.data)
