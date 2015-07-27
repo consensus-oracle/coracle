@@ -17,6 +17,7 @@ type link_type = Small | Medium | Large
 let parse_link_type (json:json) :link_type = 
   json 
   |> function `String s -> s
+  |> String.lowercase
   |> function
     | "s" -> Small
     | "m" -> Medium
