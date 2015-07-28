@@ -37,9 +37,11 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 	 	let (state,events,global) = step_down pkt.term state global in
 	 	(state, (form_heartbeat_reply (pull state) id) :: events, global)
 
-let receive_append_reply id pkt (state:State.t) global =
+let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update `AE_RCV global in
-	(None, [], global)
+     match check_terms pkt.term state with
+	 | Higher -> step_down pkt.term state global
+	 | _ -> (None, [], global)
 
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =

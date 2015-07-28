@@ -2,7 +2,7 @@
 	"termination":1000,
 	"consensus": {
 		"protocol":"raft",
-		"election_timeout_min":30, 
+		"election_timeout_min":60, 
 		"election_timeout_max":300, 
 		"heartbeat_interval":30
 	},
