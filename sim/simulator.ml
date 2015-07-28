@@ -55,6 +55,7 @@ module Simulate =
         if trace then buffer (input_event_to_json t n e) else ();
         let (new_s,new_e,new_g) = C.eval e (States.get n ss) g in 
         if trace then buffer_many (output_events_to_json t n new_e) else ();
+        Printf.printf "%i \n" t;
         (
         match trace, new_s with
         | true, Some state -> buffer (state_to_json t n state)

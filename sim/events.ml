@@ -143,12 +143,20 @@ let check_future time input_events =
   | true -> assert false
   | false -> ()
 
+let rec check_sorted = function
+  | [] -> ()
+  | [x] -> ()
+  | (tx,_,_)::(ty,i,e)::zs when tx<=ty -> check_sorted ((ty,i,e)::zs)
+  | _ -> assert false
+
+
 let add id time output_events t =
   let q = cancel_timers time id t.queue output_events in
   let t = {t with queue=q} in 
   let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
   check_future time input_events;
-  List.fold_left add_one t input_events
+  let t = List.fold_left add_one t input_events in
+  check_sorted t.queue; t
 
 
 open Yojson.Safe
