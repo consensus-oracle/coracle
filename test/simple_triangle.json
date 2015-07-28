@@ -1,5 +1,5 @@
 {
-	"termination":1000,
+	"termination":400,
 	"consensus": {
 		"protocol":"raft",
 		"election_timeout_min":60, 

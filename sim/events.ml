@@ -137,10 +137,17 @@ let rec cancel_timers time id q = function
   | _::xs -> cancel_timers time id q xs
   | [] -> q
 
+
+let check_future time input_events = 
+  match List.exists (fun (t,_,_) -> t<time) input_events with
+  | true -> assert false
+  | false -> ()
+
 let add id time output_events t =
   let q = cancel_timers time id t.queue output_events in
   let t = {t with queue=q} in 
   let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
+  check_future time input_events;
   List.fold_left add_one t input_events
 
 

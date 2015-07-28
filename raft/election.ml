@@ -36,8 +36,7 @@ let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Globa
     (Some {state with term=pkt.term;
         mode= Follower {voted_for= Some id}},
     [PacketDispatch (id, reply pkt.term true);
-    construct_heartbeat state] @
-    (cancel_timers state), global)
+    reconstruct_heartbeat state], global)
 
 let dispatch_vote_request (state:State.t) id = 
   let open RequestVoteArg in 

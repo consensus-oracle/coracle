@@ -20,7 +20,7 @@ let form_heartbeat_reply (state:State.t) id =
 let dispatch_heartbeat (state:State.t) global =
 	let global = Global.update_n `AE_SND (List.length state.node_ids) global in
 	(None,
-		SetTimeout (to_span 100,Leadership) ::
+		SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
 	  List.map (form_heartbeat state) state.node_ids, global)
 
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
