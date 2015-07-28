@@ -20,6 +20,7 @@ type 'rpc output =
   | PacketDispatch of id * 'rpc
   | SetTimeout of span * timer
   | CancelTimeout of timer
+  | ResetTimeout of span * timer
 
 let input_to_json rpc_to_json = function
   | Startup id -> 
@@ -45,7 +46,12 @@ let output_to_json rpc_to_json  = function
     `Assoc [
       ("event",`String "starting timer");
       ("timeout type", `String (timer_to_string timer));
-      ("time", `Int s)]
+      ("duration", `Int s)]
+  | ResetTimeout (s,timer) ->
+    `Assoc [
+      ("event",`String "restarting timer");
+      ("timeout type", `String (timer_to_string timer));
+      ("duration", `Int s)]
   | CancelTimeout timer ->   
     `Assoc [
       ("event",`String "cancelling timer");

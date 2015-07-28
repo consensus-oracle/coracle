@@ -101,16 +101,6 @@ let next t =
       | _ -> t)
     |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
 
-let rec add_one t ((time,_,_) as y) = 
-  match t.queue with
-  | ((et,_,_) as x)::xs -> 
-    if (compare_time time et) <=0 then {t with queue=y::x::xs}
-    else 
-    let t_xs = add_one {t with queue=xs} y in
-    {t_xs with queue= x :: (t_xs.queue)}
-  | [] -> {t with queue=[y]}
-
-
 let output_to_input origin time t = function
   | PacketDispatch (dest,pkt) -> (
     let t = dispatch_msgs 1 t in
@@ -118,25 +108,47 @@ let output_to_input origin time t = function
     | None -> (* no path *) (drop_msgs 1 t, None)
     | Some lat -> (add_latency lat t, Some (incr time lat, dest, PacketArrival (origin,pkt)) ))
   | SetTimeout (n,timer) -> (t, Some (incr time n,origin,Timeout timer))
-  | CancelTimeout _ -> 
+  | CancelTimeout _ | ResetTimeout _ -> 
     (*should have been removed by cancel_timers *)
     (t, None)
     
 
 
-let rec cancel_timers id q = function
+let rec cancel_timers time id q = function
   | (CancelTimeout timer)::xs ->
-    cancel_timers id 
+    cancel_timers time id 
     (List.filter (function (_,e_id,Timeout e_timer) 
       when e_id=id && e_timer=timer -> false | _ -> true) q) xs
-  | _::xs -> cancel_timers id q xs
+  | (ResetTimeout (n,timer)::xs) -> 
+    cancel_timers time id 
+    ((incr time n, id, Timeout timer) ::
+    (List.filter (function (_,e_id,Timeout e_timer) 
+      when e_id=id && e_timer=timer -> false | _ -> true) q)) xs
+  | _::xs -> cancel_timers time id q xs
   | [] -> q
 
+
+let check_future time input_events = 
+  match List.exists (fun (t,_,_) -> t<time) input_events with
+  | true -> assert false
+  | false -> ()
+
+let rec check_sorted = function
+  | [] -> ()
+  | [x] -> ()
+  | (tx,_,_)::(ty,i,e)::zs when tx<=ty -> check_sorted ((ty,i,e)::zs)
+  | _ -> assert false
+
+let compare_events (t1,_,_) (t2,_,_) = compare t1 t2
+
+
 let add id time output_events t =
-  let q = cancel_timers id t.queue output_events in
+  let q = cancel_timers time id t.queue output_events in
   let t = {t with queue=q} in 
   let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
-  List.fold_left add_one t input_events
+  check_future time input_events;
+  let t = {t with queue=(List.sort compare_events (t.queue@input_events))} in
+  check_sorted t.queue; t
 
 
 open Yojson.Safe
