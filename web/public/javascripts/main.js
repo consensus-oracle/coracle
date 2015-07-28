@@ -99,6 +99,7 @@ $(document).ready(function () {
     
     var result = {
       termination: parseInt($('#termination').val()),
+      seed: parseInt($('#randomSeed').val()),
       consensus: {
         protocol:"raft",
         election_timeout_min:30, 
