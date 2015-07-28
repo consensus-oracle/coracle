@@ -2,26 +2,13 @@ open Common
 open Rpcs
 open Io
 open State
+open Util
 
-type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
-
-
-type term_checker =
-  | Invalid 
-  | Same
-  | Higher
-
-(* check term of incoming packet relative to local term *)
-let check_terms incoming_term (state:State.t) = 
-  if incoming_term > state.term then Higher
-  else if incoming_term < state.term then Invalid
-  else Same
 
 let check_vote (f:State.follower) = 
   match f.voted_for with
   | None -> true 
   | Some _ -> false
-
 
 let reply term yes = 
   let open RequestVoteRes in 
@@ -29,12 +16,6 @@ let reply term yes =
   term=term; 
   votegranted=yes;
   }
-
-let cancel_timers (state:State.t) = 
- match state.mode with
-  | Follower _ -> [CancelTimeout Heartbeat]
-  | Candidate _ -> [CancelTimeout Election]
-  | Leader _ -> [CancelTimeout Leadership]
 
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
@@ -54,7 +35,9 @@ let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Globa
   | Higher,_ ->
     (Some {state with term=pkt.term;
         mode= Follower {voted_for= Some id}},
-      [PacketDispatch (id, reply pkt.term true)], global)
+    [PacketDispatch (id, reply pkt.term true);
+    construct_heartbeat state] @
+    (cancel_timers state), global)
 
 let dispatch_vote_request (state:State.t) id = 
   let open RequestVoteArg in 
@@ -64,10 +47,12 @@ let dispatch_vote_request (state:State.t) id =
   last_index= state.last_index;
   last_term=state.last_term; })
 
+
+
 let start_follower state global = 
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
-  (None, [SetTimeout (to_span timeout,Heartbeat)], global)
+  (None, [construct_heartbeat state], global)
 
 let start_election (state:State.t) global =
   let global = global
@@ -112,6 +97,4 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.
   | Higher, _ -> 
     (* I am behind and need to update *)
     let global = Global.update `ELE_DOWN global in
-    let (_,events, global) = start_follower state global in
-    (Some {state with term=pkt.term; mode=State.follower},
-      (cancel_timers state) @ events, global)
+    step_down pkt.term state (Global.update `ELE_DOWN global)

@@ -20,7 +20,7 @@ Library raft
   Findlibname: raft
   Pack: false
   Modules:
-    Election, Replication, Global, State, Json_parser, Rpcs, Raft
+    Util, Election, Replication, Global, State, Json_parser, Rpcs, Raft
   BuildDepends: lib, sexplib, sexplib.syntax, yojson
 
 Library dummy
