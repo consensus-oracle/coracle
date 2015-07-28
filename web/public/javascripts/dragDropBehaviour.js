@@ -129,7 +129,7 @@ $(document).ready(function () {
         return;
       }
       data.links[data.links.length -1].end = d3.select(this).data()[0].id;
-      data.links.push({start:data.links[data.links.length -1].start,end:data.links[data.links.length -1].end,id:data.links.length +1});
+      data.links.push({start:data.links[data.links.length -1].end,end:data.links[data.links.length -1].start,id:data.links.length +1});
       clickableNodes.classed('clickable',false);
       console.log(data.links);
       start = null;
