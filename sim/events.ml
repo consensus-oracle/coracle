@@ -118,22 +118,27 @@ let output_to_input origin time t = function
     | None -> (* no path *) (drop_msgs 1 t, None)
     | Some lat -> (add_latency lat t, Some (incr time lat, dest, PacketArrival (origin,pkt)) ))
   | SetTimeout (n,timer) -> (t, Some (incr time n,origin,Timeout timer))
-  | CancelTimeout _ -> 
+  | CancelTimeout _ | ResetTimeout _ -> 
     (*should have been removed by cancel_timers *)
     (t, None)
     
 
 
-let rec cancel_timers id q = function
+let rec cancel_timers time id q = function
   | (CancelTimeout timer)::xs ->
-    cancel_timers id 
+    cancel_timers time id 
     (List.filter (function (_,e_id,Timeout e_timer) 
       when e_id=id && e_timer=timer -> false | _ -> true) q) xs
-  | _::xs -> cancel_timers id q xs
+  | (ResetTimeout (n,timer)::xs) -> 
+    cancel_timers time id 
+    ((incr time n, id, Timeout timer) ::
+    (List.filter (function (_,e_id,Timeout e_timer) 
+      when e_id=id && e_timer=timer -> false | _ -> true) q)) xs
+  | _::xs -> cancel_timers time id q xs
   | [] -> q
 
 let add id time output_events t =
-  let q = cancel_timers id t.queue output_events in
+  let q = cancel_timers time id t.queue output_events in
   let t = {t with queue=q} in 
   let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
   List.fold_left add_one t input_events
