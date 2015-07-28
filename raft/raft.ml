@@ -17,6 +17,7 @@ let msg_deserialize = Rpcs.rpc_deserialize
 type global = Global.t
 let reset_global = Global.init
 let global_to_json = Global.to_json
+let set_time = Global.set_time
 
 open Io 
 

@@ -34,6 +34,7 @@ let msg_deserialize = function
 type global = unit
 let global_to_json () = `Assoc []
 let reset_global = ()
+let set_time _ _ = ()
 
 let eval event state global =
   let (new_s, new_e) =
