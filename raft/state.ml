@@ -35,6 +35,7 @@ let string_of_mode_state = function
 type config = {
   election_timeout: int * int;
   heartbeat_interval: int;
+  servers: int;
 }
 
 type t = {
@@ -46,12 +47,12 @@ type t = {
  config: config;
 }
 
-let init ids config = {
+let init id config = {
  term = 1;
  mode = Follower {voted_for=None};
  last_index = 0;
  last_term = 0;
- node_ids = ids;
+ node_ids = create_nodes config.servers id 1;
  config;
 }
 

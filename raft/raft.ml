@@ -40,3 +40,9 @@ let eval event state global =
 	| PacketArrival (id,pkt) -> receive_pkt id pkt state global
 	| Startup _ -> Election.start_follower state global
     | Timeout timer -> receive_timeout timer state global
+
+(* TODO *)
+type client_state = unit
+let client_init a b = ()
+let client_state_to_json () = Yojson.Safe.(`Assoc [])
+let client_eval _ _ global = (None,[],global)
