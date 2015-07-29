@@ -15,10 +15,8 @@ $(document).ready(function () {
   
   masterServerDrag.on('drag',function(){
     console.log('dragging');
-    //console.log(d3.event);
     data.nodes[data.nodes.length -1].cx = d3.event.x;
     data.nodes[data.nodes.length -1].cy = d3.event.y;
-    //console.log(d3.event);
     updateNodes();
   });
   
@@ -40,16 +38,14 @@ $(document).ready(function () {
   
   masterHubDrag.on('dragstart',function(){
     console.log("drag started");
-    data.nodes.push({id:data.nodes.length+1,x:0,y:0,type:'Hub'});
+    data.nodes.push({id:data.nodes.length+1,cx:0,cy:0,type:'Hub'});
     console.log(d3.event);
   });
   
   masterHubDrag.on('drag',function(){
     console.log('dragging');
-    //console.log(d3.event);
-    data.nodes[data.nodes.length -1].x = d3.event.x;
-    data.nodes[data.nodes.length -1].y = d3.event.y;
-    //console.log(d3.event);
+    data.nodes[data.nodes.length -1].cx = d3.event.x;
+    data.nodes[data.nodes.length -1].cy = d3.event.y;
     updateNodes();
   });
   
@@ -61,8 +57,8 @@ $(document).ready(function () {
   d3.selectAll('.hub').call(hubDrag);
   
   hubDrag.on('drag',function(){
-    d3.select(this).data()[0].x = d3.event.x;
-    d3.select(this).data()[0].y = d3.event.y;
+    d3.select(this).data()[0].cx = d3.event.x;
+    d3.select(this).data()[0].cy = d3.event.y;
     updateNodes();
   });
   
@@ -80,6 +76,12 @@ $(document).ready(function () {
     var nodes = svg.selectAll('.nodes');
     nodes.classed('clickable',true)
     updateNodes();
+  });
+  
+  svg.on('mousemove',function(){
+	if (start != null){
+		updateLinks();
+	}
   });
   
   
@@ -104,12 +106,12 @@ $(document).ready(function () {
       .data(data.nodes.filter(hubFilter),function(d) { return d.id;})
       .call(hubDrag);
       
-    hubs.attr('x',function(d){return d.x;})
-      .attr('y',function(d){return d.y;});
+    hubs.attr('x',getHubXCoOrd)
+      .attr('y',getHubYCoOrd);
       
     hubs.enter().append('rect')
-      .attr('x',function(d){return d.x;})
-      .attr('y',function(d){return d.y;})
+      .attr('x',getHubXCoOrd)
+      .attr('y',getHubYCoOrd)
       .attr('width',10)
       .attr('height',10)
       .classed('hub',true)
@@ -139,6 +141,14 @@ $(document).ready(function () {
     updateLinks();
   }
   
+  function getHubXCoOrd(hub){
+	return hub.cx - 5;
+  }
+  
+  function getHubYCoOrd(hub){
+	return hub.cy - 5;
+  }
+  
   function updateLinks(){
     var paths = svg.selectAll('.link')
       .data(data.links,function(d) { return d.id;});
@@ -157,20 +167,12 @@ $(document).ready(function () {
   }
   
   function getLinkX1CoOrd(d){
-    if (data.nodes[d.start -1].cx != null){
-      return data.nodes[d.start -1].cx;
-    }
-    return data.nodes[d.start -1].x;
+    return data.nodes[d.start -1].cx;
   }
   
   function getLinkX2CoOrd(d){
     if (d.end != null){
-      if (data.nodes[d.end -1].cx != null){
-        return data.nodes[d.end -1].cx
-      }
-      else{
-        return data.nodes[d.end -1].x
-      }
+		return data.nodes[d.end -1].cx
     }
     var coordinates = [0, 0];
     coordinates = d3.mouse(this);
@@ -186,12 +188,7 @@ $(document).ready(function () {
   
   function getLinkY2CoOrd(d){
     if (d.end != null){
-      if (data.nodes[d.end -1].cy != null){
-        return data.nodes[d.end -1].cy
-      }
-      else{
-        return data.nodes[d.end -1].y
-      }
+		return data.nodes[d.end -1].cy
     }
     var coordinates = [0, 0];
     coordinates = d3.mouse(this);
