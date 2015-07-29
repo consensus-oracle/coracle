@@ -4,63 +4,45 @@
 $(document).ready(function () {
   var svg = d3.select('svg');
   
-  var masterServerDrag = d3.behavior.drag();
-  d3.select('.masterServer').call(masterServerDrag);
+  var masterNodeDrag = d3.behavior.drag();
+  d3.selectAll('.masterNode').call(masterNodeDrag);
   
-  masterServerDrag.on('dragstart',function(){
-    console.log("drag started");
-    data.nodes.push({id:data.nodes.length+1,cx:0,cy:0,type:'Server'});
-    console.log(d3.event);
+  masterNodeDrag.on('dragstart',function(){
+	if (this.id == 'masterServer'){
+		var type = 'Server';
+	}
+	if (this.id == 'masterHub'){
+		var type = 'Hub';
+	}
+	var coordinates = [0, 0];
+	coordinates = d3.mouse(this);
+    data.nodes.push({id:data.nodes.length+1,cx:coordinates[0],cy:coordinates[1],type:type});
+	updateNodes();
   });
   
-  masterServerDrag.on('drag',function(){
+  masterNodeDrag.on('drag',function(){
     console.log('dragging');
     data.nodes[data.nodes.length -1].cx = d3.event.x;
     data.nodes[data.nodes.length -1].cy = d3.event.y;
     updateNodes();
   });
   
-  masterServerDrag.on('dragend',function(){
-    console.log('drag ended');
+  masterNodeDrag.on('dragend',function(){
+	bringNodesIntoBounds();
   });
   
-  var serverDrag = d3.behavior.drag();
-  d3.selectAll('.server').call(serverDrag);
+  var nodesDrag = d3.behavior.drag();
   
-  serverDrag.on('drag',function(){
+  nodesDrag.on('drag',function(){
     d3.select(this).data()[0].cx = d3.event.x;
     d3.select(this).data()[0].cy = d3.event.y;
     updateNodes();
   });
   
-  var masterHubDrag = d3.behavior.drag();
-  d3.select('.masterHub').call(masterHubDrag);
-  
-  masterHubDrag.on('dragstart',function(){
-    console.log("drag started");
-    data.nodes.push({id:data.nodes.length+1,cx:0,cy:0,type:'Hub'});
-    console.log(d3.event);
+  nodesDrag.on('dragend',function(){
+	bringNodesIntoBounds();
   });
-  
-  masterHubDrag.on('drag',function(){
-    console.log('dragging');
-    data.nodes[data.nodes.length -1].cx = d3.event.x;
-    data.nodes[data.nodes.length -1].cy = d3.event.y;
-    updateNodes();
-  });
-  
-  masterHubDrag.on('dragend',function(){
-    console.log('drag ended');
-  });
-  
-  var hubDrag = d3.behavior.drag();
-  d3.selectAll('.hub').call(hubDrag);
-  
-  hubDrag.on('drag',function(){
-    d3.select(this).data()[0].cx = d3.event.x;
-    d3.select(this).data()[0].cy = d3.event.y;
-    updateNodes();
-  });
+
   
   var masterLLinkButton = d3.select('.masterLLinkButton');
   var start;
@@ -91,7 +73,7 @@ $(document).ready(function () {
   function updateNodes(){
     var servers = svg.selectAll('circle.server')
       .data(data.nodes.filter(serverFilter),function(d) { return d.id;})
-      .call(serverDrag);
+      .call(nodesDrag);
       
     servers.attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;});
@@ -104,7 +86,7 @@ $(document).ready(function () {
       
     var hubs = svg.selectAll('rect.hub')
       .data(data.nodes.filter(hubFilter),function(d) { return d.id;})
-      .call(hubDrag);
+      .call(nodesDrag);
       
     hubs.attr('x',getHubXCoOrd)
       .attr('y',getHubYCoOrd);
@@ -139,6 +121,51 @@ $(document).ready(function () {
     });
     
     updateLinks();
+  }
+  
+  function bringNodesIntoBounds(){
+	svg.selectAll('.nodes').
+		data(data.nodes.filter(function(d){ return d.cx < 100}),function(d) { return d.id;})
+		.transition()
+		.attr('cx',100)
+		.each(function (d){
+			d.cx=100;
+		});
+		
+	svg.selectAll('.nodes').
+		data(data.nodes.filter(function(d){ return d.cx > 500}),function(d) { return d.id;})
+		.transition()
+		.attr('cx',500)
+		.each(function (d){
+			d.cx=500;
+		});
+		
+	svg.selectAll('.nodes').
+		data(data.nodes.filter(function(d){ return d.cy < 0}),function(d) { return d.id;})
+		.transition()
+		.attr('cy',0)
+		.each(function (d){
+			d.cy=0;
+		});
+		
+	svg.selectAll('.nodes').
+		data(data.nodes.filter(function(d){ return d.cy > 500}),function(d) { return d.id;})
+		.transition()
+		.attr('cy',500)
+		.each(function (d){
+			d.cy=500;
+		});
+		
+	transitionHubs();
+	updateLinks();
+  }
+  
+  function transitionHubs(){
+	svg.selectAll('rect.hub')
+		.data(data.nodes.filter(hubFilter),function(d) { return d.id;})
+		.transition()
+		.attr('x',getHubXCoOrd)
+		.attr('y',getHubYCoOrd);
   }
   
   function getHubXCoOrd(hub){
