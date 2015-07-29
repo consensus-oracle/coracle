@@ -3,6 +3,7 @@
   
 $(document).ready(function () {
   var svg = d3.select('svg');
+  var paths;
   
   var masterNodeDrag = d3.behavior.drag();
   d3.selectAll('.masterNode').call(masterNodeDrag);
@@ -157,7 +158,12 @@ $(document).ready(function () {
 		});
 		
 	transitionHubs();
-	updateLinks();
+	paths
+	  .transition()
+	  .attr('x1',getLinkX1CoOrd)
+      .attr('x2',getLinkX2CoOrd)
+      .attr('y1',getLinkY1CoOrd)
+      .attr('y2',getLinkY2CoOrd);
   }
   
   function transitionHubs(){
@@ -177,7 +183,7 @@ $(document).ready(function () {
   }
   
   function updateLinks(){
-    var paths = svg.selectAll('.link')
+    paths = svg.selectAll('.link')
       .data(data.links,function(d) { return d.id;});
       
     paths.attr('x1',getLinkX1CoOrd)
