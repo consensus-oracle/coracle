@@ -46,13 +46,13 @@ module Simulate =
     `Assoc [
      ("time", `Int time);
      ("id", `Int id);
-     ("event", C.state_to_json state); ]
+     ("event", C.Server.state_to_json state); ]
 
   let client_state_to_json time id state = 
     `Assoc [
      ("time", `Int time);
      ("id", `Int id);
-     ("event", C.client_state_to_json state); ]
+     ("event", C.Client.state_to_json state); ]
 
   let rec run ss es trace output_file global =
     let rec eval ss es g =
@@ -63,7 +63,7 @@ module Simulate =
         if trace then buffer (input_event_to_json t n e) else (); (
         match States.get n ss with
         | Server s -> 
-          let (new_s,new_e,new_g) = C.eval e s g in 
+          let (new_s,new_e,new_g) = C.Server.eval e s g in 
           if trace then buffer_many (output_events_to_json t n new_e) else ();
           (
           match trace, new_s with
@@ -72,7 +72,7 @@ module Simulate =
           );
           eval (States.set_server n new_s ss) (Events.add n t new_e new_es) new_g
         | Client s -> 
-          let (new_s,new_e,new_g) = C.client_eval e s g in 
+          let (new_s,new_e,new_g) = C.Client.eval e s g in 
           if trace then buffer_many (output_events_to_json t n new_e) else ();
           (
           match trace, new_s with
@@ -91,6 +91,6 @@ module Simulate =
     if no_sanity then () else Parameters.check_sanity para;
     Numbergen.init para.seed;
     let config = C.parse_config protocol_json in
-    run (States.init ~server_init:(fun n -> C.init n config) ~client_init:(fun n -> C.client_init n config) 3 3) (Events.init para) trace output_file C.reset_global
+    run (States.init ~server_init:(fun n -> C.Server.init n config) ~client_init:(fun n -> C.Client.init n config) 3 3) (Events.init para) trace output_file C.reset_global
 
 end

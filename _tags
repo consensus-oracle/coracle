@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: b0f94e4eadf1beb9c99b7fb772730ac6)
+# DO NOT EDIT (digest: ee342f543cc2bd5d9be6414e53771b1d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -39,10 +39,10 @@ true: annot, bin_annot
 <dummy/*.ml{,i,y}>: pkg_sexplib.syntax
 <dummy/*.ml{,i,y}>: pkg_yojson
 <dummy/*.ml{,i,y}>: use_lib
-# Library unix
-"unix/unix.cmxs": use_unix
 # Library simulator
 "sim/simulator.cmxs": use_simulator
+# Library unix
+"unix/unix.cmxs": use_unix
 # Executable coracle_sim
 "sim/coracle_sim.byte": pkg_cmdliner
 "sim/coracle_sim.byte": pkg_lwt

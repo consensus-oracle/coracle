@@ -54,10 +54,10 @@ module UnixInterface =
 
   and pass_to_raft fd event = 
     to_channel stdout (input_to_json C.msg_to_json event);
-    let (s,e,g) = C.eval event (get_state()) (get_global())in 
+    let (s,e,g) = C.Server.eval event (get_state()) (get_global())in 
     set_state s;
     set_global (Some g);
-    to_channel stdout (C.state_to_json (get_state ()));
+    to_channel stdout (C.Server.state_to_json (get_state ()));
     Lwt_list.iter_p (dispatcher fd) e
 
   let process buf len dst fd = 
@@ -85,7 +85,7 @@ module UnixInterface =
   let setup id max config_file =
     Printf.printf "Starting up";
     let json = from_file config_file in
-    set_state (Some (C.init id (C.parse_config json)));
+    set_state (Some (C.Server.init id (C.parse_config json)));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in
     let fd = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
