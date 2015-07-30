@@ -6,6 +6,7 @@ type t = {
   term: int;
   seed: int option;
   network: Network.t;
+  workload: Numbergen.distribution option;
   }
 
 
