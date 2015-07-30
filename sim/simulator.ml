@@ -101,8 +101,8 @@ module Simulate =
       ~server_init:(fun n -> C.Server.init n config) 
       ~client_init:(fun n -> C.Client.init n config) 3 3 in
     let mss = States.init 
-      ~server_init:App.StateMachine.init 
-      ~client_init:App.Client.init 3 3 in
+      ~server_init:(App.StateMachine.init para)
+      ~client_init:(App.Client.init para) 3 3 in
     run ss mss (Events.init para) trace output_file C.reset_global
 
 end

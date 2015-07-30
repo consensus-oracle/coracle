@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3513ca77462c44a36466ea5b8cefb18c)
+# DO NOT EDIT (digest: ee342f543cc2bd5d9be6414e53771b1d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -17,7 +17,6 @@ true: annot, bin_annot
 # Library lib
 "lib/lib.cmxs": use_lib
 "lib/common.cmx": for-pack(Lib)
-"lib/app.cmx": for-pack(Lib)
 "lib/docs.cmx": for-pack(Lib)
 "lib/io.cmx": for-pack(Lib)
 "lib/numbergen.cmx": for-pack(Lib)

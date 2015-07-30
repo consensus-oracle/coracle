@@ -12,7 +12,7 @@ Library lib
   Findlibname: lib
   Pack: true
   Modules:
-    Common, App, Docs, Io, Numbergen, Protocol
+    Common, Docs, Io, Numbergen, Protocol
   BuildDepends: sexplib, sexplib.syntax, cmdliner, yojson
 
 Library raft
@@ -35,7 +35,7 @@ Library simulator
   Path:       sim
   Findlibname: simulator
   Modules:
-    Events, Metadata, Path, Network, Parameters, Json_handler, States, Simulator
+    Events, Metadata, Path, Network, Parameters, Json_handler, App, States, Simulator
   BuildDepends: lwt, lwt.unix, lib, yojson
 
 Library unix

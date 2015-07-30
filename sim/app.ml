@@ -5,7 +5,7 @@ module Client = struct
 
 type state = int
 
-let init n = 0 
+let init para n = 0 
 
 let eval event state = 
   match event with
@@ -19,7 +19,7 @@ module StateMachine = struct
 
 type state = int list
 
-let init n = []
+let init para n = []
 
 let eval event state = 
   match event with
