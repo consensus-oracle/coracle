@@ -14,3 +14,4 @@ val find_node: id -> time -> t -> bool
 val find_path: id -> id -> time -> t -> span option
 
 val count_servers: t -> int
+val count_clients: t -> int

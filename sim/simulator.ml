@@ -97,12 +97,14 @@ module Simulate =
     if no_sanity then () else Parameters.check_sanity para;
     Numbergen.init para.seed;
     let config = C.parse_config protocol_json in
+    let servers = Network.count_servers para.network in
+    let clients = Network.count_clients para.network in
     let ss = States.init 
       ~server_init:(fun n -> C.Server.init n config) 
-      ~client_init:(fun n -> C.Client.init n config) 3 3 in
+      ~client_init:(fun n -> C.Client.init n config) servers clients in
     let mss = States.init 
       ~server_init:(App.StateMachine.init para)
-      ~client_init:(App.Client.init para) 3 3 in
+      ~client_init:(App.Client.init para) servers clients in
     run ss mss (Events.init para) trace output_file C.reset_global
 
 end

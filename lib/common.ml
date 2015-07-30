@@ -94,4 +94,4 @@ let json_assoc key js =
 type cmd = int 
 type outcome = Faliure | Success of cmd
 
-type msg = Cmd of cmd | Outcome of outcome
+type msg = Cmd of cmd | Outcome of outcome | Startup

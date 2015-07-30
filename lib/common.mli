@@ -54,4 +54,4 @@ val json_assoc: string -> (string * 'a) list -> 'a
 type cmd = int
 type outcome = Faliure | Success of cmd
 
-type msg = Cmd of cmd | Outcome of outcome
+type msg = Cmd of cmd | Outcome of outcome | Startup
