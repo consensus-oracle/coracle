@@ -74,7 +74,7 @@ module Simulate =
           | _ -> ()
           );
           eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
-        | Client s, LocalArrival _ -> 
+        | Client s, LocalArrival _ | Client s, LocalTimeout _ -> 
           let (new_ms,new_e) = App.StateMachine.eval e s in 
           eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
         | Client s, _ -> 

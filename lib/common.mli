@@ -55,3 +55,5 @@ type cmd = int
 type outcome = Faliure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
+
+val pull: 'a option -> 'a

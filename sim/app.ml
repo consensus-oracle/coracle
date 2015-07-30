@@ -15,9 +15,21 @@ let init (para:Parameters.t) n = {
   workload = para.workload; 
 }
 
-let eval event state = 
+let eval event s = 
   match event with
-  | LocalArrival msg -> (None,[])
+  | LocalArrival msg -> (
+    match msg with 
+    | Startup -> (
+      match s.workload with
+      | Some x -> (None, [LocalSetTimeout (Numbergen.generate x)])
+      | None -> (None,[]))
+    | Cmd _ -> assert false
+    | Outcome _ -> (None,[]))
+  | LocalTimeout -> 
+    (Some {s with request=s.request+1}, [
+      ProxyDispatch (Cmd s.request); 
+      LocalSetTimeout (Numbergen.generate (pull s.workload));
+    ])
   | _ -> assert false
 
 end 

@@ -95,3 +95,5 @@ type cmd = int
 type outcome = Faliure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
+
+let pull = function Some x -> x
