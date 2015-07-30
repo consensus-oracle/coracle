@@ -41,9 +41,11 @@ type state = int list
 
 let init (para:Parameters.t) n = []
 
-let eval event state = 
+let eval event s = 
   match event with
-  | LocalArrival msg -> (None,[])
+  | LocalArrival (Cmd c) -> 
+    (Some (c::s),
+      [ProxyDispatch (Outcome (Success c))])
   | _ -> assert false
 
 end

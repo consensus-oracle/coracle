@@ -61,31 +61,41 @@ module Simulate =
       | Next ((t,n,e),new_es) ->
         let g = C.set_time t g in
         if trace then buffer (input_event_to_json t n e) else (); (
-        match (States.get n ss, e) with
-        | Server s, LocalArrival _ -> 
-          let (new_ms,new_e) = App.StateMachine.eval e s in 
-          eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
-        | Server s, _ -> 
-          let (new_s,new_e,new_g) = C.Server.eval e s g in 
-          if trace then buffer_many (output_events_to_json t n new_e) else ();
-          (
-          match trace, new_s with
-          | true, Some state -> buffer (state_to_json t n state)
-          | _ -> ()
-          );
-          eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
-        | Client s, LocalArrival _ | Client s, LocalTimeout _ -> 
-          let (new_ms,new_e) = App.StateMachine.eval e s in 
-          eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
-        | Client s, _ -> 
-          let (new_s,new_e,new_g) = C.Client.eval e s g in 
-          if trace then buffer_many (output_events_to_json t n new_e) else ();
-          (
-          match trace, new_s with
-          | true, Some state -> buffer (client_state_to_json t n state)
-          | _ -> ()
-          );
-          eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g)
+        match e with
+        | LocalArrival _ | LocalTimeout _ ->
+          (* i am a local event *)
+          match States.get n mss with
+          | Server ms -> 
+             (* i am a server side application *)
+             let (new_ms,new_e) = App.StateMachine.eval e ms in 
+             eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
+          | Client ms -> 
+             (* i am a client side application *)
+             let (new_ms,new_e) = App.Client.eval e ms in 
+             eval ss (States.set_client n new_ms mss) (Events.add n t new_e new_es) g
+        | _ ->
+          (* i am not a local event *)
+          match States.get n ss with
+          | Server s -> 
+            (* i am a server *)
+            let (new_s,new_e,new_g) = C.Server.eval e s g in 
+            if trace then buffer_many (output_events_to_json t n new_e) else ();
+            (
+            match trace, new_s with
+            | true, Some state -> buffer (state_to_json t n state)
+            | _ -> ()
+            );
+            eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
+          | Client s -> 
+            (* i am a client *)
+            let (new_s,new_e,new_g) = C.Client.eval e s g in 
+            if trace then buffer_many (output_events_to_json t n new_e) else ();
+            (
+            match trace, new_s with
+            | true, Some state -> buffer (client_state_to_json t n state)
+            | _ -> ()
+            );
+            eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g)
       | NoNext new_es -> 
         flush_buffer (Events.json_of_stats new_es) (C.global_to_json g) in 
   eval ss mss es global
