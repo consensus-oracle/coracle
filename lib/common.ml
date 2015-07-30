@@ -90,3 +90,8 @@ exception Json_parser_cannot_find_key of string
 
 let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
+
+type cmd = int 
+type outcome = Faliure | Success of cmd
+
+type msg = Cmd of cmd | Outcome of outcome

@@ -49,6 +49,8 @@ module Server = struct
   	| PacketArrival (id,pkt) -> receive_pkt id pkt state global
   	| Startup _ -> Election.start_follower state global
     | Timeout timer -> receive_timeout timer state global
+    | LocalArrival _ -> assert false
+    | ProxyArrival _ -> assert false 
 end
 
 module Client = struct

@@ -111,6 +111,8 @@ let output_to_input origin time t = function
   | CancelTimeout _ | ResetTimeout _ -> 
     (*should have been removed by cancel_timers *)
     (t, None)
+  | LocalDispatch m -> (t, Some (time,origin,LocalArrival m))
+  | ProxyDispatch m -> (t, Some (time,origin,ProxyArrival m))
     
 
 

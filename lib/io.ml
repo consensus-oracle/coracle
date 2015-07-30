@@ -15,12 +15,17 @@ type 'rpc input =
   | Startup of id 
   | PacketArrival of id * 'rpc
   | Timeout of timer
+  | LocalArrival of msg
+  | ProxyArrival of msg
+
 
 type 'rpc output = 
   | PacketDispatch of id * 'rpc
   | SetTimeout of span * timer
   | CancelTimeout of timer
   | ResetTimeout of span * timer
+  | LocalDispatch of msg
+  | ProxyDispatch of msg
 
 let input_to_json rpc_to_json = function
   | Startup id -> 

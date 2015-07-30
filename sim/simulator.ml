@@ -54,15 +54,18 @@ module Simulate =
      ("id", `Int id);
      ("event", C.Client.state_to_json state); ]
 
-  let rec run ss es trace output_file global =
-    let rec eval ss es g =
+  let rec run ss mss es trace output_file global =
+    let rec eval ss mss es g =
       let open Events in 
       match Events.next es with
       | Next ((t,n,e),new_es) ->
         let g = C.set_time t g in
         if trace then buffer (input_event_to_json t n e) else (); (
-        match States.get n ss with
-        | Server s -> 
+        match (States.get n ss, e) with
+        | Server s, LocalArrival _ -> 
+          let (new_ms,new_e) = App.StateMachine.eval e s in 
+          eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
+        | Server s, _ -> 
           let (new_s,new_e,new_g) = C.Server.eval e s g in 
           if trace then buffer_many (output_events_to_json t n new_e) else ();
           (
@@ -70,8 +73,11 @@ module Simulate =
           | true, Some state -> buffer (state_to_json t n state)
           | _ -> ()
           );
-          eval (States.set_server n new_s ss) (Events.add n t new_e new_es) new_g
-        | Client s -> 
+          eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
+        | Client s, LocalArrival _ -> 
+          let (new_ms,new_e) = App.StateMachine.eval e s in 
+          eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
+        | Client s, _ -> 
           let (new_s,new_e,new_g) = C.Client.eval e s g in 
           if trace then buffer_many (output_events_to_json t n new_e) else ();
           (
@@ -79,10 +85,10 @@ module Simulate =
           | true, Some state -> buffer (client_state_to_json t n state)
           | _ -> ()
           );
-          eval (States.set_client n new_s ss) (Events.add n t new_e new_es) new_g)
+          eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g)
       | NoNext new_es -> 
         flush_buffer (Events.json_of_stats new_es) (C.global_to_json g) in 
-  eval ss es global
+  eval ss mss es global
 
   let start config_file trace output_file no_sanity = 
     let json = Json_handler.json_from_file config_file in
@@ -91,6 +97,12 @@ module Simulate =
     if no_sanity then () else Parameters.check_sanity para;
     Numbergen.init para.seed;
     let config = C.parse_config protocol_json in
-    run (States.init ~server_init:(fun n -> C.Server.init n config) ~client_init:(fun n -> C.Client.init n config) 3 3) (Events.init para) trace output_file C.reset_global
+    let ss = States.init 
+      ~server_init:(fun n -> C.Server.init n config) 
+      ~client_init:(fun n -> C.Client.init n config) 3 3 in
+    let mss = States.init 
+      ~server_init:App.StateMachine.init 
+      ~client_init:App.Client.init 3 3 in
+    run ss mss (Events.init para) trace output_file C.reset_global
 
 end

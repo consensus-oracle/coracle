@@ -50,3 +50,8 @@ val check_parameter: int -> int parameter -> unit
 
 (* List.assoc for string with more helpful exception *)
 val json_assoc: string -> (string * 'a) list -> 'a
+
+type cmd = int
+type outcome = Faliure | Success of cmd
+
+type msg = Cmd of cmd | Outcome of outcome
