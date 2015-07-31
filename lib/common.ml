@@ -88,22 +88,30 @@ open Yojson.Safe
 
 exception Json_parser_cannot_find_key of string
 
+let json_assoc_opt key js = 
+  try Some (List.assoc key js) with Not_found -> None
+
 let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
 
-type cmd = int 
-type outcome = Failure | Success of cmd
+type cmd = int with sexp 
+type outcome = Failure | Success of cmd with sexp
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
+
+let cmd_to_json cmd = `Int cmd
+let outcome_to_json = function
+  | Failure -> `String "failure"
+  | Success s -> cmd_to_json s
 
 let msg_to_json = function
   | Cmd cmd -> `Assoc [
     ("type", `String "client command");
-    ("command", `Int cmd);
+    ("command", cmd_to_json cmd );
     ]
-  | Outcome (Success cmd) -> `Assoc [
+  | Outcome out -> `Assoc [
     ("type", `String "command response");
-    ("command", `Int cmd);
+    ("response", outcome_to_json out);
     ]
 
 let pull = function Some x -> x

@@ -51,11 +51,14 @@ val check_parameter: int -> int parameter -> unit
 
 (* List.assoc for string with more helpful exception *)
 val json_assoc: string -> (string * 'a) list -> 'a
+val json_assoc_opt: string -> (string * 'a) list -> 'a option
 
-type cmd = int
-type outcome = Failure | Success of cmd
-
+type cmd = int with sexp
+type outcome = Failure | Success of cmd with sexp
 type msg = Cmd of cmd | Outcome of outcome | Startup
+
+val cmd_to_json: cmd -> json
+val outcome_to_json: outcome -> json
 val msg_to_json: msg -> json
 
 val pull: 'a option -> 'a

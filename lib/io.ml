@@ -4,12 +4,13 @@
 open Common
 open Yojson.Safe
 
-type timer = Election | Heartbeat | Leadership
+type timer = Election | Heartbeat | Leadership | Client of int
 
 let timer_to_string = function
   | Election -> "election"
   | Heartbeat -> "heartbeat"
   | Leadership -> "leadership"
+  | Client n -> "client "^(string_of_int n)
 
 type 'rpc input = 
   | Startup of id 
