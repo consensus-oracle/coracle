@@ -101,7 +101,7 @@ module Simulate =
             ))
       | NoNext new_es -> 
         flush_buffer (Events.json_of_stats new_es) (App.json_of_stats (States.clients mss)) (C.global_to_json g) in 
-        eval ss mss es global
+    eval ss mss es global
 
   let start config_file trace output_file no_sanity = 
     let json = Json_handler.json_from_file config_file in

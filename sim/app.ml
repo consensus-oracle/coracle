@@ -56,4 +56,14 @@ let eval time event s =
 
 end
 
-let json_of_stats x = `Assoc []
+let json_of_stats x = 
+  let times = x
+    |> List.map (fun (state:Client.state) -> state.history)
+    |> List.flatten
+    |> List.map (fun (cmd,time) -> time) in
+  match times with 
+    | [] -> `String "no commands committed"
+    | _ -> `Assoc [
+      ("average time", `Int (average times));
+      ("actual times", `List (List.map (fun x -> `Int x) times));
+      ]
