@@ -3,6 +3,7 @@ open Yojson.Safe
 
 type follower = {
   voted_for: id option;
+  leader: id option;
 }
 
 type candidate = {
@@ -19,6 +20,7 @@ type mode_state =
 
 let follower = Follower {
   voted_for = None;
+  leader = None;
   }
 
 let candidate = Candidate {
@@ -35,6 +37,8 @@ let string_of_mode_state = function
 type config = {
   election_timeout: int * int;
   heartbeat_interval: int;
+  servers: int;
+  client_timer: int option;
 }
 
 type t = {
@@ -46,12 +50,12 @@ type t = {
  config: config;
 }
 
-let init ids config = {
+let init id config = {
  term = 1;
- mode = Follower {voted_for=None};
+ mode = Follower {voted_for=None; leader=None};
  last_index = 0;
  last_term = 0;
- node_ids = ids;
+ node_ids = create_nodes config.servers id 1;
  config;
 }
 
@@ -66,6 +70,7 @@ let mode_to_json = function
     `Assoc [
       ("mode type", `String "follower");
       ("voted for", match f.voted_for with None -> `String "none" | Some id -> `Int id);
+      ("leader", match f.leader with None -> `String "none" | Some id -> `Int id);
     ]
   | Candidate c ->
     `Assoc [

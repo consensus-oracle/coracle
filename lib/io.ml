@@ -4,23 +4,31 @@
 open Common
 open Yojson.Safe
 
-type timer = Election | Heartbeat | Leadership
+type timer = Election | Heartbeat | Leadership | Client of int
 
 let timer_to_string = function
   | Election -> "election"
   | Heartbeat -> "heartbeat"
   | Leadership -> "leadership"
+  | Client n -> "client "^(string_of_int n)
 
 type 'rpc input = 
   | Startup of id 
   | PacketArrival of id * 'rpc
   | Timeout of timer
+  | LocalArrival of msg
+  | LocalTimeout
+  | ProxyArrival of msg
+
 
 type 'rpc output = 
   | PacketDispatch of id * 'rpc
   | SetTimeout of span * timer
   | CancelTimeout of timer
   | ResetTimeout of span * timer
+  | LocalDispatch of msg
+  | LocalSetTimeout of span
+  | ProxyDispatch of msg
 
 let input_to_json rpc_to_json = function
   | Startup id -> 
@@ -35,6 +43,11 @@ let input_to_json rpc_to_json = function
       `Assoc [
       ("event",`String "timeout trigger");
       ("timeout type", `String (timer_to_string timer))]
+  | ProxyArrival msg ->
+      `Assoc [
+      ("event",`String "local message arrival");
+      ("payload", msg_to_json msg);
+      ]
 
 let output_to_json rpc_to_json  = function
   | PacketDispatch (id,pkt) ->
@@ -56,3 +69,7 @@ let output_to_json rpc_to_json  = function
     `Assoc [
       ("event",`String "cancelling timer");
       ("timeout type", `String (timer_to_string timer));]
+  | ProxyDispatch msg ->
+      `Assoc [
+      ("event",`String "local message dispatched");
+      ("payload", msg_to_json msg);]

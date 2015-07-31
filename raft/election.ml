@@ -4,12 +4,6 @@ open Io
 open State
 open Util
 
-
-let check_vote (f:State.follower) = 
-  match f.voted_for with
-  | None -> true 
-  | Some _ -> false
-
 let reply term yes = 
   let open RequestVoteRes in 
   RVR {
@@ -26,15 +20,15 @@ let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Globa
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
     (None, [PacketDispatch (id,reply state.term false)], global)
   | Same, Follower f -> (
-    match check_vote f with
-    | true ->
-      (Some {state with mode= Follower {voted_for= Some id}},
+    match f.voted_for with
+    | None ->
+      (Some {state with mode= Follower {f with voted_for= Some id}},
         [PacketDispatch (id, reply state.term true)], global)
-    | false ->
+    | Some _ ->
       (None, [PacketDispatch (id,reply state.term false)], global))
   | Higher,_ ->
     (Some {state with term=pkt.term;
-        mode= Follower {voted_for= Some id}},
+        mode= Follower {voted_for= Some id; leader=None}},
     [PacketDispatch (id, reply pkt.term true);
     reconstruct_heartbeat state], global)
 

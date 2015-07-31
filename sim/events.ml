@@ -56,34 +56,20 @@ let add_latency n t =
 let count f qu = 
   List.length (List.filter f qu)
 
-let average = function
-  | [] -> 0
-  | xs -> List.fold_left (+) 0 xs / List.length xs
-
-let rec map_filter f = function
-  | [] -> []
-  | x::xs -> (
-    match f x with 
-    | None -> map_filter f xs 
-    | Some y -> y :: (map_filter f xs))
-
-let rec map_filter_fold f t acc = function
-  | [] -> (t, List.rev acc)
-  | x::xs -> (
-    match f t x with 
-    | (t, None) -> map_filter_fold f t acc xs
-    | (t, Some y) -> map_filter_fold f t (y::acc) xs)
-
-
 let rec start_events m n =
-    if m>n then [] 
+  if m>n then [] 
   else 
-    let id = id_of_int m in 
-    (to_time 0, id, Startup id) :: (start_events (m+1) n)
+    (to_time 0, m, Startup m) :: (start_events (m+1) n)
+
+let rec start_clients m n =
+  if m>n then [] 
+  else 
+    (to_time 0, m, LocalArrival Startup) :: (start_events (m+1) n)
 
 let init p = 
-  let n = Parameters.(Network.count_servers p.network) in
-  {queue = start_events 1 n; 
+  let s = Parameters.(Network.count_servers p.network) in
+  let c = Parameters.(Network.count_clients p.network) in
+  {queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)); 
   queue_id = 0;
   data=inital_data;
   p}
@@ -111,6 +97,9 @@ let output_to_input origin time t = function
   | CancelTimeout _ | ResetTimeout _ -> 
     (*should have been removed by cancel_timers *)
     (t, None)
+  | LocalDispatch m -> (t, Some (time,origin,LocalArrival m))
+  | ProxyDispatch m -> (t, Some (time,origin,ProxyArrival m))
+  | LocalSetTimeout n -> (t, Some (incr time n,origin,LocalTimeout))
     
 
 

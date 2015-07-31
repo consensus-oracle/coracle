@@ -2,6 +2,7 @@ open Common
 open Yojson.Safe
 
 type t = {
+	time: time;
 	ae_pkts_snd: int;
 	ae_pkts_rcv: int;
 	rv_pkts_snd: int;
@@ -14,6 +15,7 @@ type t = {
 }
 
 let init = {
+	time = 0;
 	ae_pkts_snd = 0;
 	ae_pkts_rcv = 0;
 	rv_pkts_snd = 0;
@@ -25,8 +27,12 @@ let init = {
 	ele_stepdown = 0;
 }
 
+let set_time time g = {g with time=time}
+let get_time g = g.time
+
 let to_json g = 
 	`Assoc [
+		("termination time", `Int g.time);
 		("append entries packets", `Assoc [
 			("received", `Int g.ae_pkts_rcv); 
 			("dispatched", `Int g.ae_pkts_snd);
@@ -50,7 +56,11 @@ let update tick t =
 	| `AE_RCV ->  {t with ae_pkts_rcv = t.ae_pkts_rcv +1 }
 	| `RV_SND -> {t with rv_pkts_snd = t.rv_pkts_snd +1 }
 	| `RV_RCV -> {t with rv_pkts_rcv = t.rv_pkts_rcv +1 }
-	| `ELE_WON -> {t with ele_won = t.ele_won +1 }
+	| `ELE_WON -> 
+		let t = {t with ele_won = t.ele_won +1 } in (
+		match t.first_leader with
+		| Some _ -> t
+		| None -> {t with first_leader=Some t.time} )
 	| `ELE_START -> {t with ele_start = t.ele_start +1 }
 	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }

@@ -88,5 +88,48 @@ open Yojson.Safe
 
 exception Json_parser_cannot_find_key of string
 
+let json_assoc_opt key js = 
+  try Some (List.assoc key js) with Not_found -> None
+
 let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
+
+type cmd = int with sexp 
+type outcome = Failure | Success of cmd with sexp
+
+type msg = Cmd of cmd | Outcome of outcome | Startup
+
+let cmd_to_json cmd = `Int cmd
+let outcome_to_json = function
+  | Failure -> `String "failure"
+  | Success s -> cmd_to_json s
+
+let msg_to_json = function
+  | Cmd cmd -> `Assoc [
+    ("type", `String "client command");
+    ("command", cmd_to_json cmd );
+    ]
+  | Outcome out -> `Assoc [
+    ("type", `String "command response");
+    ("response", outcome_to_json out);
+    ]
+
+let pull = function Some x -> x
+
+let average = function
+  | [] -> 0
+  | xs -> List.fold_left (+) 0 xs / List.length xs
+
+let rec map_filter f = function
+  | [] -> []
+  | x::xs -> (
+    match f x with 
+    | None -> map_filter f xs 
+    | Some y -> y :: (map_filter f xs))
+
+let rec map_filter_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    match f t x with 
+    | (t, None) -> map_filter_fold f t acc xs
+    | (t, Some y) -> map_filter_fold f t (y::acc) xs)

@@ -32,6 +32,9 @@ let json_from_file filename =
       term = find_int term config;
       seed = find_int_option seed config;
       network = json_assoc "network" config |> Network.parse; 
+      workload = Numbergen.to_distribution 
+        (find_int_option workload_min config, 
+        find_int_option workload_max config);
       }
    | _ -> raise JSON_parsing_failure
 

@@ -11,9 +11,9 @@ let protocol_selector config_file trace output_file no_sanity =
   | `Raft -> 
      let module R = Simulator.Simulate(Raft) in
      R.start config_file trace output_file no_sanity
-  | `Dummy -> 
+(*   | `Dummy -> 
     let module D = Simulator.Simulate(Dummy) in 
-    D.start config_file trace output_file no_sanity
+    D.start config_file trace output_file no_sanity *)
 
 
 let t =

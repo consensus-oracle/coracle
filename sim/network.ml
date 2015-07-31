@@ -182,3 +182,7 @@ let count_servers t =
   |> List.filter (fun node -> match node.node_type with Server -> true | _ -> false )
   |> List.length
 
+let count_clients t = 
+  t.nodes
+  |> List.filter (fun node -> match node.node_type with Client -> true | _ -> false )
+  |> List.length
