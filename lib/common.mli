@@ -52,8 +52,12 @@ val check_parameter: int -> int parameter -> unit
 val json_assoc: string -> (string * 'a) list -> 'a
 
 type cmd = int
-type outcome = Faliure | Success of cmd
+type outcome = Failure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
 
 val pull: 'a option -> 'a
+
+val average: int list -> int
+val map_filter: ('a -> 'b option) -> 'a list -> 'b list
+val map_filter_fold: ('a -> 'b -> 'a * 'c option) -> 'a -> 'c list -> 'b list -> 'a * 'c list

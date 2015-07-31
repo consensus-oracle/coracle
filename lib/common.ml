@@ -92,8 +92,26 @@ let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
 
 type cmd = int 
-type outcome = Faliure | Success of cmd
+type outcome = Failure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
 
 let pull = function Some x -> x
+
+let average = function
+  | [] -> 0
+  | xs -> List.fold_left (+) 0 xs / List.length xs
+
+let rec map_filter f = function
+  | [] -> []
+  | x::xs -> (
+    match f x with 
+    | None -> map_filter f xs 
+    | Some y -> y :: (map_filter f xs))
+
+let rec map_filter_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    match f t x with 
+    | (t, None) -> map_filter_fold f t acc xs
+    | (t, Some y) -> map_filter_fold f t (y::acc) xs)

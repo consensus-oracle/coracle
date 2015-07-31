@@ -14,12 +14,13 @@ module Simulate =
   let json_to_stdout json = 
     pretty_to_channel ~std:true stdout json
 
-  let flush_buffer general protocol = 
+  let flush_buffer general client protocol = 
     json_to_stdout (
       `Assoc [
         ("trace", `List !trace_buffer);
         ("results", `Assoc [
-          ("general", general);
+          ("network", general);
+          ("client", client);
           ("protocol specific", protocol);
         ]);
       ])
@@ -58,22 +59,23 @@ module Simulate =
     let rec eval ss mss es g =
       let open Events in 
       match Events.next es with
-      | Next ((t,n,e),new_es) ->
+      | Next ((t,n,e),new_es) -> 
         let g = C.set_time t g in
         if trace then buffer (input_event_to_json t n e) else (); (
         match e with
-        | LocalArrival _ | LocalTimeout _ ->
+        | LocalArrival _ | LocalTimeout -> (
           (* i am a local event *)
           match States.get n mss with
           | Server ms -> 
              (* i am a server side application *)
-             let (new_ms,new_e) = App.StateMachine.eval e ms in 
+             let (new_ms,new_e) = App.StateMachine.eval t e ms in 
              eval ss (States.set_server n new_ms mss) (Events.add n t new_e new_es) g
           | Client ms -> 
              (* i am a client side application *)
-             let (new_ms,new_e) = App.Client.eval e ms in 
+             let (new_ms,new_e) = App.Client.eval t e ms in 
              eval ss (States.set_client n new_ms mss) (Events.add n t new_e new_es) g
-        | _ ->
+          )
+        | _ -> (
           (* i am not a local event *)
           match States.get n ss with
           | Server s -> 
@@ -95,10 +97,11 @@ module Simulate =
             | true, Some state -> buffer (client_state_to_json t n state)
             | _ -> ()
             );
-            eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g)
+            eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g
+            ))
       | NoNext new_es -> 
-        flush_buffer (Events.json_of_stats new_es) (C.global_to_json g) in 
-  eval ss mss es global
+        flush_buffer (Events.json_of_stats new_es) (App.json_of_stats (States.clients mss)) (C.global_to_json g) in 
+        eval ss mss es global
 
   let start config_file trace output_file no_sanity = 
     let json = Json_handler.json_from_file config_file in

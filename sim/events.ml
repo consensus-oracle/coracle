@@ -56,25 +56,6 @@ let add_latency n t =
 let count f qu = 
   List.length (List.filter f qu)
 
-let average = function
-  | [] -> 0
-  | xs -> List.fold_left (+) 0 xs / List.length xs
-
-let rec map_filter f = function
-  | [] -> []
-  | x::xs -> (
-    match f x with 
-    | None -> map_filter f xs 
-    | Some y -> y :: (map_filter f xs))
-
-let rec map_filter_fold f t acc = function
-  | [] -> (t, List.rev acc)
-  | x::xs -> (
-    match f t x with 
-    | (t, None) -> map_filter_fold f t acc xs
-    | (t, Some y) -> map_filter_fold f t (y::acc) xs)
-
-
 let rec start_events m n =
   if m>n then [] 
   else 
