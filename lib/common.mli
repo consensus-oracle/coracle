@@ -2,6 +2,7 @@
 	it's designed to be opened in source headers *)
 
 open Sexplib.Conv
+open Yojson.Safe
 
 type id = int with sexp
 type index = int with sexp
@@ -55,6 +56,7 @@ type cmd = int
 type outcome = Failure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
+val msg_to_json: msg -> json
 
 val pull: 'a option -> 'a
 

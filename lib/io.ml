@@ -42,6 +42,11 @@ let input_to_json rpc_to_json = function
       `Assoc [
       ("event",`String "timeout trigger");
       ("timeout type", `String (timer_to_string timer))]
+  | ProxyArrival msg ->
+      `Assoc [
+      ("event",`String "local message arrival");
+      ("payload", msg_to_json msg);
+      ]
 
 let output_to_json rpc_to_json  = function
   | PacketDispatch (id,pkt) ->
@@ -63,3 +68,7 @@ let output_to_json rpc_to_json  = function
     `Assoc [
       ("event",`String "cancelling timer");
       ("timeout type", `String (timer_to_string timer));]
+  | ProxyDispatch msg ->
+      `Assoc [
+      ("event",`String "local message dispatched");
+      ("payload", msg_to_json msg);]

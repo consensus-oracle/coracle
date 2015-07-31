@@ -96,6 +96,16 @@ type outcome = Failure | Success of cmd
 
 type msg = Cmd of cmd | Outcome of outcome | Startup
 
+let msg_to_json = function
+  | Cmd cmd -> `Assoc [
+    ("type", `String "client command");
+    ("command", `Int cmd);
+    ]
+  | Outcome (Success cmd) -> `Assoc [
+    ("type", `String "command response");
+    ("command", `Int cmd);
+    ]
+
 let pull = function Some x -> x
 
 let average = function
