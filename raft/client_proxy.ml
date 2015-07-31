@@ -30,6 +30,8 @@ let init id (config:State.config) = {
 let state_to_json state : json = 
   `Assoc [
     ("last leader", match state.last_leader with None -> `String "none" | Some id -> `Int id);
+    ("outstanding", match state.outstanding with None -> `String "none" | Some (id,cmd) -> `Int id);
+    ("next sequence number", `Int state.seq_num);
   ]
 
 let receive_timeout timer state global = 
