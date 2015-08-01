@@ -48,6 +48,15 @@ let input_to_json rpc_to_json = function
       ("event",`String "local message arrival");
       ("payload", msg_to_json msg);
       ]
+  | LocalArrival msg ->       
+      `Assoc [
+      ("event",`String "local message arrival");
+      ("payload", msg_to_json msg);
+      ]
+  | LocalTimeout ->       
+      `Assoc [
+      ("event",`String "time out for local application");
+      ]
 
 let output_to_json rpc_to_json  = function
   | PacketDispatch (id,pkt) ->
