@@ -11,7 +11,7 @@ let extract_int (json:json) =
 
 exception JSON_parsing_failure
 
-let config_from_json (json:json) = 
+let config_from_json servers _ (json:json) = 
   match json with
   | `Assoc config -> 
     let min = json_assoc "election_timeout_min" config |> extract_int in
@@ -20,7 +20,7 @@ let config_from_json (json:json) =
     let client_timer = json_assoc_opt "heartbeat_interval" config |> maybe_apply extract_int in
 	{ election_timeout = (min,max);
 	 heartbeat_interval = interval;
-	 servers=3; (* TODO *)
+	 servers;
    client_timer;
 	}
   | _ -> raise JSON_parsing_failure

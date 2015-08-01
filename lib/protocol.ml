@@ -6,7 +6,7 @@ open Yojson.Safe
 module type CONSENSUS = sig
   
 	type config
-	val parse_config: json -> config
+	val parse_config: int -> int -> json -> config
 
 	type global
 	val reset_global: global

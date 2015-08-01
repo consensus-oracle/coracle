@@ -107,11 +107,11 @@ module Simulate =
     let json = Json_handler.json_from_file config_file in
     let para = Json_handler.parameters_from_json json in
     let protocol_json = Json_handler.proto_json_from_json json in
-    if no_sanity then () else Parameters.check_sanity para;
-    Numbergen.init para.seed;
-    let config = C.parse_config protocol_json in
     let servers = Network.count_servers para.network in
     let clients = Network.count_clients para.network in
+    if no_sanity then () else Parameters.check_sanity para;
+    Numbergen.init para.seed;
+    let config = C.parse_config servers clients protocol_json in
     let ss = States.init 
       ~server_init:(fun n -> C.Server.init n config) 
       ~client_init:(fun n -> C.Client.init n config) servers clients in
