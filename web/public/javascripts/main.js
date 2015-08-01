@@ -135,24 +135,47 @@ $(document).ready(function () {
       network:{
         nodes:data.nodes,
         links:data.links,
-        events:[{
-          time:0,
-          links:[],
-          nodes:[]
-          }
-        ]
+        events:[]
       }
     };
     
     data.nodes.filter(serverFilter).forEach(function(node){
       //console.log(node);
-      result.network.events[0].nodes.push({id:node.id,active:true});
+      node.events.forEach(function(nodeEvent){
+        var event = $.grep(result.network.events,function(n,i){
+          return n.time == nodeEvent.time;
+        });
+        
+        if (event.length == 0){
+          result.network.events.push({time:nodeEvent.time,links:[],nodes:[]});
+          event = $.grep(result.network.events,function(n,i){
+            return n.time == nodeEvent.time;
+          });
+        }
+        console.log(event)
+        event[0].nodes.push({id:node.id,active:nodeEvent.active});
+      });
     });
     
     data.links.forEach(function(link){
-      //console.log(link);
-      result.network.events[0].links.push({id:link.id,active:true,type:'s'});
+      link.events.forEach(function(linkEvent){
+        var event = $.grep(result.network.events,function(n,i){
+          return n.time == linkEvent.time;
+        });
+        
+        if (event.length == 0){
+          result.network.events.push({time:linkEvent.time,links:[],nodes:[]});
+          event = $.grep(result.network.events,function(n,i){
+            return n.time == linkEvent.time;
+          });
+        }
+        console.log(linkEvent);
+        event[0].links.push({id:link.id,active:linkEvent.active,type:'s'});
+        
+      });
     });
+    
+    
     var string = JSON.stringify(result,null,'\t');
     console.log(result);
     return string;
