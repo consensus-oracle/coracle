@@ -28,7 +28,7 @@ block content
           
           div.form-group#advancedSettingsButton
             button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
-              aria-expanded='fa$()lse') Advanced Settings
+              aria-expanded='false') Advanced Settings
           
           div.collapse#advancedSettings
             div.well
@@ -38,17 +38,27 @@ block content
           button.btn.btn-primary#runSim Run Simulation
   
         div.well#networkView
+          div.btn-group
+            button.btn.btn-default.active#nodesModeRadioButton Add Nodes
+            button.btn.btn-default#linksModeRadioButton Add Links
+            button.btn.btn-default#disableModeRadioButton Toggle State
+            
+          br
+          
           svg#networkViewCanvas(width = 500, height=500)
             rect.border(x='0',y='0',width='500',height='500')
-            circle.masterServer(cx='50',cy='50')#masterServer
+            circle.masterServer.masterNode(cx='50',cy='50')#masterServer
             text.label(x='40',y='70') Server
-            rect.masterHub(x='45',y='75',width='10', height='10')#masterHub
+            rect.masterHub.masterNode(x='45',y='75',width='10', height='10')#masterHub
             text.label(x='40',y='100') Hub
-            rect.masterLLinkButton(x='25',y='105',width='70',height='40')
-            line.masterLLink(x1='40',x2='70',y1='110',y2='110')
-            text.label(x='30',y='130') Add Link (L) 
+            circle.masterClient.masterNode(cx='50',cy='110')#masterClient
+            text.label(x='40',y='130') Client
+            //rect.masterLLinkButton(x='25',y='105',width='70',height='40')
+            //line.masterLLink(x1='40',x2='70',y1='110',y2='110')
+            //text.label(x='30',y='130') Add Link (L)
             line.separator(x1='100',y1='0',x2='100',y2='500')
-            
+
+
       div.tab-pane#resultsTabContent(role='tabpanel')
         div.panel.panel-default.hidden#resultsPanel
           div.panel-heading Results
