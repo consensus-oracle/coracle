@@ -64,7 +64,7 @@ let restart_election state global =
 let won (state:State.t) = 
   match state.mode with
   | Candidate cand -> (List.length cand.votes_from +1) *2 > 
-  (List.length state.node_ids)
+  (List.length state.node_ids +1)
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =
