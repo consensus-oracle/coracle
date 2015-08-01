@@ -11,6 +11,10 @@ rect.border{
   opacity:0.1;
 }
 
+.masterNode.disabled{
+  fill:grey;
+}
+
 circle.masterServer{
   fill: green;
   r:10;
@@ -66,4 +70,13 @@ rect.masterLLinkButton.mouseover{
 
 text.label{
   pointer-events: none;
+}
+
+.nodes.toggleState{
+  stroke:black;
+  stroke-width:3;
+}
+
+.link.toggleState{
+  stroke-width:4;
 }

@@ -1,27 +1,37 @@
   var data = {nodes:[],
   links:[]};
-  
-$(document).ready(function () {
-  var svg = d3.select('svg');
+  var svg;
   var paths;
+  var masterNodeDrag;
+  var nodesDrag;
+  var start;
+  var end;
+$(document).ready(function () {
+  svg = d3.select('svg');
   
-  var masterNodeDrag = d3.behavior.drag();
+  masterNodeDrag = d3.behavior.drag();
   d3.selectAll('.masterNode').call(masterNodeDrag);
   
   masterNodeDrag.on('dragstart',function(){
-	if (this.id == 'masterServer'){
-		var type = 'Server';
-	}
-	if (this.id == 'masterHub'){
-		var type = 'Hub';
-	}
-	var coordinates = [0, 0];
-	coordinates = d3.mouse(this);
-    data.nodes.push({id:data.nodes.length+1,cx:coordinates[0],cy:coordinates[1],type:type});
-	updateNodes();
+    if (mode != 'nodes'){
+      return;
+    }
+    if (this.id == 'masterServer'){
+      var type = 'Server';
+    }
+    if (this.id == 'masterHub'){
+      var type = 'Hub';
+    }
+    var coordinates = [0, 0];
+    coordinates = d3.mouse(this);
+      data.nodes.push({id:data.nodes.length+1,cx:coordinates[0],cy:coordinates[1],type:type});
+    updateNodes();
   });
   
   masterNodeDrag.on('drag',function(){
+    if (mode != 'nodes'){
+        return;
+      }
     console.log('dragging');
     data.nodes[data.nodes.length -1].cx = d3.event.x;
     data.nodes[data.nodes.length -1].cy = d3.event.y;
@@ -32,7 +42,7 @@ $(document).ready(function () {
 	bringNodesIntoBounds();
   });
   
-  var nodesDrag = d3.behavior.drag();
+  nodesDrag = d3.behavior.drag();
   
   nodesDrag.on('drag',function(){
     d3.select(this).data()[0].cx = d3.event.x;
@@ -45,9 +55,8 @@ $(document).ready(function () {
   });
 
   
-  var masterLLinkButton = d3.select('.masterLLinkButton');
-  var start;
-  var end;
+  /*var masterLLinkButton = d3.select('.masterLLinkButton');
+
   masterLLinkButton.on('mouseover',function(){
     d3.select(this).classed('mouseover',true);
   })
@@ -60,17 +69,38 @@ $(document).ready(function () {
     nodes.classed('clickable',true)
     updateNodes();
   });
+  */
   
   svg.on('mousemove',function(){
-	if (start != null){
-		updateLinks();
-	}
+    if (start != null){
+      updateLinks();
+    }
   });
   
+  window.addEventListener('keydown',function(event){
+    if (event.defaultPrevented) {
+      return; // Should do nothing if the key event was already consumed.
+    }
+    
+    if (event.keyCode == 27){
+      //if Escape key
+      cancelLink()
+    }
   
+  });
 
-  
-  
+    
+});
+
+  function cancelLink(){
+    if (start != null){
+        start = null;
+        data.links.splice(-1,1);
+        updateLinks();
+        d3.selectAll('.nodes').classed('clickable',mode == 'links');
+      }
+  }
+
   function updateNodes(){
     var servers = svg.selectAll('circle.server')
       .data(data.nodes.filter(serverFilter),function(d) { return d.id;})
@@ -115,7 +145,7 @@ $(document).ready(function () {
       }
       data.links[data.links.length -1].end = d3.select(this).data()[0].id;
       data.links.push({start:data.links[data.links.length -1].end,end:data.links[data.links.length -1].start,id:data.links.length +1});
-      clickableNodes.classed('clickable',false);
+      d3.selectAll('.nodes').classed('clickable',true);
       console.log(data.links);
       start = null;
       updateNodes();
@@ -197,6 +227,8 @@ $(document).ready(function () {
       .attr('y1',getLinkY1CoOrd)
       .attr('y2',getLinkY2CoOrd)
       .classed('link',true);
+      
+    paths.exit().remove();
   }
   
   function getLinkX1CoOrd(d){
@@ -227,9 +259,6 @@ $(document).ready(function () {
     coordinates = d3.mouse(this);
     return coordinates[1];
   }
-    
-});
-
   function serverFilter(d){
     return d.type == 'Server';
   }

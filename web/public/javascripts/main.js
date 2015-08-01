@@ -1,6 +1,31 @@
 var maxNodes = 20;
 var maxTermination = 100000;
+var mode= 'nodes';
 $(document).ready(function () {
+  $(".btn-group > .btn").click(function(){
+    $(this).addClass("active").siblings().removeClass("active");
+    switch($(this).attr('id')){
+      case 'nodesModeRadioButton':
+        mode= 'nodes';
+        break;
+      case 'linksModeRadioButton':
+        mode= 'links';
+        break;
+      case 'disableModeRadioButton':
+        mode= 'disable';
+        break;
+    }
+    //console.log('mode: ' + mode);
+    d3.selectAll('.masterNode').classed('disabled',mode != 'nodes');
+    d3.selectAll('.nodes').classed('clickable',mode == 'links')
+      .classed('toggleState',mode == 'disable');
+    paths.classed('toggleState',mode == 'disable');
+    if (mode != 'links'){
+      cancelLink()
+    }
+    updateNodes();
+});
+
   $("#lossSlider").slider({
   });
     $('#runSim').click(function () {
