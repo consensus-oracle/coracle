@@ -30,7 +30,7 @@ $(document).ready(function () {
     }
     var coordinates = [0, 0];
     coordinates = d3.mouse(this);
-      data.nodes.push({id:data.nodes.length+1,cx:coordinates[0],cy:coordinates[1],type:type});
+    data.nodes.push({id:data.nodes.length+1,cx:coordinates[0],cy:coordinates[1],type:type,events:[{time:0,active:'true'}]});
     updateNodes();
   });
   
@@ -155,7 +155,7 @@ $(document).ready(function () {
         return;
       }
       if (start == null){
-        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1});
+        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1,events:[{time:0,active:'true'}]});
         d3.select(this).classed('clickable',false);
         console.log(data.links);
         start = d3.select(this).data()[0].id;
@@ -163,11 +163,34 @@ $(document).ready(function () {
         return;
       }
       data.links[data.links.length -1].end = d3.select(this).data()[0].id;
-      data.links.push({start:data.links[data.links.length -1].end,end:data.links[data.links.length -1].start,id:data.links.length +1});
+      data.links.push({start:data.links[data.links.length -1].end,end:data.links[data.links.length -1].start,id:data.links.length +1,events:[{time:0,active:'true'}]});
       d3.selectAll('.nodes').classed('clickable',true);
       console.log(data.links);
       start = null;
       updateNodes();
+    });
+    
+    var toggleables = d3.selectAll('.toggleState');
+    toggleables.on('click',function(){
+      console.log('toggle');
+      if (!d3.select(this).classed('toggleState') || mode !='disable'){
+        console.log('exiting');
+        return;
+      }
+      var disabled = d3.select(this).classed('disabled');
+      var localEvents = d3.select(this).data()[0].events;
+      var event = $.grep(localEvents,function(n,i){
+        return n.time == time;
+      });
+      if (event.length == 0){
+        console.log('no event');
+        localEvents.push({time:time,active:!disabled});
+      }
+      else{
+        event[0].active = !disabled
+      }
+      d3.select(this).classed('disabled',!disabled);
+      console.log(localEvents);
     });
     
     updateLinks();

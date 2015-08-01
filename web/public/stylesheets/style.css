@@ -93,4 +93,13 @@ text.label{
 
 .link.toggleState{
   stroke-width:4;
+  pointer-events: visiblePainted;
+}
+
+.nodes.disabled{
+  fill:grey;
+}
+
+.link.disabled{
+  stroke:grey;
 }

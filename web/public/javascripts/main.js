@@ -1,6 +1,7 @@
 var maxNodes = 20;
 var maxTermination = 100000;
 var mode= 'nodes';
+var time=0;
 $(document).ready(function () {
   $(".btn-group > .btn").click(function(){
     $(this).addClass("active").siblings().removeClass("active");
