@@ -8,7 +8,7 @@ type state = {
 }
 
 type config = int
-let parse_config (json:json) = 
+let parse_config _ _ (json:json) = 
   match json with 
   | `Assoc config -> config
   |> List.assoc "id"

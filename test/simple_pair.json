@@ -1,0 +1,89 @@
+{
+	"termination": 1000,
+	"seed": 4992,
+	"consensus": {
+		"protocol": "raft",
+		"election_timeout_min": 30,
+		"election_timeout_max": 300,
+		"heartbeat_interval": 30
+	},
+	"network": {
+		"nodes": [
+			{
+				"id": 1,
+				"cx": 240,
+				"cy": 120,
+				"type": "Server",
+				"events": [
+					{
+						"time": 0,
+						"active": true
+					}
+				]
+			},
+			{
+				"id": 2,
+				"cx": 318,
+				"cy": 178,
+				"type": "Server",
+				"events": [
+					{
+						"time": 0,
+						"active": true
+					}
+				]
+			}
+		],
+		"links": [
+			{
+				"start": 1,
+				"id": 1,
+				"events": [
+					{
+						"time": 0,
+						"active": true
+					}
+				],
+				"end": 2
+			},
+			{
+				"start": 2,
+				"end": 1,
+				"id": 2,
+				"events": [
+					{
+						"time": 0,
+						"active": true
+					}
+				]
+			}
+		],
+		"events": [
+			{
+				"time": 0,
+				"links": [
+					{
+						"id": 1,
+						"active": true,
+						"type": "s"
+					},
+					{
+						"id": 2,
+						"active": true,
+						"type": "s"
+					}
+				],
+				"nodes": [
+					{
+						"id": 1,
+						"active": true
+					},
+					{
+						"id": 2,
+						"active": true
+					}
+				]
+			}
+		]
+	}
+}

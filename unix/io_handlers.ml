@@ -85,7 +85,7 @@ module UnixInterface =
   let setup id max config_file =
     Printf.printf "Starting up";
     let json = from_file config_file in
-    set_state (Some (C.Server.init id (C.parse_config json)));
+    set_state (Some (C.Server.init id (C.parse_config 3 3 json)));
     let id = id_of_int id in
     let src = Id.sockaddr_of_id id in
     let fd = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
