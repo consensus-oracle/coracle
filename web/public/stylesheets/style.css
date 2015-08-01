@@ -20,6 +20,20 @@ circle.masterServer{
   r:10;
 }
 
+circle.masterClient{
+  fill:lightblue;
+  r:10;
+}
+
+circle.client{
+  fill:lightblue;
+  r:10;
+}
+
+circle.client.clickable{
+  fill:pink;
+}
+
 circle.server{
   fill: red;
   r:10;

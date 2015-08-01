@@ -16,11 +16,17 @@ $(document).ready(function () {
     if (mode != 'nodes'){
       return;
     }
-    if (this.id == 'masterServer'){
-      var type = 'Server';
-    }
-    if (this.id == 'masterHub'){
-      var type = 'Hub';
+    var tyoe;
+    switch (this.id){
+      case 'masterServer':
+        type = 'Server';
+        break;
+      case 'masterHub':
+        type = 'Hub';
+        break;
+      case 'masterClient':
+        type = 'Client';
+        break;
     }
     var coordinates = [0, 0];
     coordinates = d3.mouse(this);
@@ -113,6 +119,19 @@ $(document).ready(function () {
       .attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;})
       .classed('server',true)
+      .classed('nodes',true);
+      
+    var clients = svg.selectAll('circle.client')
+      .data(data.nodes.filter(clientFilter),function(d) { return d.id;})
+      .call(nodesDrag);
+      
+    clients.attr('cx',function(d){return d.cx;})
+      .attr('cy',function(d){return d.cy;});
+      
+    clients.enter().append('circle')
+      .attr('cx',function(d){return d.cx;})
+      .attr('cy',function(d){return d.cy;})
+      .classed('client',true)
       .classed('nodes',true);
       
     var hubs = svg.selectAll('rect.hub')
@@ -265,4 +284,8 @@ $(document).ready(function () {
   
   function hubFilter(d){
     return d.type == 'Hub';
+  }
+  
+  function clientFilter(d){
+    return d.type == 'Client';
   }
