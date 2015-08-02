@@ -44,12 +44,14 @@
 						"active": true
 					}
 				],
-				"end": 2
+				"end": 2,
+				"direction":"uni"
 			},
 			{
 				"start": 2,
 				"end": 1,
 				"id": 2,
+				"direction":"uni",
 				"events": [
 					{
 						"time": 0,
