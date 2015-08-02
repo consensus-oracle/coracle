@@ -113,8 +113,9 @@ $(document).ready(function () {
       .call(nodesDrag);
       
     servers.attr('cx',function(d){return d.cx;})
-      .attr('cy',function(d){return d.cy;});
-      
+      .attr('cy',function(d){return d.cy;})
+      .classed('disabled',getDisabledState);
+    
     servers.enter().append('circle')
       .attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;})
@@ -126,7 +127,8 @@ $(document).ready(function () {
       .call(nodesDrag);
       
     clients.attr('cx',function(d){return d.cx;})
-      .attr('cy',function(d){return d.cy;});
+      .attr('cy',function(d){return d.cy;})
+      .classed('disabled',getDisabledState);
       
     clients.enter().append('circle')
       .attr('cx',function(d){return d.cx;})
@@ -139,7 +141,8 @@ $(document).ready(function () {
       .call(nodesDrag);
       
     hubs.attr('x',getHubXCoOrd)
-      .attr('y',getHubYCoOrd);
+      .attr('y',getHubYCoOrd)
+      .classed('disabled',getDisabledState);
       
     hubs.enter().append('rect')
       .attr('x',getHubXCoOrd)
@@ -189,6 +192,9 @@ $(document).ready(function () {
       else{
         event[0].active = disabled;
       }
+      localEvents.sort(function(a,b){
+        return a.time - b.time
+      });
       d3.select(this).classed('disabled',!disabled);
     });
     
@@ -260,7 +266,8 @@ $(document).ready(function () {
     paths.attr('x1',getLinkX1CoOrd)
       .attr('x2',getLinkX2CoOrd)
       .attr('y1',getLinkY1CoOrd)
-      .attr('y2',getLinkY2CoOrd);
+      .attr('y2',getLinkY2CoOrd)
+      .classed('disabled',getDisabledState);
       
     paths.enter().append('line')
       .attr('x1',getLinkX1CoOrd)
@@ -310,4 +317,9 @@ $(document).ready(function () {
   
   function clientFilter(d){
     return d.type == 'Client';
+  }
+  
+  function getDisabledState(d){
+    var events = d.events.filter(function(x){return x.time <= time});
+    return !events[events.length -1].active;
   }

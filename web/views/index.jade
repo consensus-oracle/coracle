@@ -57,7 +57,17 @@ block content
             //line.masterLLink(x1='40',x2='70',y1='110',y2='110')
             //text.label(x='30',y='130') Add Link (L)
             line.separator(x1='100',y1='0',x2='100',y2='500')
-
+            
+          br
+          label.control-label(for='timeSlider') Time:
+            div
+              span(style={'padding-right':'15px'}) 0
+              input#timeSlider(data-slider-min="0" data-slider-max="1000" data-slider-step="1" data-slider-value="0")
+              span(style={'padding-right':'15px'})#timeSliderMax 1000
+            div
+              span Current Time:
+              span#currentTime 0
+              
 
       div.tab-pane#resultsTabContent(role='tabpanel')
         div.panel.panel-default.hidden#resultsPanel
