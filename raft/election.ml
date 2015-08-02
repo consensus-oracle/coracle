@@ -47,6 +47,12 @@ let start_follower state global =
   let timeout = Numbergen.uniform min max in
   (None, [construct_heartbeat state], global)
 
+let restart state global = 
+  let cancel_events = cancel_timers state in
+  let state = refresh state in
+  let (_,events,global) = start_follower state global in
+  (Some state, cancel_events@events,global)
+
 let start_election (state:State.t) global =
   let global = global
     |> Global.update `ELE_START
@@ -64,7 +70,7 @@ let restart_election state global =
 let won (state:State.t) = 
   match state.mode with
   | Candidate cand -> (List.length cand.votes_from +1) *2 > 
-  (List.length state.node_ids)
+  (List.length state.node_ids +1)
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =

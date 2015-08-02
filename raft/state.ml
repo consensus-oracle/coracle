@@ -52,11 +52,20 @@ type t = {
 
 let init id config = {
  term = 1;
- mode = Follower {voted_for=None; leader=None};
+ mode = follower;
  last_index = 0;
  last_term = 0;
  node_ids = create_nodes config.servers id 1;
  config;
+}
+
+let refresh t = {
+  term=t.term;
+  mode= follower;
+  last_index = 0;
+  last_term = 0;
+  node_ids=t.node_ids;
+  config=t.config
 }
 
 let add_node id t = 
