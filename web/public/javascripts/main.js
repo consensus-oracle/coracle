@@ -29,6 +29,14 @@ $(document).ready(function () {
 
   $("#lossSlider").slider({
   });
+  
+  $("#timeSlider").slider({});
+  $('#timeSlider').on('slide',function(slideEvt){
+    time = slideEvt.value;
+    $('#currentTime').text(time);
+    updateNodes();
+  });
+  
     $('#runSim').click(function () {
 		//clear all validationErrors and results
 		$('.validationError').remove();
