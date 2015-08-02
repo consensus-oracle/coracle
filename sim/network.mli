@@ -10,6 +10,9 @@ val parse: json -> t
 (* give a node id and a time, return true if node is alive *)
 val find_node: id -> time -> t -> bool
 
+(* given t, return a list of the times that a node recovers *)
+val find_recovery: t -> (id * time) list
+
 (* [find_path source dist start_time] returns the time to reach dis if possible *)
 val find_path: id -> id -> time -> t -> span option
 

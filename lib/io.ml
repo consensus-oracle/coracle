@@ -14,6 +14,7 @@ let timer_to_string = function
 
 type 'rpc input = 
   | Startup of id 
+  | Recovery
   | PacketArrival of id * 'rpc
   | Timeout of timer
   | LocalArrival of msg
@@ -56,6 +57,10 @@ let input_to_json rpc_to_json = function
   | LocalTimeout ->       
       `Assoc [
       ("event",`String "time out for local application");
+      ]
+  | Recovery -> 
+      `Assoc [
+      ("event",`String "node restarting after failure");
       ]
 
 let output_to_json rpc_to_json  = function

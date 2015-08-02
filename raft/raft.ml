@@ -48,6 +48,7 @@ module Server = struct
   	match event with
   	| PacketArrival (id,pkt) -> receive_pkt id pkt state global
   	| Startup _ -> Election.start_follower state global
+    | Recovery -> Election.restart state global
     | Timeout timer -> receive_timeout timer state global
     | LocalArrival _ -> assert false
     | ProxyArrival _ -> assert false 

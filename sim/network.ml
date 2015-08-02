@@ -40,6 +40,10 @@ let parse_node (json:json) :node =
     id = json_assoc "id" config |> function `Int i -> i;
   }
 
+let find_node_type (nodes: node list) id = 
+  (List.find (fun n -> n.id=id) nodes).node_type
+
+
 type link = {
   src: id;
   dst: id;
@@ -173,6 +177,30 @@ let find_node id time t =
   find_recent_event time t.events
   |> fun event -> List.find (fun node -> node.id==id) event.nodes
   |> fun node_event -> node_event.active
+
+let find_active time (n1,n2) = 
+  match n1.active, n2.active with
+  | false, true -> Some (n1.id,time)
+  | _ -> None
+
+let rec zip xl yl =
+  match xl,yl with
+  | x::xs,y::ys -> (x,y) :: (zip xs ys)
+  | [], [] -> []
+  | _, [] | [], _ -> assert false
+
+(* we are assuming event and nodes within events are ordered and all nodes are specificed *)
+let rec find_recovery2 (t:t) (events: event list) = 
+  match events with
+  | e1::e2::es -> (
+    zip e1.nodes e1.nodes
+    |> map_filter (find_active e2.time)
+    |> List.filter (fun (id,_) -> match (find_node_type t.nodes id) with Server -> true | _ -> false))
+    :: find_recovery2 t (e2::es)
+  | [_] -> []
+  | [] -> []
+
+let find_recovery t = List.flatten (find_recovery2 t t.events)
 
 let find_path src dst time t =
   Path.find_path src dst (find_recent_path time t.paths)
