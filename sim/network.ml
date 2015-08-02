@@ -121,9 +121,17 @@ let generate_edges links (link_events: link_event list) =
       let (src,dst) = get_endpoints link_event.id links in
        (src, dst, type_to_latency link_event.link_type))
 
-let generate_paths (links:link list) (events: event list) n =
+let generate_nodes (nodes: node list) =
+  List.map (fun n -> 
+    match n.node_type with
+    | Server | Client -> (n.id,false)
+    | Hub -> (n.id,true)) 
+  nodes
+
+let generate_paths (nodes: node list) (links:link list) (events: event list) =
   List.map (fun event -> 
-    (event.time, Path.bellman_ford n (generate_edges links event.links))) events
+    (event.time, Path.bellman_ford (List.length nodes) (generate_edges links event.links) (generate_nodes nodes))) 
+  events
 
 
 let parse (json:json) = 
@@ -142,7 +150,7 @@ let parse (json:json) =
       |> function `List lst -> lst
       |> List.map parse_event) in
     let paths = 
-      generate_paths links events (List.length nodes) in
+      generate_paths nodes links events in
   {nodes;links;events;paths}
 
 let rec find_recent_event time events =

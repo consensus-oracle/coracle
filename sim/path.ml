@@ -4,6 +4,8 @@ exception Src_dst_are_same
 exception NoRoute of int * int
 exception NoRouteDst of int
 
+type node = (id * bool)
+
 type item = 
  | NoPath 
  | Self
@@ -32,23 +34,33 @@ let write_1d t index = try Array.set t (index-1) with _ -> raise (NoRouteDst ind
 let print t = 
 	iterate t (fun (x,y) v -> Printf.printf "(%i,%i) %i \n" x y (item_to_int v))
 
-let relex_edge t (src,dst,weight) = 
-	iterate_starts t (fun start endpoints -> 
-		match read_1d endpoints src with 
-		| NoPath -> (* no path to link source *) ()
-		| Self -> write_1d endpoints dst (Path (weight,src)) 
-		| Path (w_to_src,pred) -> 
-			match read_1d endpoints dst with
-			| NoPath -> write_1d endpoints dst (Path (weight+w_to_src,src)) 
-			| Self -> (* loop *) ()
-			| Path (w_to_dst,_) -> if (w_to_src+weight)<w_to_dst then write_1d endpoints dst (Path (weight+w_to_src,src)))
+let is_transitive target_id nodes = 
+  List.find (fun (id,_) -> id=target_id) nodes
+  |> fun (_,trans) -> trans
 
-let bellman_ford n edges = 
+let relex_edge nodes t (src,dst,weight) = 
+	match is_transitive src nodes with 
+	| false -> (iterate_starts t 
+		(fun start endpoints -> match read_1d endpoints src with 
+			| Self -> write_1d endpoints dst (Path (weight,src)) | _ -> ()))
+	| true -> (iterate_starts t
+		(fun start endpoints -> 
+			match read_1d endpoints src with 
+			| NoPath -> (* no path to link source *) ()
+			| Self -> write_1d endpoints dst (Path (weight,src)) 
+			| Path (w_to_src,pred) -> 
+				match read_1d endpoints dst with
+				| NoPath -> write_1d endpoints dst (Path (weight+w_to_src,src)) 
+				| Self -> (* loop *) ()
+				| Path (w_to_dst,_) -> if (w_to_src+weight)<w_to_dst then write_1d endpoints dst (Path (weight+w_to_src,src))))
+
+
+let bellman_ford n edges nodes = 
   let paths = Array.make_matrix n n NoPath in
   (* set self *)
   iterate paths (fun (src,dst) _ -> if src=dst then write paths (src,dst) Self else ());
   for _ = 1 to n do
-    List.iter (relex_edge paths) edges;
+    List.iter (relex_edge nodes paths) edges;
 	done; paths 
 
 
