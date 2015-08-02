@@ -69,9 +69,12 @@ let parse_link (json:json) :link =
     direction = json_assoc "direction" config |> parse_direction;
   }
 
-let get_endpoints link_id links= 
+let get_endpoints link_id links = 
   let link = List.find (fun link -> link_id==link.id) links in
-  (link.src,link.dst)
+  match link.direction with 
+  | Uni -> [(link.src,link.dst)]
+  | Bi -> [(link.src,link.dst); (link.dst,link.src)]
+
 
 type link_event = {
   id: id;
@@ -148,8 +151,10 @@ let parse_section name item_parser sections =
 let generate_edges links (link_events: link_event list) =
   List.filter (fun (link_event:link_event) -> link_event.active) link_events
   |> List.map (fun (link_event:link_event) -> 
-      let (src,dst) = get_endpoints link_event.id links in
-       (src, dst, type_to_latency link_event.link_type))
+      List.map (fun (src,dst) -> (src, dst, type_to_latency link_event.link_type)) 
+      (get_endpoints link_event.id links)
+      )
+  |> List.flatten
 
 let generate_nodes (nodes: node list) =
   List.map (fun n -> 
