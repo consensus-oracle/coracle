@@ -158,7 +158,7 @@ $(document).ready(function () {
         return;
       }
       if (start == null){
-        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1,direction:"bi"}, events:[{time:0,active:true}]);
+        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1,direction:"bi", events:[{time:0,active:true}]});
         d3.select(this).classed('clickable',false);
         console.log(data.links);
         start = d3.select(this).data()[0].id;
@@ -167,7 +167,6 @@ $(document).ready(function () {
       }
       data.links[data.links.length -1].end = d3.select(this).data()[0].id;
       //data.links.push({start:data.links[data.links.length -1].end,end:data.links[data.links.length -1].start,id:data.links.length +1});
-      clickableNodes.classed('clickable',false);
       d3.selectAll('.nodes').classed('clickable',true);
       console.log(data.links);
       start = null;
