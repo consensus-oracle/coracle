@@ -102,6 +102,25 @@ let parse_event (json:json) :event =
     nodes = (json_assoc "nodes" config |> function `List lst -> lst |> List.map parse_node_event);
   }
 
+let combine crt nw =
+  {time = nw.time;
+  links = 
+    List.fold_left (fun (links:link_event list) (update:link_event) -> 
+      update :: (List.filter (fun (l:link_event) -> l.id<>update.id) links)) crt.links nw.links
+    |> List.sort (fun (a:link_event) (b:link_event) -> compare a.id b.id );
+  nodes = 
+    List.fold_left (fun (nodes:node_event list) (update:node_event) -> 
+      update :: (List.filter (fun l -> l.id<>update.id) nodes)) crt.nodes nw.nodes
+    |> List.sort (fun (a:node_event) (b:node_event) -> compare a.id b.id );
+  }
+
+let rec fill_in (curr:event) (events:event list) = 
+  match events with
+  | [] -> []
+  | x::xs -> 
+    let new_curr = combine curr x in 
+    new_curr :: fill_in new_curr xs
+
 
 type t = {
   nodes: node list;
@@ -140,15 +159,19 @@ let parse (json:json) =
     let nodes = (
       json_assoc "nodes" config
       |> function `List lst -> lst
-      |> List.map parse_node) in
+      |> List.map parse_node) 
+      |> List.sort (fun (a:node) (b:node) -> compare a.id b.id)in
     let links = (
       json_assoc "links" config
       |> function `List lst -> lst
-      |> List.map parse_link) in
+      |> List.map parse_link)
+      |> List.sort (fun (a:link) (b:link) -> compare a.id b.id)in
     let events = (
       json_assoc "events" config
       |> function `List lst -> lst
-      |> List.map parse_event) in
+      |> List.map parse_event
+      |> List.sort (fun a b -> compare a.time b.time)
+      |> fun e -> fill_in (List.hd e) e) in
     let paths = 
       generate_paths nodes links events in
   {nodes;links;events;paths}
