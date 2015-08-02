@@ -13,12 +13,12 @@
 			{"type":"server", "id":3}
 		],
 		"links":[
-			{"start":1, "end":2, "id":1},
-			{"start":2, "end":1, "id":2},
-			{"start":1, "end":3, "id":3},
-			{"start":3, "end":1, "id":4},
-			{"start":2, "end":3, "id":5},
-			{"start":3, "end":2, "id":6}
+			{"start":1, "end":2, "id":1, "direction":"uni"},
+			{"start":2, "end":1, "id":2, "direction":"uni"},
+			{"start":1, "end":3, "id":3, "direction":"uni"},
+			{"start":3, "end":1, "id":4, "direction":"uni"},
+			{"start":2, "end":3, "id":5, "direction":"uni"},
+			{"start":3, "end":2, "id":6, "direction":"uni"}
 		],
 		"events": [ {
 				"time":0,

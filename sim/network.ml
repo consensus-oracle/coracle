@@ -13,6 +13,7 @@ let parse_node_type (json:json) :node_type =
     | "hub" -> Hub
 
 type link_type = Small | Medium | Large
+type direction = Bi | Uni
 
 let parse_link_type (json:json) :link_type = 
   json 
@@ -23,14 +24,22 @@ let parse_link_type (json:json) :link_type =
     | "m" -> Medium
     | "l" -> Large
 
+let parse_direction (json:json) :direction = 
+  json 
+  |> function `String s -> s
+  |> String.lowercase
+  |> function
+    | "bi" -> Bi
+    | "uni" -> Uni
+
 let type_to_latency = function
   | Small -> 5
   | Medium -> 10 
   | Large -> 20
 
 type node = {
-	node_type: node_type;
-	id: id;
+  node_type: node_type;
+  id: id;
 }
 
 let parse_node (json:json) :node =
@@ -48,6 +57,7 @@ type link = {
   src: id;
   dst: id;
   id: id;
+  direction: direction;
 }
 
 let parse_link (json:json) :link =
@@ -56,6 +66,7 @@ let parse_link (json:json) :link =
     src = (json_assoc "start" config |> function `Int i -> i);
     dst = (json_assoc "end" config |> function `Int i -> i);
     id = (json_assoc "id" config |> function `Int i -> i);
+    direction = json_assoc "direction" config |> parse_direction;
   }
 
 let get_endpoints link_id links= 
