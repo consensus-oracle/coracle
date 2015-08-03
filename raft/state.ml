@@ -50,6 +50,7 @@ type t = {
  last_index: index;
  last_term: term;
  log: log;
+ commit_index: index;
  node_ids: id list;
  config: config;
 }
@@ -61,6 +62,7 @@ let init id config = {
  last_term = 0;
  node_ids = create_nodes config.servers id 1;
  log = [];
+ commit_index = 0;
  config;
 }
 
@@ -71,6 +73,7 @@ let refresh t = {
   last_term = 0;
   log = t.log;
   node_ids=t.node_ids;
+  commit_index = 0;
   config=t.config
 }
 
@@ -110,6 +113,7 @@ let to_json s =
     ("mode", mode_to_json s.mode);
     ("last log index", `Int s.last_index);
     ("last log term", `Int s.last_term);
+    ("commit index", `Int s.commit_index);
     ("peers", `List (List.map (fun i -> `Int i) s.node_ids));
     ("log",`List (List.map entry_to_json s.log));
   ]
