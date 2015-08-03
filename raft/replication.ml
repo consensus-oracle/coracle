@@ -52,3 +52,22 @@ let start_leader (state:State.t) global =
   (Some state,
   CancelTimeout Election :: events,
 	global)
+
+let constuct_reply id (pkt:ClientArg.t) success (leader_hint: id option) =
+	[PacketDispatch (id, CRR ClientRes.({
+		seq_num = pkt.seq_num; 
+		success = (match success with true -> Some (Success pkt.cmd) | false -> None); 
+		leader_hint;
+	}))]
+
+let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
+  let global = global
+  	|> Global.update `CL_ARG_RCV
+  	|> Global.update `CL_RES_SND in
+  match state.mode with
+  | Leader _ -> 
+  	(None, constuct_reply id pkt true None,	global)
+  | Follower f -> 
+  	(None, constuct_reply id pkt false f.leader,	global)
+  | Candidate _ -> 
+  	(None, constuct_reply id pkt false None,	global)

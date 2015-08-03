@@ -87,3 +87,10 @@ let output_to_json rpc_to_json  = function
       `Assoc [
       ("event",`String "local message dispatched");
       ("payload", msg_to_json msg);]
+  | LocalDispatch msg ->
+      `Assoc [
+      ("event",`String "local message dispatched");
+      ("payload", msg_to_json msg);]
+  | LocalSetTimeout span ->
+      `Assoc [
+      ("event",`String "local timeout");]

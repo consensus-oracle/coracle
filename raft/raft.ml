@@ -35,7 +35,9 @@ module Server = struct
     | RVA x -> Election.receive_vote_request id x state
     | RVR x -> Election.receive_vote_reply id x state
     | AEA x -> Replication.receive_append_request id x state
-    | AER x -> Replication.receive_append_reply id x state
+    | AER x -> Replication.receive_append_reply id x state  
+    | CRA x -> Replication.receive_client_request id x state
+    | CRR x-> assert false
 
   let receive_timeout timer (state:State.t) = 
     match timer,state.mode with
@@ -64,6 +66,6 @@ module Client = struct
     match event with
     | PacketArrival (id,CRR pkt) -> Client_proxy.receive_client_request_reply id pkt state global
     | Timeout timer -> Client_proxy.receive_timeout timer state global
-    | LocalArrival (Cmd cmd) -> Client_proxy.recieve_client_request cmd state global
+    | ProxyArrival (Cmd cmd) -> Client_proxy.recieve_client_request cmd state global
     |  _ -> (None,[],global) 
 end

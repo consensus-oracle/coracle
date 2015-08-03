@@ -7,6 +7,10 @@ type t = {
 	ae_pkts_rcv: int;
 	rv_pkts_snd: int;
 	rv_pkts_rcv: int;
+	cl_arg_snd: int;
+	cl_arg_rcv: int;
+	cl_res_snd: int;
+	cl_res_rcv: int;
 	first_leader: time option;
 	ele_start: int;
 	ele_won: int;
@@ -20,6 +24,10 @@ let init = {
 	ae_pkts_rcv = 0;
 	rv_pkts_snd = 0;
 	rv_pkts_rcv = 0;
+	cl_arg_snd = 0;
+	cl_arg_rcv = 0;
+	cl_res_snd = 0;
+	cl_res_rcv = 0;
 	first_leader = None;
 	ele_start = 0;
 	ele_won = 0;
@@ -41,6 +49,14 @@ let to_json g =
 			("received", `Int g.rv_pkts_rcv); 
 			("dispatched", `Int g.rv_pkts_snd);
 		]);
+		("client request packets", `Assoc [
+			("received", `Int g.cl_arg_rcv); 
+			("dispatched", `Int g.cl_arg_snd);
+		]);
+		("client response packets", `Assoc [
+			("received", `Int g.cl_res_rcv); 
+			("dispatched", `Int g.cl_res_snd);
+		]);
 		("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
 		("number of elections", `Assoc [
 			("started", `Int g.ele_start);
@@ -56,6 +72,10 @@ let update tick t =
 	| `AE_RCV ->  {t with ae_pkts_rcv = t.ae_pkts_rcv +1 }
 	| `RV_SND -> {t with rv_pkts_snd = t.rv_pkts_snd +1 }
 	| `RV_RCV -> {t with rv_pkts_rcv = t.rv_pkts_rcv +1 }
+	| `CL_ARG_RCV -> {t with cl_arg_rcv = t.cl_arg_rcv +1 }
+	| `CL_RES_RCV -> {t with cl_res_rcv = t.cl_res_rcv +1 }
+	| `CL_ARG_SND -> {t with cl_arg_snd = t.cl_arg_snd +1 }
+	| `CL_RES_SND -> {t with cl_res_snd = t.cl_res_snd +1 }
 	| `ELE_WON -> 
 		let t = {t with ele_won = t.ele_won +1 } in (
 		match t.first_leader with
