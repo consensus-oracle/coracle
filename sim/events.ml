@@ -70,12 +70,12 @@ let count f qu =
 let rec start_events m n =
   if m>n then [] 
   else 
-    (to_time 0, m, Startup m) :: (start_events (m+1) n)
+    (to_time 0, m, Startup m) :: (to_time 0, m, LocalArrival Startup) :: (start_events (m+1) n)
 
 let rec start_clients m n =
   if m>n then [] 
   else 
-    (to_time 0, m, Startup m) :: (start_events (m+1) n)
+    (to_time 0, m, Startup m) :: (to_time 0, m, LocalArrival Startup) :: (start_events (m+1) n)
 
 let init p = 
   let s = Parameters.(Network.count_servers p.network) in

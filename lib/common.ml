@@ -113,8 +113,13 @@ let msg_to_json = function
     ("type", `String "command response");
     ("response", outcome_to_json out);
     ]
+  | Startup -> `Assoc [
+    ("type", `String "client startup");
+    ]
 
 let pull = function Some x -> x
+
+let sum = List.fold_left (+) 0 
 
 let average = function
   | [] -> 0

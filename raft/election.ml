@@ -14,8 +14,8 @@ let reply term yes =
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
   let global = 
-    Global.update `RV_RCV global
-    |> Global.update `RV_SND  in
+    Global.update (`RV `ARG_RCV) global
+    |> Global.update (`RV `RES_SND)  in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
     (None, [PacketDispatch (id,reply state.term false)], global)
@@ -56,7 +56,7 @@ let restart state global =
 let start_election (state:State.t) global =
   let global = global
     |> Global.update `ELE_START
-    |> Global.update_n `RV_SND (List.length state.node_ids) in 
+    |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids) in 
   let timeout = Numbergen.uniform 0 2000 in
   let state = {state with term=state.term+1; mode=State.candidate} in
   (Some state,
@@ -74,7 +74,7 @@ let won (state:State.t) =
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =
-  let global = Global.update `RV_RCV global in
+  let global = Global.update (`RV `RES_RCV) global in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ -> 
     (* packet is from a behind node, ignore it *)
