@@ -42,6 +42,7 @@ $(document).ready(function () {
 		$('.validationError').remove();
     $('.has-error').removeClass('has-error');
 		$('#resultsPanel').addClass('hidden');
+    $('#tracePanel').addClass('hidden');
 		if (validateSettings()){
 			var oldButtonText = $('#runSim').html();
 			$('#runSim').html('Running...');
@@ -55,13 +56,16 @@ $(document).ready(function () {
 				if (response.error != null){
 					console.log(response);
 					result = validationError("Failed: " + response.stderr);
+          $('#SimResults').html(result);
 				}
 				else{
-					result = response.stdout; //createTable(JSON.parse(response.stdout));
+          result = response.stdout;
+					createTable(JSON.parse(response.stdout));
+          $('#tracePanel').removeClass('hidden');
 				}
         $('#resultsPanel').removeClass('hidden');
         $('#resultsTab').tab('show');
-				$('#SimResults').html(result);
+        $('#SimResults').html(result);
 				$('#runSim').html(oldButtonText);
 				$('#runSim').removeAttr("disabled");
 			});
@@ -104,23 +108,74 @@ $(document).ready(function () {
 	}
 	
 	function createTable(jsonObject){
-		//start of html for the table
-		var table = "<table class='table table-bordered' id='results'>\
-			<tr><thead>";
-		//add in the headers from the JSON variables
-		for (var key in jsonObject){
-			table += "<th>" + key + "</th>";
-		}
-		table += "</tr></thead><tr>";
-		
-		//now add in the values, assumes no list values
-		for (var key in jsonObject){
-			table += "<td>" + jsonObject[key] + "</td>";
-		}
-		table += "</tr></table>";
-		
-		return table;
+    $('#TraceResults').html('\
+    <table id="resultsTables" class="display" cellspacing="0" width="100%">\
+        <thead>\
+            <tr>\
+                <th>Time</th>\
+                <th>Node ID</th>\
+                <th>Type</th>\
+                <th>Data</th>\
+            </tr>\
+        </thead>\
+ \
+        <tfoot>\
+            <tr>\
+                <th>Time</th>\
+                <th>Node ID</th>\
+                <th>Type</th>\
+                <th>Data</th>\
+            </tr>\
+        </tfoot>\
+    </table>');
+    console.log(jsonObject);
+    console.log('trace: ');
+    console.log(jsonObject.trace);
+    $('#resultsTables').DataTable({
+      data: jsonObject.trace,
+      columns:  [
+         {data: 'time'},
+         {data: 'id'},
+         {data: 'event.type'},
+         {data: 'event.data',
+          'render': function( data, type, full, meta){
+            if (data == null){
+              return '';
+            }
+            else{
+              return JSON.stringify(data);
+            }
+          }}
+      ],
+      initComplete: onInitComplete
+    });
 	}
+  
+  function onInitComplete(){
+    this.api().columns().every( function () {
+      var column = this;
+      console.log(column);
+      //for now don't do data column
+      if (column.index() == 3){
+        return;
+      }
+      var select = $('<select><option value=""></option></select>')
+          .appendTo( $(column.footer()).empty() )
+          .on( 'change', function () {
+              var val = $.fn.dataTable.util.escapeRegex(
+                  $(this).val()
+              );
+
+              column
+                  .search( val ? '^'+val+'$' : '', true, false )
+                  .draw();
+          } );
+
+      column.data().unique().sort().each( function ( d, j ) {
+          select.append( '<option value="'+d+'">'+d+'</option>' )
+      } );
+    } );
+  }
   
   function generateJSON(){
     /*
