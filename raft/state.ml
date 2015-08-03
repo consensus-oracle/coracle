@@ -49,6 +49,11 @@ type config = {
 type entry = index * term * cmd with sexp
 type log = (entry list) with sexp
 
+let rec get_term_at_index index = function
+  | [] -> None
+  | (i,t,_)::_ when index=i -> Some t
+  | _::xs -> get_term_at_index index xs
+
 type t = {
  term: term;
  mode: mode_state;

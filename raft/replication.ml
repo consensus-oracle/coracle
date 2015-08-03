@@ -19,10 +19,11 @@ let form_heartbeat (state:State.t) id =
   }))
 
 (* form the heartbeat packet *)
-let form_heartbeat_reply (state:State.t) id = 
+let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) = 
   PacketDispatch (id, AER AppendEntriesRes.({
   	term = state.term;
-  	success = true;
+  	success = (pkt.term >= state.term) && 
+  		(get_term_at_index pkt.pre_log_index state.log = Some pkt.pre_log_term);
   }))
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
@@ -38,14 +39,14 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 		|> Global.update `AE_RCV
 		|> Global.update `AE_SND in
 	 match check_terms pkt.term state, state.mode with
-	 | Invalid, _ -> (None, [form_heartbeat_reply state id], global)
+	 | Invalid, _ -> (None, [form_heartbeat_reply state id pkt], global)
 	 | Same, Follower f -> 
 	 	(Some {state with mode= Follower {f with leader=Some id}}, 
-	 	[reconstruct_heartbeat state; form_heartbeat_reply state id], global)
-	 | Same, _ -> (None, [], global)
-	 | Higher, _ -> 
+	 	[reconstruct_heartbeat state; form_heartbeat_reply state id pkt], global)
+	 | Same, Leader _ -> assert false
+	 | Same, Candidate _ | Higher, _ -> 
 	 	let (state,events,global) = step_down pkt.term state global in
-	 	(state, (form_heartbeat_reply (pull state) id) :: events, global)
+	 	(state, (form_heartbeat_reply (pull state) id pkt) :: events, global)
 
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update `AE_RCV global in
