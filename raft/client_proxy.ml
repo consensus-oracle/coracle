@@ -60,7 +60,11 @@ let receive_client_request_reply id (pkt:ClientRes.t) state global =
         (Some state,[PacketDispatch (try_next state,pkt); ResetTimeout (pull state.timeout,Client seq_num)],global))
 
 let recieve_client_request client_cmd (state:state) global = 
-  let pkt = CRA ClientArg.({seq_num = state.seq_num; cmd = client_cmd}) in
-    (Some {state with outstanding = Some (state.seq_num, client_cmd); seq_num=state.seq_num+1},
-     [PacketDispatch (try_next state,pkt);
-      SetTimeout (pull state.timeout,Client state.seq_num)],global)
+  match state.outstanding with
+  | None ->
+    let pkt = CRA ClientArg.({seq_num = state.seq_num; cmd = client_cmd}) in
+      (Some {state with outstanding = Some (state.seq_num, client_cmd); seq_num=state.seq_num+1},
+       [PacketDispatch (try_next state,pkt);
+        SetTimeout (pull state.timeout,Client state.seq_num)],global)
+  | Some _ -> (* can only had one request at a time *)
+    (None, [LocalDispatch (Outcome Failure)],global)
