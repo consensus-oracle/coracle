@@ -10,11 +10,20 @@ let pull = function Some x -> x
 
 (* form the heartbeat packet *)
 let form_heartbeat (state:State.t) id = 
-  PacketDispatch (id, AEA AppendEntriesArg.({term = state.term}))
+  PacketDispatch (id, AEA AppendEntriesArg.({
+  	term = state.term;
+  	pre_log_term = state.last_term;
+  	pre_log_index = state.last_index;
+  	entries = [];
+  	commit_index = state.commit_index;
+  }))
 
 (* form the heartbeat packet *)
 let form_heartbeat_reply (state:State.t) id = 
-  PacketDispatch (id, AER AppendEntriesRes.({term = state.term}))
+  PacketDispatch (id, AER AppendEntriesRes.({
+  	term = state.term;
+  	success = true;
+  }))
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
 let dispatch_heartbeat (state:State.t) global =

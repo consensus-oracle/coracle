@@ -1,5 +1,6 @@
 open Common
 open Yojson.Safe
+open Sexplib.Conv
 
 type follower = {
   voted_for: id option;
@@ -45,8 +46,8 @@ type config = {
   client_timer: int option;
 }
 
-type entry = index * term * cmd
-type log = entry list
+type entry = index * term * cmd with sexp
+type log = (entry list) with sexp
 
 type t = {
  term: term;

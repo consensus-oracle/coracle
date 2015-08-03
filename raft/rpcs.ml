@@ -1,17 +1,28 @@
 (* Rpcs's holds the record which represents Raft's packets *)
 open Common
 open Yojson.Safe
+open State
 
 module AppendEntriesArg  = struct
   open Sexplib.Conv
 
   type t = { 
-    term: term;} with sexp
+    term: term;
+    pre_log_index: index;
+    pre_log_term: term;
+    entries: log;
+    commit_index: index; 
+    } with sexp
 
   let to_json t = 
     `Assoc [
       ("packet type", `String "append entries request");
-      ("term", `Int t.term); ]
+      ("term", `Int t.term);
+      ("previous log entry index",`Int t.pre_log_index);
+      ("previous log entry term ", `Int t.pre_log_term);
+      ("log entries", `List (List.map entry_to_json t.entries));
+      ("commit index", `Int t.commit_index);
+    ]
 
   let serialize t =
     sexp_of_t t |> Sexplib.Sexp.to_string
@@ -25,12 +36,16 @@ module AppendEntriesRes  = struct
   open Sexplib.Conv
 
   type t = { 
-    term: term} with sexp
+    term: term;
+    success: bool;
+    } with sexp
 
   let to_json t = 
     `Assoc [
       ("packet type", `String "append entries reply");
-      ("term", `Int t.term); ]
+      ("term", `Int t.term);
+      ("success", `Bool t.success);
+    ]
 
   let serialize t =
     sexp_of_t t |> Sexplib.Sexp.to_string
