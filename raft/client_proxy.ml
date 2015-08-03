@@ -43,10 +43,10 @@ let receive_timeout timer state global =
     (Some state,
       [PacketDispatch (try_next state,pkt); 
       SetTimeout (pull state.timeout,Client state.seq_num);
-      ],Global.update `CL_ARG_SND global)
+      ],Global.update (`CL `ARG_SND) global)
 
 let receive_client_request_reply id (pkt:ClientRes.t) state global = 
-  let global = Global.update `CL_RES_RCV global in
+  let global = Global.update (`CL `RES_RCV) global in
    match state.outstanding with
     | None -> (* ignore it *) (None,[],global)
     | Some (n,_) when n<>pkt.seq_num -> (* ignore it *) (None,[],global)
@@ -59,7 +59,7 @@ let receive_client_request_reply id (pkt:ClientRes.t) state global =
         let new_pkt = CRA ClientArg.({seq_num;cmd}) in
         let state = {state with last_leader= pkt.leader_hint} in
         (Some state,[PacketDispatch (try_next state, new_pkt); ResetTimeout (pull state.timeout,Client seq_num)],
-        Global.update `CL_ARG_SND global))
+        Global.update (`CL `ARG_SND) global))
 
 let recieve_client_request client_cmd (state:state) global = 
   match state.outstanding with
@@ -68,6 +68,6 @@ let recieve_client_request client_cmd (state:state) global =
       (Some {state with outstanding = Some (state.seq_num, client_cmd); seq_num=state.seq_num+1},
        [PacketDispatch (try_next state,pkt);
         SetTimeout (pull state.timeout,Client state.seq_num)],
-      Global.update `CL_ARG_SND global)
+      Global.update (`CL `ARG_SND) global)
   | Some _ -> (* can only had one request at a time *)
     (None, [LocalDispatch (Outcome Failure)],global)

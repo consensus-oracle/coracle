@@ -28,7 +28,7 @@ let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
 let dispatch_heartbeat (state:State.t) global =
-	let global = Global.update_n `AE_SND (List.length state.node_ids) global in
+	let global = Global.update_n (`AE `ARG_SND) (List.length state.node_ids) global in
 	(None,
 		SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
 	  List.map (form_heartbeat state) state.node_ids, global)
@@ -36,8 +36,8 @@ let dispatch_heartbeat (state:State.t) global =
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
 let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 	let global = global
-		|> Global.update `AE_RCV
-		|> Global.update `AE_SND in
+		|> Global.update (`AE `ARG_RCV)
+		|> Global.update (`AE `RES_SND) in
 	 match check_terms pkt.term state, state.mode with
 	 | Invalid, _ -> (None, [form_heartbeat_reply state id pkt], global)
 	 | Same, Follower f -> 
@@ -49,7 +49,7 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 	 	(state, (form_heartbeat_reply (pull state) id pkt) :: events, global)
 
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
-	let global = Global.update `AE_RCV global in
+	let global = Global.update (`AE `RES_RCV) global in
      match check_terms pkt.term state with
 	 | Higher -> step_down pkt.term state global
 	 | _ -> (None, [], global)
@@ -72,8 +72,8 @@ let constuct_reply id (pkt:ClientArg.t) success (leader_hint: id option) =
 
 let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   let global = global
-  	|> Global.update `CL_ARG_RCV
-  	|> Global.update `CL_RES_SND in
+  	|> Global.update (`CL `ARG_RCV)
+  	|> Global.update (`CL `RES_SND) in
   match state.mode with
   | Leader _ -> 
   	(None, constuct_reply id pkt true None,	global)
