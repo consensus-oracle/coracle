@@ -47,7 +47,7 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =
 	let global = Global.update `ELE_WON global in
-	let state = {state with mode=State.leader} in 
+	let state = {state with mode=State.leader state.last_index state.node_ids} in 
 	let (_,events,global) = dispatch_heartbeat state global in
   (Some state,
   CancelTimeout Election :: events,
