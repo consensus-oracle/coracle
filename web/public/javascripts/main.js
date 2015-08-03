@@ -59,8 +59,9 @@ $(document).ready(function () {
           $('#SimResults').html(result);
 				}
 				else{
-          result = response.stdout;
-					createTable(JSON.parse(response.stdout));
+					var jsonResults = JSON.parse(response.stdout);
+          result = JSON.stringify(jsonResults.results);
+					createTable(jsonResults);
           $('#tracePanel').removeClass('hidden');
 				}
         $('#resultsPanel').removeClass('hidden');
