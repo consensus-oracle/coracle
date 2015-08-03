@@ -130,13 +130,16 @@ let entry_to_json (index,term,cmd) =
 
 let to_json s =
   `Assoc [
-    ("term", `Int s.term);
-    ("mode", mode_to_json s.mode);
-    ("last log index", `Int s.last_index);
-    ("last log term", `Int s.last_term);
-    ("commit index", `Int s.commit_index);
-    ("last applied", `Int s.last_applied);
-    ("peers", `List (List.map (fun i -> `Int i) s.node_ids));
-    ("log",`List (List.map entry_to_json s.log));
+    ("type", `String "state update");
+    ("data", `Assoc [
+      ("term", `Int s.term);
+      ("mode", mode_to_json s.mode);
+      ("last log index", `Int s.last_index);
+      ("last log term", `Int s.last_term);
+      ("commit index", `Int s.commit_index);
+      ("last applied", `Int s.last_applied);
+      ("peers", `List (List.map (fun i -> `Int i) s.node_ids));
+      ("log",`List (List.map entry_to_json s.log));
+      ]);
   ]
 
