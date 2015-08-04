@@ -146,3 +146,8 @@ let rec map_filter_fold f t acc = function
     match f t x with 
     | (t, None) -> map_filter_fold f t acc xs
     | (t, Some y) -> map_filter_fold f t (y::acc) xs)
+
+let rec map_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    let (t,y) = f t x in map_fold f t (y::acc) xs)

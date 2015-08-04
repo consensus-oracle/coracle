@@ -9,15 +9,17 @@ type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Glo
 let pull = function Some x -> x
 
 (* form an append entries packet *)
-let form_heartbeat (state:State.t) (id,next,_) = 
+let form_heartbeat (state:State.t) n (id,next,_) = 
 	let pre_index = next - 1 in
+	let entries = get_entries_from_index next state.log in
+	(n + (List.length entries),
   PacketDispatch (id, AEA AppendEntriesArg.({
   	term = state.term;
   	pre_log_term = pull (get_term_at_index pre_index state.log);
   	pre_log_index = pre_index;
-  	entries = get_entries_from_index next state.log;
+  	entries;
   	commit_index = state.commit_index;
-  }))
+  })))
 
 (* form the heartbeat packet *)
 let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
@@ -33,10 +35,13 @@ let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
 let dispatch_heartbeat (state:State.t) global =
 	match state.mode with 
 	| Leader l -> 
-		let global = Global.update_n (`AE `ARG_SND) (List.length state.node_ids) global in
+		let (n,ae_msgs) = map_fold (form_heartbeat state) 0 [] l.indexes in
+		let global = global 
+		|> Global.update_n (`AE `ARG_SND) (List.length state.node_ids)
+		|> Global.update_n (`CMD_DSP) n in
 		(None,
 			SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
-		  List.map (form_heartbeat state) l.indexes, global)
+		  ae_msgs, global)
 	| _ -> (* only leaders should dispatch heartbeats *) assert false
 
 
@@ -113,6 +118,8 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   	|> Global.update (`CL `ARG_RCV) in
   match state.mode with
   | Leader l -> 
+  	let global = global
+  		|> Global.update `CMD_RCV in
   	(* TODO: actively dispatch appendentries *)
   	let state = append_entry state pkt.cmd in
   	let state = {state with mode = Leader 

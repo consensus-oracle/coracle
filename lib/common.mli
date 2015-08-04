@@ -68,3 +68,4 @@ val sum: int list -> int
 val min: int list -> int
 val map_filter: ('a -> 'b option) -> 'a list -> 'b list
 val map_filter_fold: ('a -> 'b -> 'a * 'c option) -> 'a -> 'c list -> 'b list -> 'a * 'c list
+val map_fold: ('a -> 'b -> 'a * 'c) -> 'a -> 'c list -> 'b list -> 'a * 'c list
