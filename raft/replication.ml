@@ -74,13 +74,20 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update (`AE `RES_RCV) global in
-   match check_terms pkt.term state with
-	 | Higher -> step_down pkt.term state global
-	 | Invalid -> (None,[],global)
-	 | Same -> 
+   match check_terms pkt.term state, state.mode with
+	 | Higher, _-> step_down pkt.term state global
+	 | Invalid, _  | Same, Follower _ | Same, Candidate _-> (None,[],global)
+	 | Same, Leader l -> 
 	 	match pkt.success with
 	 	| true -> (* update next and match to index+entries, update commit index *)
-	 		(Some (update_indexes_success state pkt.pre_log_index id),[],global)
+	 		let state = update_indexes_success state pkt.pre_log_index id in
+	 		let new_commit =  get_commit_index state.commit_index l.indexes in
+	 		match state.commit_index = new_commit with
+	 		| true -> (* commit index hasn't increased *)
+	 		(Some state,[],global)
+	 		| false -> (* commit index has increased *)
+	 		(Some {state with commit_index=new_commit},
+	 		 generate_sm_requests state.commit_index new_commit state.log, global)
 	 	| false -> (* decrement next and try again *)
 	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
 	 		(*TODO: actively try again instead of waiting till next append entries *)
