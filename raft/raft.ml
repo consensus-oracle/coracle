@@ -53,7 +53,8 @@ module Server = struct
     | Recovery -> Election.restart state global
     | Timeout timer -> receive_timeout timer state global
     | LocalArrival _ -> assert false
-    | ProxyArrival _ -> assert false 
+    | ProxyArrival (Outcome o) -> Replication.receive_sm_response o state global
+    | ProxyArrival _ -> assert false
 end
 
 module Client = struct

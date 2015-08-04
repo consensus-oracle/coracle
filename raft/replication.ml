@@ -110,8 +110,7 @@ let constuct_reply id seq_num outcome (leader_hint: id option) =
 
 let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   let global = global
-  	|> Global.update (`CL `ARG_RCV)
-  	|> Global.update (`CL `RES_SND) in
+  	|> Global.update (`CL `ARG_RCV) in
   match state.mode with
   | Leader l -> 
   	(* TODO: actively dispatch appendentries *)
@@ -120,16 +119,16 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   		{l with outstanding = Some (id, pkt.seq_num, pkt.cmd)}} in
   	(Some state, [],	global)
   | Follower f -> 
-  	(None, constuct_reply id pkt.seq_num None f.leader,	global)
+  	(None, constuct_reply id pkt.seq_num None f.leader,	Global.update (`CL `RES_SND) global)
   | Candidate _ -> 
-  	(None, constuct_reply id pkt.seq_num None None,	global)
+  	(None, constuct_reply id pkt.seq_num None None,	Global.update (`CL `RES_SND) global)
 
- let receive_sm_response o (state:State.t) global =
+let receive_sm_response o (state:State.t) global =
    match state.mode with
    | Leader l ->
    	match l.outstanding with
    	| None -> (* no client is waiting => ignore *) (None,[],global) 
    	| Some (id,seq_num,cmd) -> 
    		(Some {state with mode= Leader {l with outstanding=None}},
-   		constuct_reply id seq_num (Some o) None, global)
+   		constuct_reply id seq_num (Some o) None, Global.update (`CL `RES_SND) global)
    | _ -> (* no client is waiting => ignore *) (None,[],global) 
