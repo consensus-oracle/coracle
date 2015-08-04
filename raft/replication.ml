@@ -8,13 +8,14 @@ type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Glo
 
 let pull = function Some x -> x
 
-(* form the heartbeat packet *)
-let form_heartbeat (state:State.t) id = 
+(* form an append entries packet *)
+let form_heartbeat (state:State.t) (id,next,_) = 
+	let pre_index = next - 1 in
   PacketDispatch (id, AEA AppendEntriesArg.({
   	term = state.term;
-  	pre_log_term = state.last_term;
-  	pre_log_index = state.last_index;
-  	entries = [];
+  	pre_log_term = pull (get_term_at_index pre_index state.log);
+  	pre_log_index = pre_index;
+  	entries = get_entries_from_index next state.log;
   	commit_index = state.commit_index;
   }))
 
@@ -28,10 +29,13 @@ let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
 let dispatch_heartbeat (state:State.t) global =
-	let global = Global.update_n (`AE `ARG_SND) (List.length state.node_ids) global in
-	(None,
-		SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
-	  List.map (form_heartbeat state) state.node_ids, global)
+	match state.mode with 
+	| Leader l -> 
+		let global = Global.update_n (`AE `ARG_SND) (List.length state.node_ids) global in
+		(None,
+			SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
+		  List.map (form_heartbeat state) l.indexes, global)
+	| _ -> (* only leaders should dispatch heartbeats *) assert false
 
 
 let rec generate_sm_requests old_commit new_commit log =
@@ -68,7 +72,7 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update (`AE `RES_RCV) global in
-     match check_terms pkt.term state with
+   match check_terms pkt.term state with
 	 | Higher -> step_down pkt.term state global
 	 | _ -> (None, [], global)
 
@@ -94,7 +98,8 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   	|> Global.update (`CL `RES_SND) in
   match state.mode with
   | Leader _ -> 
-  	(None, constuct_reply id pkt true None,	global)
+  	(* TODO: actively dispatch appendentries *)
+  	(Some (append_entry state pkt.cmd), constuct_reply id pkt true None,	global)
   | Follower f -> 
   	(None, constuct_reply id pkt false f.leader,	global)
   | Candidate _ -> 

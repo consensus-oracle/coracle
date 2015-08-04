@@ -50,15 +50,25 @@ type entry = index * term * cmd with sexp
 (* reverse order *)
 type log = (entry list) with sexp
 
-let rec get_term_at_index index = function
-  | [] -> None
-  | (i,t,_)::_ when index=i -> Some t
-  | _::xs -> get_term_at_index index xs
+let rec get_term_at_index index log =
+  match index with
+  | 0 -> (* use dummy term *) Some 0
+  | _ ->
+     match log with
+     | [] -> None
+     | (i,t,_)::_ when index=i -> Some t
+     | _::xs -> get_term_at_index index xs
 
 (* assume index is valid *)
 let rec get_entry_at_index index = function
   | (i,_,e)::_ when index=i -> e
   | _::xs -> get_entry_at_index index xs
+
+(* returns empty is index is too large *)
+let rec get_entries_from_index index = function
+  | [] -> []
+  | (i,_,e)::xs when index=i -> xs
+  | _::xs -> get_entries_from_index index xs
 
 let rec add_entries (prev_index,prev_term) entries log =
   match log with
@@ -110,6 +120,13 @@ let refresh t = {
   last_applied = 0;
   config=t.config
 }
+
+let append_entry (t:t) cmd = 
+  { t with
+    log = (t.last_index+1, t.term, cmd) :: t.log;
+    last_index= t.last_index+1;
+    last_term = t.term; 
+  }
 
 let add_node id t = 
   {t with node_ids = add_unique id t.node_ids}
