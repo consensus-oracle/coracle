@@ -87,8 +87,8 @@ let rec get_entry_at_index index = function
 (* returns empty is index is too large *)
 let rec get_entries_from_index index = function
   | [] -> []
-  | (i,_,e)::xs when index=i -> xs
-  | _::xs -> get_entries_from_index index xs
+  | (i,t,e)::xs when index=i -> [(i,t,e)]
+  | x::xs -> x :: (get_entries_from_index index xs)
 
 let rec add_entries (prev_index,prev_term) entries log =
   match log with
