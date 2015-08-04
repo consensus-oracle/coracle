@@ -6,13 +6,9 @@ open Util
 
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
-let pull = function 
-  | Some x -> x
-  | None ->  Printexc.print_backtrace; assert false
-
 (* form an append entries packet *)
 let form_heartbeat (state:State.t) n (id,next,_) = 
-	let pre_index = next - 1 in
+	let pre_index = if next>0 then next - 1 else 0 in
 	let entries = get_entries_from_index next state.log in
 	(n + (List.length entries),
   PacketDispatch (id, AEA AppendEntriesArg.({
@@ -96,6 +92,7 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 		(Some {state with commit_index=new_commit},
 	 		 generate_sm_requests state.commit_index new_commit state.log, global))
 	 	| false -> (* decrement next and try again *)
+	 	Printf.printf "%i" id;
 	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
 	 		(*TODO: actively try again instead of waiting till next append entries *)
 
