@@ -12,7 +12,8 @@ type candidate = {
 }
 
 type leader = {
-  indexes: (id * index * index) list
+  indexes: (id * index * index) list;
+  outstanding: (id * int * cmd) option;
 }
 
 let rec update_triple (a,b,c) = function
@@ -50,6 +51,7 @@ let candidate = Candidate {
 
 let leader last_index node_ids = Leader {
   indexes = List.map (fun id -> (id, last_index+1, 0)) node_ids;
+  outstanding = None;
   }
 
 let string_of_mode_state = function
