@@ -27,6 +27,22 @@ $(document).ready(function () {
     updateNodes();
 });
 
+  $('#termination').on( 'change', function () {
+    //update max for time slider to be termination
+    $slider = $('#timeSlider');
+    var max =parseInt($('#termination').val());
+    var value = Math.min($slider.data('slider').getValue(),max);
+    $slider.slider('setAttribute', 'max', max);
+    $slider.slider('setValue', value);
+    $('#timeSliderMax').text(max);
+    if (value != time){
+    //TODO: do we need to remove events that are now past termination time or are they ignored?
+      time = value;
+      $('#currentTime').text(value);
+      updateNodes();
+    }
+  });
+
   $("#lossSlider").slider({
   });
   
