@@ -117,7 +117,9 @@ let msg_to_json = function
     ("type", `String "client startup");
     ]
 
-let pull = function Some x -> x
+let pull = function 
+  | Some x -> x
+  | None -> assert false
 
 let sum = List.fold_left (+) 0 
 
@@ -150,4 +152,5 @@ let rec map_filter_fold f t acc = function
 let rec map_fold f t acc = function
   | [] -> (t, List.rev acc)
   | x::xs -> (
-    let (t,y) = f t x in map_fold f t (y::acc) xs)
+    let (t,y) = f t x in
+    map_fold f t (y::acc) xs)

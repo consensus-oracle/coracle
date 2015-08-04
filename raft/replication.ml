@@ -6,7 +6,9 @@ open Util
 
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
-let pull = function Some x -> x
+let pull = function 
+  | Some x -> x
+  | None ->  Printexc.print_backtrace; assert false
 
 (* form an append entries packet *)
 let form_heartbeat (state:State.t) n (id,next,_) = 
@@ -84,7 +86,7 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 | Invalid, _  | Same, Follower _ | Same, Candidate _-> (None,[],global)
 	 | Same, Leader l -> 
 	 	match pkt.success with
-	 	| true -> (* update next and match to index+entries, update commit index *)
+	 	| true -> ((* update next and match to index+entries, update commit index *)
 	 		let state = update_indexes_success state pkt.pre_log_index id in
 	 		let new_commit =  get_commit_index state.commit_index l.indexes in
 	 		match state.commit_index = new_commit with
@@ -92,7 +94,7 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 		(Some state,[],global)
 	 		| false -> (* commit index has increased *)
 	 		(Some {state with commit_index=new_commit},
-	 		 generate_sm_requests state.commit_index new_commit state.log, global)
+	 		 generate_sm_requests state.commit_index new_commit state.log, global))
 	 	| false -> (* decrement next and try again *)
 	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
 	 		(*TODO: actively try again instead of waiting till next append entries *)
