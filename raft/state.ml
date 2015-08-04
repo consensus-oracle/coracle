@@ -98,7 +98,7 @@ type t = {
 }
 
 let init id config = {
- term = 1;
+ term = 0;
  mode = follower;
  last_index = 0;
  last_term = 0;
