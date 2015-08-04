@@ -37,6 +37,7 @@ module AppendEntriesRes  = struct
 
   type t = { 
     term: term;
+    pre_log_index: index;
     success: bool;
     } with sexp
 
@@ -44,6 +45,7 @@ module AppendEntriesRes  = struct
     `Assoc [
       ("packet type", `String "append entries reply");
       ("term", `Int t.term);
+      ("pre log entry index", `Int t.pre_log_index);
       ("success", `Bool t.success);
     ]
 

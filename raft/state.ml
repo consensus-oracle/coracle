@@ -15,6 +15,13 @@ type leader = {
   indexes: (id * index * index) list
 }
 
+let rec update_triple (a,b,c) = function
+  | [] -> assert false
+  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
+  | x::xs -> x :: (update_triple (a,b,c) xs)
+
+let get_triple x = List.find (fun (a,b,x) -> a=x)
+
 type mode_state =
  | Follower of follower
  | Candidate of candidate
@@ -127,6 +134,24 @@ let append_entry (t:t) cmd =
     last_index= t.last_index+1;
     last_term = t.term; 
   }
+
+let update_indexes_success (t:t) index id = 
+  match t.mode with
+  | Leader l ->
+    { t with mode = Leader { l with 
+      indexes = update_triple (id,index+1,index) l.indexes}}
+  | _ -> assert false
+
+let update_indexes_failed (t:t) index id  = 
+  match t.mode with
+  | Leader l ->
+    let (_,next,matched) = get_triple id l.indexes in
+    match index = next with
+    | true -> 
+    { t with mode = Leader { l with 
+      indexes = update_triple (id,next-1,matched) l.indexes}}
+    | false -> t
+  | _ -> assert false
 
 let add_node id t = 
   {t with node_ids = add_unique id t.node_ids}

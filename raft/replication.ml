@@ -20,11 +20,13 @@ let form_heartbeat (state:State.t) (id,next,_) =
   }))
 
 (* form the heartbeat packet *)
-let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) = 
+let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
+	let success = (pkt.term >= state.term) && 
+  		(get_term_at_index pkt.pre_log_index state.log = Some pkt.pre_log_term) in
   PacketDispatch (id, AER AppendEntriesRes.({
   	term = state.term;
-  	success = (pkt.term >= state.term) && 
-  		(get_term_at_index pkt.pre_log_index state.log = Some pkt.pre_log_term);
+  	pre_log_index = pkt.pre_log_index + (if success then (List.length pkt.entries) else 0);
+  	success;
   }))
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
@@ -74,7 +76,14 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update (`AE `RES_RCV) global in
    match check_terms pkt.term state with
 	 | Higher -> step_down pkt.term state global
-	 | _ -> (None, [], global)
+	 | Invalid -> (None,[],global)
+	 | Same -> 
+	 	match pkt.success with
+	 	| true -> (* update next and match to index+entries, update commit index *)
+	 		(Some (update_indexes_success state pkt.pre_log_index id),[],global)
+	 	| false -> (* decrement next and try again *)
+	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
+	 		(*TODO: actively try again instead of waiting till next append entries *)
 
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =
