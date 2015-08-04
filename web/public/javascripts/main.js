@@ -206,7 +206,7 @@ $(document).ready(function () {
       }
     };
     
-    data.nodes.filter(serverFilter).forEach(function(node){
+    data.nodes.forEach(function(node){
       //console.log(node);
       node.events.forEach(function(nodeEvent){
         var event = $.grep(result.network.events,function(n,i){
