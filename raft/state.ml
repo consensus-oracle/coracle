@@ -47,6 +47,7 @@ type config = {
 }
 
 type entry = index * term * cmd with sexp
+(* reverse order *)
 type log = (entry list) with sexp
 
 let rec get_term_at_index index = function
@@ -54,6 +55,26 @@ let rec get_term_at_index index = function
   | (i,t,_)::_ when index=i -> Some t
   | _::xs -> get_term_at_index index xs
 
+(* assume index is valid *)
+let rec get_entry_at_index index = function
+  | (i,_,e)::_ when index=i -> e
+  | _::xs -> get_entry_at_index index xs
+
+let rec add_entries (prev_index,prev_term) entries log =
+  match log with
+  | [] when prev_index=0 -> 
+    (* we are empty and the leader has sent entries from start*) entries
+  | [] when prev_index<>0 ->
+    (* need leader to give us extra entries first *) log
+  | (i,t,e)::xs when i<prev_index -> 
+    (* missing entries, do nothing for now *) log
+  | (i,t,e)::xs when i>prev_index ->
+    (* discard entry and try again *) add_entries (prev_index,prev_term) entries xs 
+  | (i,t,e)::xs when i=prev_index && t<>prev_term -> 
+    (*delete this and all future entries *) xs
+  | (i,t,e)::xs when i=prev_index && t=prev_term -> 
+    (* perfectly up to data, append new entries *) entries@log
+ 
 type t = {
  term: term;
  mode: mode_state;

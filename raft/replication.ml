@@ -33,20 +33,38 @@ let dispatch_heartbeat (state:State.t) global =
 		SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
 	  List.map (form_heartbeat state) state.node_ids, global)
 
+
+let rec generate_sm_requests old_commit new_commit log =
+	match old_commit=new_commit with
+	| true -> []
+	| false -> (LocalDispatch (Cmd (get_entry_at_index (old_commit+1) log))) ::
+		generate_sm_requests (old_commit+1) new_commit log
+
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
 let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 	let global = global
 		|> Global.update (`AE `ARG_RCV)
 		|> Global.update (`AE `RES_SND) in
-	 match check_terms pkt.term state, state.mode with
-	 | Invalid, _ -> (None, [form_heartbeat_reply state id pkt], global)
-	 | Same, Follower f -> 
-	 	(Some {state with mode= Follower {f with leader=Some id}}, 
-	 	[reconstruct_heartbeat state; form_heartbeat_reply state id pkt], global)
-	 | Same, Leader _ -> assert false
-	 | Same, Candidate _ | Higher, _ -> 
-	 	let (state,events,global) = step_down pkt.term state global in
-	 	(state, (form_heartbeat_reply (pull state) id pkt) :: events, global)
+	match check_terms pkt.term state with
+	| Invalid -> 
+		(None, [form_heartbeat_reply state id pkt], global)
+	| Same | Higher ->
+		let (state,events,global) = step_down pkt.term state global in
+		let events = (form_heartbeat_reply (pull state) id pkt) :: events in
+		let state = 
+			match (pull state).mode with 
+			| Follower f -> { (pull state) with mode= Follower {f with leader=Some id}}
+			| _ -> assert false in
+		let state = 
+			{state with log = (add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state.log)} in
+		match pkt.commit_index>state.commit_index with
+		| true -> 
+				let commit = min [pkt.commit_index; state.last_index] in
+				(Some {state with commit_index=commit}, 
+					(generate_sm_requests state.commit_index commit state.log) @ events
+				,global)
+		| false -> (Some state, events, global)
+
 
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update (`AE `RES_RCV) global in
