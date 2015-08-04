@@ -119,7 +119,6 @@ let msg_to_json = function
 
 let pull = function 
   | Some x -> x
-  | None -> assert false
 
 let sum = List.fold_left (+) 0 
 
