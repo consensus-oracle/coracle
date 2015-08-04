@@ -100,7 +100,7 @@ module Simulate =
             eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g
             ))
       | NoNext new_es -> 
-        flush_buffer (Events.json_of_stats new_es) (App.json_of_stats (States.clients mss)) (C.global_to_json g) in 
+        flush_buffer (Events.json_of_stats new_es) (App.json_of_stats (States.clients mss) (States.servers mss)) (C.global_to_json g) in 
     eval ss mss es global
 
   let start config_file trace output_file no_sanity = 

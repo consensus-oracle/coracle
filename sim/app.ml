@@ -71,7 +71,7 @@ let eval time event s =
 
 end
 
-let json_of_stats (x: Client.state list) = 
+let json_of_stats (x: Client.state list) (y:StateMachine.state list) = 
   let times = x
     |> List.map (fun (state:Client.state) -> state.history)
     |> List.flatten
@@ -85,6 +85,9 @@ let json_of_stats (x: Client.state list) =
   let commands = x
     |> List.map (fun (state:Client.state) -> state.request)
     |> sum in
+  let applied = y
+    |> List.map List.length
+    |> average in
   match commands with 
     | 0 -> `String "no commands committed"
     | _ -> `Assoc [
@@ -94,4 +97,5 @@ let json_of_stats (x: Client.state list) =
       ("outstanding", `Int outstanding);
       ("average time", `Int (average times));
       ("actual times", `List (List.map (fun x -> `Int x) times));
+      ("average commands applied per state machine", `Int applied);
       ]
