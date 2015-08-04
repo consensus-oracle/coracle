@@ -12,8 +12,27 @@ type candidate = {
 }
 
 type leader = {
-  indexes: (id * index * index) list
+  indexes: (id * index * index) list;
+  outstanding: (id * int * cmd) option;
 }
+
+let rec update_triple (a,b,c) = function
+  | [] -> assert false
+  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
+  | x::xs -> x :: (update_triple (a,b,c) xs)
+
+let get_triple x = List.find (fun (a,b,x) -> a=x)
+
+let rec get_commit_index curr indexes = 
+  let nodes = (List.length indexes) +1 in
+  indexes
+  |> List.map (fun (id,next,matched) -> matched) 
+  |> List.filter (fun m -> m>curr)
+  |> List.length
+  |> fun n -> 
+      if (n+1)*2 > nodes 
+      then get_commit_index (curr+1) indexes 
+      else curr 
 
 type mode_state =
  | Follower of follower
@@ -32,6 +51,7 @@ let candidate = Candidate {
 
 let leader last_index node_ids = Leader {
   indexes = List.map (fun id -> (id, last_index+1, 0)) node_ids;
+  outstanding = None;
   }
 
 let string_of_mode_state = function
@@ -47,13 +67,44 @@ type config = {
 }
 
 type entry = index * term * cmd with sexp
+(* reverse order *)
 type log = (entry list) with sexp
 
-let rec get_term_at_index index = function
-  | [] -> None
-  | (i,t,_)::_ when index=i -> Some t
-  | _::xs -> get_term_at_index index xs
+let rec get_term_at_index index log =
+  match index with
+  | 0 -> (* use dummy term *) Some 0
+  | _ ->
+     match log with
+     | [] -> None
+     | (i,t,_)::_ when index=i -> Some t
+     | _::xs -> get_term_at_index index xs
 
+(* assume index is valid *)
+let rec get_entry_at_index index = function
+  | (i,_,e)::_ when index=i -> e
+  | _::xs -> get_entry_at_index index xs
+
+(* returns empty is index is too large *)
+let rec get_entries_from_index index = function
+  | [] -> []
+  | (i,_,e)::xs when index=i -> xs
+  | _::xs -> get_entries_from_index index xs
+
+let rec add_entries (prev_index,prev_term) entries log =
+  match log with
+  | [] when prev_index=0 -> 
+    (* we are empty and the leader has sent entries from start*) entries
+  | [] when prev_index<>0 ->
+    (* need leader to give us extra entries first *) log
+  | (i,t,e)::xs when i<prev_index -> 
+    (* missing entries, do nothing for now *) log
+  | (i,t,e)::xs when i>prev_index ->
+    (* discard entry and try again *) add_entries (prev_index,prev_term) entries xs 
+  | (i,t,e)::xs when i=prev_index && t<>prev_term -> 
+    (*delete this and all future entries *) xs
+  | (i,t,e)::xs when i=prev_index && t=prev_term -> 
+    (* perfectly up to data, append new entries *) entries@log
+ 
 type t = {
  term: term;
  mode: mode_state;
@@ -67,7 +118,7 @@ type t = {
 }
 
 let init id config = {
- term = 1;
+ term = 0;
  mode = follower;
  last_index = 0;
  last_term = 0;
@@ -89,6 +140,31 @@ let refresh t = {
   last_applied = 0;
   config=t.config
 }
+
+let append_entry (t:t) cmd = 
+  { t with
+    log = (t.last_index+1, t.term, cmd) :: t.log;
+    last_index= t.last_index+1;
+    last_term = t.term; 
+  }
+
+let update_indexes_success (t:t) index id = 
+  match t.mode with
+  | Leader l ->
+    { t with mode = Leader { l with 
+      indexes = update_triple (id,index+1,index) l.indexes}}
+  | _ -> assert false
+
+let update_indexes_failed (t:t) index id  = 
+  match t.mode with
+  | Leader l ->
+    let (_,next,matched) = get_triple id l.indexes in
+    match index = next with
+    | true -> 
+    { t with mode = Leader { l with 
+      indexes = update_triple (id,next-1,matched) l.indexes}}
+    | false -> t
+  | _ -> assert false
 
 let add_node id t = 
   {t with node_ids = add_unique id t.node_ids}

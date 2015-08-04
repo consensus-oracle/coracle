@@ -16,6 +16,8 @@ let rec init ~server_init ~client_init servers clients =
 let get n t = List.hd (List.assoc n t)
 
 let clients t = map_filter (function (_,(Client c)::_) -> Some c | _ -> None) t
+let servers t = map_filter (function (_,(Server c)::_) -> Some c | _ -> None) t
+
 
 let set_server n state_maybe t =
   match state_maybe with

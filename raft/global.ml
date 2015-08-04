@@ -18,6 +18,8 @@ type t = {
 	ele_won: int;
 	ele_restart: int;
 	ele_stepdown: int;
+	cmd_rcv: int;
+	cmd_dsp: int;
 }
 
 let init_pkt = {
@@ -38,6 +40,8 @@ let init = {
 	ele_won = 0;
 	ele_restart = 0;
 	ele_stepdown = 0;
+	cmd_rcv = 0;
+	cmd_dsp = 0;
 }
 
 let set_time time g = {g with time=time}
@@ -72,6 +76,10 @@ let to_json g =
 			("lost due to insuffient votes", `Int g.ele_restart);
 			("lost due to step down", `Int g.ele_stepdown);
 		]);
+		("number of commands", `Assoc [
+			("received", `Int g.cmd_rcv);
+			("dispatched in AppendEntries", `Int g.cmd_dsp);
+		]);
 	]
 
 let update_pkt_counter tick c = 
@@ -94,6 +102,8 @@ let update tick t =
 	| `ELE_START -> {t with ele_start = t.ele_start +1 }
 	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
+	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
+	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}
 
 let rec update_n tick n t = 
 	match n with

@@ -125,6 +125,14 @@ let average = function
   | [] -> 0
   | xs -> List.fold_left (+) 0 xs / List.length xs
 
+let min ls = 
+  let rec f n = function
+  | [] -> n
+  | x::xs when x<n -> f x xs
+  | x::xs -> f n xs in
+  f (List.hd ls ) ls
+
+
 let rec map_filter f = function
   | [] -> []
   | x::xs -> (
@@ -138,3 +146,8 @@ let rec map_filter_fold f t acc = function
     match f t x with 
     | (t, None) -> map_filter_fold f t acc xs
     | (t, Some y) -> map_filter_fold f t (y::acc) xs)
+
+let rec map_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    let (t,y) = f t x in map_fold f t (y::acc) xs)
