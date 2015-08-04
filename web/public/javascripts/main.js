@@ -134,10 +134,13 @@ $(document).ready(function () {
     var result = {
       termination: parseInt($('#termination').val()),
       seed: parseInt($('#randomSeed').val()),
+      workload_min:100,
+      workload_max:150,
       consensus: {
         protocol:"raft",
         election_timeout_min:30, 
-        election_timeout_max:300, 
+        election_timeout_max:300,
+        client_timeout:50,
         heartbeat_interval:30
       },
       network:{
