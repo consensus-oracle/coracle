@@ -71,12 +71,19 @@ $(document).ready(function () {
         //response.error = null;
 				if (response.error != null){
 					console.log(response);
-					result = validationError("Failed: " + response.stderr);
-          $('#SimResults').html(result);
+					result = validationError("Failed: " + response.stderr)
+          result += validationError('Stdout: ' + response.stdout);
 				}
 				else{
           result = response.stdout;
-					createTable(JSON.parse(response.stdout));
+          try{
+            var parsedResponse = JSON.parse(response.stdout);
+            createTable(JSON.parse(response.stdout));
+          }
+          catch(err){
+            result = validationError('Parsing error: ' + err);
+            result += validationError('Full Response: ' + JSON.stringify(response));
+          }          
           $('#tracePanel').removeClass('hidden');
 				}
         $('#resultsPanel').removeClass('hidden');
