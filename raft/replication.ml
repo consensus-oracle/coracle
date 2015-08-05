@@ -20,9 +20,7 @@ let form_heartbeat (state:State.t) n (id,next,_) =
   })))
 
 (* form the heartbeat packet *)
-let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
-	let success = (pkt.term >= state.term) && 
-  		(get_term_at_index pkt.pre_log_index state.log = Some pkt.pre_log_term) in
+let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) success =
   PacketDispatch (id, AER AppendEntriesRes.({
   	term = state.term;
   	pre_log_index = pkt.pre_log_index + (if success then (List.length pkt.entries) else 0);
@@ -56,15 +54,15 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 		|> Global.update (`AE `RES_SND) in
 	match check_terms pkt.term state with
 	| Invalid -> 
-		(None, [form_heartbeat_reply state id pkt], global)
+		(None, [form_heartbeat_reply state id pkt false], global)
 	| Same | Higher ->
 		let (state,events,global) = step_down pkt.term state global in
-		let events = (form_heartbeat_reply (pull state) id pkt) :: events in
 		let state = 
 			match (pull state).mode with 
 			| Follower f -> { (pull state) with mode= Follower {f with leader=Some id}}
 			| _ -> assert false in
-		let state = add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state in
+		let (success,state) = add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state in
+		let events = (form_heartbeat_reply state id pkt success) :: events in
 		match pkt.commit_index>state.commit_index with
 		| true -> 
 				let commit = min [pkt.commit_index; state.last_index] in

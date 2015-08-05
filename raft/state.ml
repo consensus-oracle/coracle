@@ -159,29 +159,34 @@ let update_indexes_failed (t:t) index id  =
   | _ -> assert false
 
  let rec add_entries (prev_index,prev_term) entries (state:t) =
-  match entries with
-  | [] -> (* heartbeat *) 
-    state
-  | (ie,te,ee)::_ -> (* actual appendentries *) (
-    match prev_index=state.last_index && prev_term=state.last_term with
-    | true -> (* append entries now *)
-      { state with 
+  match prev_index=state.last_index && prev_term=state.last_term with
+  | true -> (* append entries now *) (
+    match entries with
+    | [] -> (true,state)
+    | (i,t,_)::_ ->
+      (true, { state with 
         log = entries;
-        last_index = ie;
-        last_term = te;
-        }
-    | false -> 
-      match get_term_at_index prev_index state.log with
-      | Some term when term=prev_term -> (* remove extra entries then append new entries *)
-        { state with
+        last_index = i;
+        last_term = t;
+        }))
+  | false -> (
+    match get_term_at_index prev_index state.log with
+    | Some term when term=prev_term -> (* remove extra entries then append new entries *) (
+      match entries with
+      | [] -> 
+        (true, { state with
           log = entries @ (cut_entries prev_index state.log);
-          last_index = ie;
-          last_term = te;
-          }
-      | Some _ -> (* we don't have a consistent start point => do nothing *)
-        state
-      | None -> (* we are missing terms => do nothing *)
-        state)
+          })
+      | (i,t,_)::_ ->
+        (true, { state with
+          log = entries @ (cut_entries prev_index state.log);
+          last_index = i;
+          last_term = t;
+          }))
+    | Some _ -> (* we don't have a consistent start point => do nothing *)
+      (false,state)
+    | None -> (* we are missing terms => do nothing *)
+      (false,state))
 
 let add_node id t = 
   {t with node_ids = add_unique id t.node_ids}
