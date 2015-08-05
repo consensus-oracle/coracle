@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var exec = require('child_process').exec;
 var fs = require('fs');
 var uuid = require('node-uuid');
+var serveIndex = require('serve-index');
+var moment = require('moment');
 
 var app = express();
 
@@ -21,6 +23,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/requests',serveIndex(path.join(__dirname, 'requests'), {'icons': true}));
+app.use('/requests',express.static('requests'));
 
 app.get('/', function(req, res) {
     res.render('index',{ title: 'Coracle' })
@@ -28,7 +32,7 @@ app.get('/', function(req, res) {
 
 app.post('/runSim', function(req,res){
     console.log(req);
-	var id = uuid.v1();
+	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
 	var filename = 'requests/' + id + '.json'
 	fs.writeFile(filename,parseRequest(req),function(err){
 		if(err){
