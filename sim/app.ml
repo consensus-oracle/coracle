@@ -85,6 +85,16 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
   let commands = x
     |> List.map (fun (state:Client.state) -> state.request)
     |> sum in
+  let y_all = y
+    |> List.flatten in
+  let app_per_cmd = x
+    |> List.map (fun (state:Client.state) -> state.history)
+    |> List.flatten
+    |> List.map (fun (cmd,_) -> cmd)
+    |> List.map (fun cmd -> 
+        y_all
+        |> List.filter ( (=) cmd) 
+        |> List.length) in
   let applied = y
     |> List.map List.length
     |> average in
@@ -97,5 +107,6 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
       ("outstanding", `Int outstanding);
       ("average time", `Int (average times));
       ("actual times", `List (List.map (fun x -> `Int x) times));
+      ("actual appliations per commands", `List (List.map (fun x -> `Int x) app_per_cmd));
       ("average commands applied per state machine", `Int applied);
       ]
