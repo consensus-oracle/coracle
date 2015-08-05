@@ -128,10 +128,10 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
 
 let receive_sm_response o (state:State.t) global =
    match state.mode with
-   | Leader l ->
+   | Leader l -> (
    	match l.outstanding with
    	| None -> (* no client is waiting => ignore *) (None,[],global) 
    	| Some (id,seq_num,cmd) -> 
    		(Some {state with mode= Leader {l with outstanding=None}},
-   		constuct_reply id seq_num (Some o) None, Global.update (`CL `RES_SND) global)
+   		constuct_reply id seq_num (Some o) None, Global.update (`CL `RES_SND) global))
    | _ -> (* no client is waiting => ignore *) (None,[],global) 
