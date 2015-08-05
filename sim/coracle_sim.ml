@@ -31,7 +31,10 @@ let t =
   let no_sanity =
     Arg.(value & flag & info [no_sanity.sname;no_sanity.name] ~docv:no_sanity.name 
       ~doc:no_sanity.doc) in
-  let cmd_t = Term.(pure protocol_selector $ config_file $ trace $ output_file $ no_sanity) in
+  let debug =
+    Arg.(value & flag & info ["d"; "debug"] ~docv:"debug"
+      ~doc:"flush trace") in 
+  let cmd_t = Term.(pure protocol_selector $ config_file $ trace $ output_file $ no_sanity $ debug) in
   match Term.eval (cmd_t, Docs.info) with `Ok x -> x |_ -> exit 1
 
  let () = t

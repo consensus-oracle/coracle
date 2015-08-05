@@ -6,13 +6,9 @@ open Util
 
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
-let pull = function 
-  | Some x -> x
-  | None ->  Printexc.print_backtrace; assert false
-
 (* form an append entries packet *)
 let form_heartbeat (state:State.t) n (id,next,_) = 
-	let pre_index = next - 1 in
+	let pre_index = if next>0 then next - 1 else 0 in
 	let entries = get_entries_from_index next state.log in
 	(n + (List.length entries),
   PacketDispatch (id, AEA AppendEntriesArg.({
@@ -24,9 +20,7 @@ let form_heartbeat (state:State.t) n (id,next,_) =
   })))
 
 (* form the heartbeat packet *)
-let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) =
-	let success = (pkt.term >= state.term) && 
-  		(get_term_at_index pkt.pre_log_index state.log = Some pkt.pre_log_term) in
+let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) success =
   PacketDispatch (id, AER AppendEntriesRes.({
   	term = state.term;
   	pre_log_index = pkt.pre_log_index + (if success then (List.length pkt.entries) else 0);
@@ -60,16 +54,15 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 		|> Global.update (`AE `RES_SND) in
 	match check_terms pkt.term state with
 	| Invalid -> 
-		(None, [form_heartbeat_reply state id pkt], global)
+		(None, [form_heartbeat_reply state id pkt false], global)
 	| Same | Higher ->
 		let (state,events,global) = step_down pkt.term state global in
-		let events = (form_heartbeat_reply (pull state) id pkt) :: events in
 		let state = 
 			match (pull state).mode with 
 			| Follower f -> { (pull state) with mode= Follower {f with leader=Some id}}
 			| _ -> assert false in
-		let state = 
-			{state with log = (add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state.log)} in
+		let (success,state) = add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state in
+		let events = (form_heartbeat_reply state id pkt success) :: events in
 		match pkt.commit_index>state.commit_index with
 		| true -> 
 				let commit = min [pkt.commit_index; state.last_index] in
@@ -96,6 +89,7 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 		(Some {state with commit_index=new_commit},
 	 		 generate_sm_requests state.commit_index new_commit state.log, global))
 	 	| false -> (* decrement next and try again *)
+	 	Printf.printf "%i" id;
 	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
 	 		(*TODO: actively try again instead of waiting till next append entries *)
 
@@ -134,10 +128,10 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
 
 let receive_sm_response o (state:State.t) global =
    match state.mode with
-   | Leader l ->
+   | Leader l -> (
    	match l.outstanding with
    	| None -> (* no client is waiting => ignore *) (None,[],global) 
    	| Some (id,seq_num,cmd) -> 
    		(Some {state with mode= Leader {l with outstanding=None}},
-   		constuct_reply id seq_num (Some o) None, Global.update (`CL `RES_SND) global)
+   		constuct_reply id seq_num (Some o) None, Global.update (`CL `RES_SND) global))
    | _ -> (* no client is waiting => ignore *) (None,[],global) 

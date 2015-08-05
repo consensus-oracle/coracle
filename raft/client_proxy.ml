@@ -38,15 +38,15 @@ let state_to_json state : json =
   ]
 
 let receive_timeout timer state global = 
-  match timer with
-  | Client n -> 
-    let (seq_num,cmd) = pull state.outstanding in
+  match timer, state.outstanding with
+  | Client n, Some (seq_num,cmd) -> 
     let pkt = CRA ClientArg.({seq_num;cmd}) in
     let state = {state with last_leader=None} in
     (Some state,
       [PacketDispatch (try_next state,pkt); 
       SetTimeout (pull state.timeout,Client state.seq_num);
       ],Global.update (`CL `ARG_SND) global)
+  | _ -> (* ignore *) (None,[],global)
 
 let receive_client_request_reply id (pkt:ClientRes.t) state global = 
   let global = Global.update (`CL `RES_RCV) global in

@@ -8,8 +8,13 @@ module Simulate =
 
   let trace_buffer = ref []
 
-  let buffer json = trace_buffer := json :: !trace_buffer
-  let buffer_many jsons = trace_buffer := jsons @ !trace_buffer
+  let buffer_many flush jsons = 
+    match flush with 
+    | true -> pretty_to_channel ~std:true stdout (`List jsons)
+    | false -> trace_buffer := jsons @ !trace_buffer
+
+  let buffer flush json = buffer_many flush [json]
+  
 
   let json_to_stdout json = 
     pretty_to_channel ~std:true stdout json
@@ -55,13 +60,13 @@ module Simulate =
      ("id", `Int id);
      ("event", C.Client.state_to_json state); ]
 
-  let rec run ss mss es trace output_file global =
+  let rec run ss mss es trace output_file global debug =
     let rec eval ss mss es g =
       let open Events in 
       match Events.next es with
       | Next ((t,n,e),new_es) -> 
         let g = C.set_time t g in
-        if trace then buffer (input_event_to_json t n e) else (); (
+        if trace then buffer debug (input_event_to_json t n e) else (); (
         match e with
         | LocalArrival _ | LocalTimeout -> (
           (* i am a local event *)
@@ -81,20 +86,20 @@ module Simulate =
           | Server s -> 
             (* i am a server *)
             let (new_s,new_e,new_g) = C.Server.eval e s g in 
-            if trace then buffer_many (output_events_to_json t n new_e) else ();
+            if trace then buffer_many true (output_events_to_json t n new_e) else ();
             (
             match trace, new_s with
-            | true, Some state -> buffer (state_to_json t n state)
+            | true, Some state -> buffer true (state_to_json t n state)
             | _ -> ()
             );
             eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
           | Client s -> 
             (* i am a client *)
             let (new_s,new_e,new_g) = C.Client.eval e s g in 
-            if trace then buffer_many (output_events_to_json t n new_e) else ();
+            if trace then buffer_many true (output_events_to_json t n new_e) else ();
             (
             match trace, new_s with
-            | true, Some state -> buffer (client_state_to_json t n state)
+            | true, Some state -> buffer true (client_state_to_json t n state)
             | _ -> ()
             );
             eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g
@@ -103,7 +108,7 @@ module Simulate =
         flush_buffer (Events.json_of_stats new_es) (App.json_of_stats (States.clients mss) (States.servers mss)) (C.global_to_json g) in 
     eval ss mss es global
 
-  let start config_file trace output_file no_sanity = 
+  let start config_file trace output_file no_sanity debug = 
     let json = Json_handler.json_from_file config_file in
     let para = Json_handler.parameters_from_json json in
     let protocol_json = Json_handler.proto_json_from_json json in
@@ -118,6 +123,6 @@ module Simulate =
     let mss = States.init 
       ~server_init:(App.StateMachine.init para)
       ~client_init:(App.Client.init para) servers clients in
-    run ss mss (Events.init para) trace output_file C.reset_global
+    run ss mss (Events.init para) trace output_file C.reset_global debug
 
 end
