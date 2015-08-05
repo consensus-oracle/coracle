@@ -166,7 +166,7 @@ let update_indexes_failed (t:t) index id  =
     | [] -> (true,state)
     | (i,t,_)::_ ->
       (true, { state with 
-        log = entries;
+        log = entries@ state.log;
         last_index = i;
         last_term = t;
         }))
