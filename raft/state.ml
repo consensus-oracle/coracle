@@ -89,6 +89,7 @@ let rec get_entry_at_index index = function
 let rec get_entries_from_index index = function
   | [] -> []
   | (i,t,e)::xs when index=i -> [(i,t,e)]
+  | (i,t,e)::xs when index>i -> []
   | x::xs -> x :: (get_entries_from_index index xs)
 
 (* returns a new log where index is the index of the last entry *)
