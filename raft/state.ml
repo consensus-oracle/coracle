@@ -67,7 +67,8 @@ type config = {
 }
 
 type entry = index * term * cmd with sexp
-(* reverse order *)
+
+(* sorted reverse order by index *)
 type log = (entry list) with sexp
 
 let rec get_term_at_index index log =
@@ -90,20 +91,11 @@ let rec get_entries_from_index index = function
   | (i,t,e)::xs when index=i -> [(i,t,e)]
   | x::xs -> x :: (get_entries_from_index index xs)
 
-let rec add_entries (prev_index,prev_term) entries log =
+(* returns a new log where index is the index of the last entry *)
+let rec cut_entries index log = 
   match log with
-  | [] when prev_index=0 -> 
-    (* we are empty and the leader has sent entries from start*) entries
-  | [] when prev_index<>0 ->
-    (* need leader to give us extra entries first *) log
-  | (i,t,e)::xs when i<prev_index -> 
-    (* missing entries, do nothing for now *) log
-  | (i,t,e)::xs when i>prev_index ->
-    (* discard entry and try again *) add_entries (prev_index,prev_term) entries xs 
-  | (i,t,e)::xs when i=prev_index && t<>prev_term -> 
-    (*delete this and all future entries *) xs
-  | (i,t,e)::xs when i=prev_index && t=prev_term -> 
-    (* perfectly up to data, append new entries *) entries@log
+  | (i,_,_)::xs when i=index -> log
+  | _::xs -> cut_entries index xs 
  
 type t = {
  term: term;
@@ -165,6 +157,31 @@ let update_indexes_failed (t:t) index id  =
       indexes = update_triple (id,next-1,matched) l.indexes}}
     | false -> t
   | _ -> assert false
+
+ let rec add_entries (prev_index,prev_term) entries (state:t) =
+  match entries with
+  | [] -> (* heartbeat *) 
+    state
+  | (ie,te,ee)::_ -> (* actual appendentries *) (
+    match prev_index=state.last_index && prev_term=state.last_term with
+    | true -> (* append entries now *)
+      { state with 
+        log = entries;
+        last_index = ie;
+        last_term = te;
+        }
+    | false -> 
+      match get_term_at_index prev_index state.log with
+      | Some term when term=prev_term -> (* remove extra entries then append new entries *)
+        { state with
+          log = entries @ (cut_entries prev_index state.log);
+          last_index = ie;
+          last_term = te;
+          }
+      | Some _ -> (* we don't have a consistent start point => do nothing *)
+        state
+      | None -> (* we are missing terms => do nothing *)
+        state)
 
 let add_node id t = 
   {t with node_ids = add_unique id t.node_ids}

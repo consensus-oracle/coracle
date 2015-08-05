@@ -64,8 +64,7 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 			match (pull state).mode with 
 			| Follower f -> { (pull state) with mode= Follower {f with leader=Some id}}
 			| _ -> assert false in
-		let state = 
-			{state with log = (add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state.log)} in
+		let state = add_entries (pkt.pre_log_index,pkt.pre_log_term) pkt.entries state in
 		match pkt.commit_index>state.commit_index with
 		| true -> 
 				let commit = min [pkt.commit_index; state.last_index] in
