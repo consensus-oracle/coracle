@@ -75,10 +75,10 @@ $(document).ready(function () {
           result += validationError('Stdout: ' + response.stdout);
 				}
 				else{
-          result = response.stdout;
           try{
-            var parsedResponse = JSON.parse(response.stdout);
-            createTable(JSON.parse(response.stdout));
+            var jsonResults = JSON.parse(response.stdout);
+            result = JSON.stringify(jsonResults.results);
+            createTable(jsonResults);
           }
           catch(err){
             result = validationError('Parsing error: ' + err);
@@ -212,10 +212,13 @@ $(document).ready(function () {
     var result = {
       termination: parseInt($('#termination').val()),
       seed: parseInt($('#randomSeed').val()),
+      workload_min:100,
+      workload_max:150,
       consensus: {
         protocol:"raft",
         election_timeout_min:30, 
-        election_timeout_max:300, 
+        election_timeout_max:300,
+        client_timeout:50,
         heartbeat_interval:30
       },
       network:{
@@ -225,7 +228,7 @@ $(document).ready(function () {
       }
     };
     
-    data.nodes.filter(serverFilter).forEach(function(node){
+    data.nodes.forEach(function(node){
       //console.log(node);
       node.events.forEach(function(nodeEvent){
         var event = $.grep(result.network.events,function(n,i){

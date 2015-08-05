@@ -19,8 +19,19 @@ let election_timer_max = {
  let heartbeat_interval = {
     name = "heartbeat_interval";
     sname = "h";
-    doc = "How regularly a Raft leader broadcasts a heartbeat AppendEntries RPC to all other nodes";
+    doc = "How regularly a Raft leader broadcasts a heartbeat AppendEntries RPC to all other nodes.
+            This value must be smaller than the election timer minimum.";
     default = Some 100;
+    min = Some 0;
+    max = None;
+  }
+
+  let client_timeout = {
+    name = "client_timeout";
+    sname = "ct";
+    doc = "The time a client will wait after contacting a server before trying another server. 
+            This value needs to be at least 2 RTT.";
+    default = None;
     min = Some 0;
     max = None;
   }

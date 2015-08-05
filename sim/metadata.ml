@@ -80,3 +80,21 @@ let latency = {
     min = Some 0;
     max = None;
   }
+
+let workload_min = {
+    name = "workload_min";
+    sname = "wm";
+    doc = "minimum time between requests from each client";
+    default = None;
+    min = Some 0;
+    max = None;
+  }
+
+let workload_max = {
+    name = "workload_max";
+    sname = "wm";
+    doc = "maximum time between requests from each client";
+    default = None;
+    min = Some 0;
+    max = None;
+  }

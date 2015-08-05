@@ -4,12 +4,6 @@ open Io
 open State
 open Util
 
-
-let check_vote (f:State.follower) = 
-  match f.voted_for with
-  | None -> true 
-  | Some _ -> false
-
 let reply term yes = 
   let open RequestVoteRes in 
   RVR {
@@ -20,21 +14,21 @@ let reply term yes =
 (* process incoming RequestVotes RPC *)
 let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Global.t) =
   let global = 
-    Global.update `RV_RCV global
-    |> Global.update `RV_SND  in
+    Global.update (`RV `ARG_RCV) global
+    |> Global.update (`RV `RES_SND)  in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ | Same, Leader _| Same, Candidate _ ->
     (None, [PacketDispatch (id,reply state.term false)], global)
   | Same, Follower f -> (
-    match check_vote f with
-    | true ->
-      (Some {state with mode= Follower {voted_for= Some id}},
+    match f.voted_for with
+    | None ->
+      (Some {state with mode= Follower {f with voted_for= Some id}},
         [PacketDispatch (id, reply state.term true)], global)
-    | false ->
+    | Some _ ->
       (None, [PacketDispatch (id,reply state.term false)], global))
   | Higher,_ ->
     (Some {state with term=pkt.term;
-        mode= Follower {voted_for= Some id}},
+        mode= Follower {voted_for= Some id; leader=None}},
     [PacketDispatch (id, reply pkt.term true);
     reconstruct_heartbeat state], global)
 
@@ -53,10 +47,16 @@ let start_follower state global =
   let timeout = Numbergen.uniform min max in
   (None, [construct_heartbeat state], global)
 
+let restart state global = 
+  let cancel_events = cancel_timers state in
+  let state = refresh state in
+  let (_,events,global) = start_follower state global in
+  (Some state, cancel_events@events,global)
+
 let start_election (state:State.t) global =
   let global = global
     |> Global.update `ELE_START
-    |> Global.update_n `RV_SND (List.length state.node_ids) in 
+    |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids) in 
   let timeout = Numbergen.uniform 0 2000 in
   let state = {state with term=state.term+1; mode=State.candidate} in
   (Some state,
@@ -70,11 +70,11 @@ let restart_election state global =
 let won (state:State.t) = 
   match state.mode with
   | Candidate cand -> (List.length cand.votes_from +1) *2 > 
-  (List.length state.node_ids)
+  (List.length state.node_ids +1)
   | _ -> false
 
 let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.t) =
-  let global = Global.update `RV_RCV global in
+  let global = Global.update (`RV `RES_RCV) global in
   match check_terms pkt.term state, state.mode with
   | Invalid, _ -> 
     (* packet is from a behind node, ignore it *)

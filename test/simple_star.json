@@ -16,16 +16,16 @@
       {"type":"hub", "id":6}
     ],
     "links":[
-      {"start":1, "end":6, "id":1},
-      {"start":2, "end":6, "id":2},
-      {"start":3, "end":6, "id":3},
-      {"start":4, "end":6, "id":4},
-      {"start":5, "end":6, "id":5},
-      {"start":6, "end":1, "id":6},
-      {"start":6, "end":2, "id":7},
-      {"start":6, "end":3, "id":8},
-      {"start":6, "end":4, "id":9},
-      {"start":6, "end":5, "id":10}
+      {"start":1, "end":6, "id":1, "direction":"uni"},
+      {"start":2, "end":6, "id":2, "direction":"uni"},
+      {"start":3, "end":6, "id":3, "direction":"uni"},
+      {"start":4, "end":6, "id":4, "direction":"uni"},
+      {"start":5, "end":6, "id":5, "direction":"uni"},
+      {"start":6, "end":1, "id":6, "direction":"uni"},
+      {"start":6, "end":2, "id":7, "direction":"uni"},
+      {"start":6, "end":3, "id":8, "direction":"uni"},
+      {"start":6, "end":4, "id":9, "direction":"uni"},
+      {"start":6, "end":5, "id":10, "direction":"uni"}
     ],
     "events": [ {
         "time":0,

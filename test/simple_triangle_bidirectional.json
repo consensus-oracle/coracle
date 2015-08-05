@@ -13,22 +13,16 @@
 			{"type":"server", "id":3}
 		],
 		"links":[
-			{"start":1, "end":2, "id":1, "direction":"uni"},
-			{"start":2, "end":1, "id":2, "direction":"uni"},
-			{"start":1, "end":3, "id":3, "direction":"uni"},
-			{"start":3, "end":1, "id":4, "direction":"uni"},
-			{"start":2, "end":3, "id":5, "direction":"uni"},
-			{"start":3, "end":2, "id":6, "direction":"uni"}
+			{"start":1, "end":2, "id":1, "direction":"bi"},
+			{"start":1, "end":3, "id":2, "direction":"bi"},
+			{"start":2, "end":3, "id":3, "direction":"bi"}
 		],
 		"events": [ {
 				"time":0,
 			 	"links": [
 			 		{"id":1, "type":"s", "active":true},
 					{"id":2, "type":"s", "active":true},
-					{"id":3, "type":"s", "active":true},
-					{"id":4, "type":"s", "active":true},
-					{"id":5, "type":"s", "active":true},
-					{"id":6, "type":"s", "active":true}
+					{"id":3, "type":"s", "active":true}
 			 	],
 			 	"nodes": [
 			    {"id":1, "active": true},

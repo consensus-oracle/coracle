@@ -2,6 +2,7 @@
 	it's designed to be opened in source headers *)
 
 open Sexplib.Conv
+open Yojson.Safe
 
 type id = int with sexp
 type index = int with sexp
@@ -50,3 +51,21 @@ val check_parameter: int -> int parameter -> unit
 
 (* List.assoc for string with more helpful exception *)
 val json_assoc: string -> (string * 'a) list -> 'a
+val json_assoc_opt: string -> (string * 'a) list -> 'a option
+
+type cmd = int with sexp
+type outcome = Failure | Success of cmd with sexp
+type msg = Cmd of cmd | Outcome of outcome | Startup
+
+val cmd_to_json: cmd -> json
+val outcome_to_json: outcome -> json
+val msg_to_json: msg -> json
+
+val pull: 'a option -> 'a
+
+val average: int list -> int
+val sum: int list -> int
+val min: int list -> int
+val map_filter: ('a -> 'b option) -> 'a list -> 'b list
+val map_filter_fold: ('a -> 'b -> 'a * 'c option) -> 'a -> 'c list -> 'b list -> 'a * 'c list
+val map_fold: ('a -> 'b -> 'a * 'c) -> 'a -> 'c list -> 'b list -> 'a * 'c list
