@@ -86,20 +86,20 @@ module Simulate =
           | Server s -> 
             (* i am a server *)
             let (new_s,new_e,new_g) = C.Server.eval e s g in 
-            if trace then buffer_many true (output_events_to_json t n new_e) else ();
+            if trace then buffer_many debug (output_events_to_json t n new_e) else ();
             (
             match trace, new_s with
-            | true, Some state -> buffer true (state_to_json t n state)
+            | true, Some state -> buffer debug (state_to_json t n state)
             | _ -> ()
             );
             eval (States.set_server n new_s ss) mss (Events.add n t new_e new_es) new_g
           | Client s -> 
             (* i am a client *)
             let (new_s,new_e,new_g) = C.Client.eval e s g in 
-            if trace then buffer_many true (output_events_to_json t n new_e) else ();
+            if trace then buffer_many debug (output_events_to_json t n new_e) else ();
             (
             match trace, new_s with
-            | true, Some state -> buffer true (client_state_to_json t n state)
+            | true, Some state -> buffer debug (client_state_to_json t n state)
             | _ -> ()
             );
             eval (States.set_client n new_s ss) mss (Events.add n t new_e new_es) new_g
