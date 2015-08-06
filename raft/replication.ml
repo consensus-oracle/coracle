@@ -44,7 +44,9 @@ let dispatch_heartbeat (state:State.t) global =
 let rec generate_sm_requests old_commit new_commit log =
 	match old_commit=new_commit with
 	| true -> []
-	| false -> (LocalDispatch (Cmd (get_entry_at_index (old_commit+1) log))) ::
+	| false -> 
+		let (client_id, seq_num, cmd) = get_entry_at_index (old_commit+1) log in
+		(LocalDispatch (Cmd cmd)) ::
 		generate_sm_requests (old_commit+1) new_commit log
 
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
@@ -117,10 +119,10 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   	let global = global
   		|> Global.update `CMD_RCV in
   	(* TODO: actively dispatch appendentries *)
-  	let state = append_entry state pkt.cmd in
-  	let state = {state with mode = Leader 
-  		{l with outstanding = Some (id, pkt.seq_num, pkt.cmd)}} in
-  	(Some state, [],	global)
+  	let request = (id,pkt.seq_num,pkt.cmd) in
+  	let state = append_entry state request in
+  	let state = {state with mode = Leader {l with outstanding = Some request }} in
+  	(Some state, [], global)
   | Follower f -> 
   	(None, constuct_reply id pkt.seq_num None f.leader,	Global.update (`CL `RES_SND) global)
   | Candidate _ -> 

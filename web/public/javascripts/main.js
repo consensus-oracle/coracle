@@ -212,14 +212,14 @@ $(document).ready(function () {
     var result = {
       termination: parseInt($('#termination').val()),
       seed: parseInt($('#randomSeed').val()),
-      workload_min:100,
-      workload_max:150,
+      workload_min: parseInt($('#workload_min').val()),
+      workload_max: parseInt($('#workload_max').val()),
       consensus: {
         protocol:"raft",
-        election_timeout_min:30, 
-        election_timeout_max:300,
-        client_timeout:50,
-        heartbeat_interval:30
+        election_timeout_min: parseInt($('#election_min').val()), 
+        election_timeout_max: parseInt($('#election_max').val()),
+        client_timeout: parseInt($('#client').val()),
+        heartbeat_interval: parseInt($('#heartbeat').val())
       },
       network:{
         nodes:data.nodes,
