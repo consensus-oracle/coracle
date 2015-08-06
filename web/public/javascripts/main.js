@@ -216,8 +216,8 @@ $(document).ready(function () {
       workload_max: parseInt($('#workload_max').val()),
       consensus: {
         protocol:"raft",
-        election_timeout_min:30, 
-        election_timeout_max:300,
+        election_timeout_min: parseInt($('#election_min').val()), 
+        election_timeout_max: parseInt($('#election_max').val()),
         client_timeout:50,
         heartbeat_interval:30
       },

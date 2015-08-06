@@ -34,8 +34,9 @@ Now to setup the node web server:
 
 ```
 brew install npm
-npm install express serve-favicon morgan cookie-parser node-uuid debug jade
+npm install express serve-favicon morgan cookie-parser node-uuid debug jade serve-index moment
 cd coracle/web
+mkdir requests
 PORT=3000 node ./bin/www
 ```
 Replacing brew with your package manager of course. Setting up supervisor can allow the server to auto update when files change.

@@ -24,15 +24,24 @@ block content
               //span(style={'padding-right':'15px'}) 0
               //input.form-control#lossSlider(data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="0.1")
               //span(style={'padding-left':'15px'}) 1
+
           div.form-group#terminationDiv
             label.control-label(for='termination') Termination:
               input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
+
           div.form-group#workloadMin
             label.control-label(for='workload_min') Workload Min:
-              input.form-control#termination(type='number', min='0', value='100')
+              input.form-control#workload_min(type='number', min='0', value='100')
           div.form-group#workloadMMax
             label.control-label(for='workload_max') Workload Max:
-              input.form-control#termination(type='number', min='0', value='150')
+              input.form-control#workload_max(type='number', min='0', value='150')
+
+          div.form-group#electionMin
+            label.control-label(for='election_min') Election Timeout Min:
+              input.form-control#election_min(type='number', min='0', value='150')
+          div.form-group#electionMax
+            label.control-label(for='election_max') Election Timeout Max:
+              input.form-control#election_max(type='number', min='0', value='300')
 
           div.form-group#advancedSettingsButton
             button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
