@@ -27,7 +27,13 @@ block content
           div.form-group#terminationDiv
             label.control-label(for='termination') Termination:
               input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
-          
+          div.form-group#workloadMin
+            label.control-label(for='workload_min') Workload Min:
+              input.form-control#termination(type='number', min='0', value='100')
+          div.form-group#workloadMMax
+            label.control-label(for='workload_max') Workload Max:
+              input.form-control#termination(type='number', min='0', value='150')
+
           div.form-group#advancedSettingsButton
             button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
               aria-expanded='false') Advanced Settings
