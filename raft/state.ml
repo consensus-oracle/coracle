@@ -66,7 +66,8 @@ type config = {
   client_timer: int option;
 }
 
-type entry = index * term * cmd with sexp
+type command = id * int * cmd with sexp
+type entry = index * term * command with sexp
 
 (* sorted reverse order by index *)
 type log = (entry list) with sexp
@@ -97,6 +98,8 @@ let rec cut_entries index log =
   match log with
   | (i,_,_)::xs when i=index -> log
   | _::xs -> cut_entries index xs 
+
+type client_cache = (id * int * outcome) list with sexp
  
 type t = {
  term: term;
@@ -104,6 +107,7 @@ type t = {
  last_index: index;
  last_term: term;
  log: log;
+ client_cache: client_cache;
  commit_index: index;
  last_applied: index;
  node_ids: id list;
@@ -117,6 +121,7 @@ let init id config = {
  last_term = 0;
  node_ids = create_nodes config.servers id 1;
  log = [];
+ client_cache = [];
  commit_index = 0;
  last_applied = 0;
  config;
@@ -128,6 +133,7 @@ let refresh t = {
   last_index = 0;
   last_term = 0;
   log = t.log;
+  client_cache = [];
   node_ids=t.node_ids;
   commit_index = 0;
   last_applied = 0;
@@ -220,12 +226,21 @@ let mode_to_json = function
       ("node indexes", `List (List.map id_index_to_json l.indexes));
     ]
 
-let entry_to_json (index,term,cmd) = 
+let entry_to_json (index,term,(id,seq_num,cmd)) = 
   `Assoc [
     ("index",`Int index);
     ("term", `Int term);
+    ("client id", `Int id);
+    ("seq #", `Int seq_num);
     ("cmd", `Int cmd);
     ]
+
+let session_to_json (id,seq_num,outcome) =
+  `Assoc [
+    ("client id", `Int id);
+    ("seq #", `Int seq_num);
+    ("outcome", outcome_to_json outcome);
+  ]
 
 let to_json s =
   `Assoc [
@@ -239,6 +254,7 @@ let to_json s =
       ("last applied", `Int s.last_applied);
       ("peers", `List (List.map (fun i -> `Int i) s.node_ids));
       ("log",`List (List.map entry_to_json s.log));
+      ("client request cache", `List (List.map session_to_json s.client_cache));
       ]);
   ]
 
