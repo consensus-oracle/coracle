@@ -218,8 +218,8 @@ $(document).ready(function () {
         protocol:"raft",
         election_timeout_min: parseInt($('#election_min').val()), 
         election_timeout_max: parseInt($('#election_max').val()),
-        client_timeout:50,
-        heartbeat_interval:30
+        client_timeout: parseInt($('#client').val()),
+        heartbeat_interval: parseInt($('#heartbeat').val())
       },
       network:{
         nodes:data.nodes,

@@ -42,6 +42,13 @@ block content
           div.form-group#electionMax
             label.control-label(for='election_max') Election Timeout Max:
               input.form-control#election_max(type='number', min='0', value='300')
+                
+          div.form-group#heartbeatDiv
+            label.control-label(for='heartbeat') Heartbeat Interval:
+              input.form-control#heartbeat(type='number', min='0', value='30')
+          div.form-group#clientDiv
+            label.control-label(for='client') Client Timeout:
+              input.form-control#client(type='number', min='0', value='50')
 
           div.form-group#advancedSettingsButton
             button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
