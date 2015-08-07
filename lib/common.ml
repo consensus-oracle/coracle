@@ -97,7 +97,8 @@ let json_assoc key js =
 type cmd = int with sexp 
 type outcome = Failure | Success of cmd with sexp
 
-type msg = Cmd of cmd | Outcome of outcome | Startup
+type msg = Cmd of cmd | Outcome of outcome 
+  | CmdM of id * int * cmd | OutcomeM of id * int * outcome  | Startup
 
 let cmd_to_json cmd = `Int cmd
 let outcome_to_json = function
@@ -109,8 +110,20 @@ let msg_to_json = function
     ("type", `String "client command");
     ("command", cmd_to_json cmd );
     ]
+  | CmdM (id,seq,cmd) -> `Assoc [
+    ("type", `String "client command");
+    ("client id", `Int id);
+    ("seq #", `Int id);
+    ("command", cmd_to_json cmd );
+    ]
   | Outcome out -> `Assoc [
     ("type", `String "command response");
+    ("response", outcome_to_json out);
+    ]
+  | OutcomeM (id,seq,out) -> `Assoc [
+    ("type", `String "command response");
+    ("client id", `Int id);
+    ("seq #", `Int id);
     ("response", outcome_to_json out);
     ]
   | Startup -> `Assoc [

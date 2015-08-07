@@ -73,4 +73,5 @@ let recieve_client_request client_cmd (state:state) global =
         SetTimeout (pull state.timeout,Client state.seq_num)],
       Global.update (`CL `ARG_SND) global)
   | Some _ -> (* can only had one request at a time *)
+    (* TODO: remove hard coding *)
     (None, [LocalDispatch (Outcome Failure)],global)
