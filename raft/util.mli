@@ -14,3 +14,7 @@ val construct_heartbeat: State.t -> rpc Io.output
 val reconstruct_heartbeat: State.t -> rpc Io.output
 val cancel_timers: State.t -> rpc Io.output list
 val step_down: int -> eventsig
+
+(* given indexes and a hint index, get_commit_index returns 
+	the highest index which can be commited upto *)
+val get_commit_index: index -> (id * index * index) list -> index

@@ -17,17 +17,6 @@ type leader = {
 
 
 
-let rec get_commit_index curr indexes = 
-  let nodes = (List.length indexes) +1 in
-  indexes
-  |> List.map (fun (id,next,matched) -> matched) 
-  |> List.filter (fun m -> m>curr)
-  |> List.length
-  |> fun n -> 
-      if (n+1)*2 > nodes 
-      then get_commit_index (curr+1) indexes 
-      else curr 
-
 type mode_state =
  | Follower of follower
  | Candidate of candidate
