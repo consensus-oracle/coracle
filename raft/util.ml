@@ -1,6 +1,7 @@
 open Common
 open Rpcs
-open Io 
+open Io
+open State 
 
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
