@@ -32,7 +32,6 @@ let cancel_timers (state:State.t) =
   let timeout = Numbergen.uniform min max in
   ResetTimeout (to_span timeout,Heartbeat)
 
-
  let step_down term (state:State.t) (global:Global.t) =
    (Some {state with term=term; mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), 

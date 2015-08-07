@@ -166,3 +166,14 @@ let rec map_fold f t acc = function
   | x::xs -> (
     let (t,y) = f t x in
     map_fold f t (y::acc) xs)
+
+let rec update_triple (a,b,c) = function
+  | [] -> [(a,b,c)]
+  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
+  | x::xs -> x :: (update_triple (a,b,c) xs)
+
+let get_triple_exn x = 
+  List.find (fun (a,b,c) -> a=x)
+
+let get_triple x xs = 
+  try Some (get_triple_exn x xs) with Not_found -> None

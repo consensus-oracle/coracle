@@ -15,13 +15,7 @@ type leader = {
   indexes: (id * index * index) list;
 }
 
-let rec update_triple (a,b,c) = function
-  | [] -> [(a,b,c)]
-  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
-  | x::xs -> x :: (update_triple (a,b,c) xs)
 
-let get_triple_exn x = List.find (fun (a,b,c) -> a=x)
-let get_triple x xs = try Some (get_triple_exn x xs) with Not_found -> None
 
 let rec get_commit_index curr indexes = 
   let nodes = (List.length indexes) +1 in
