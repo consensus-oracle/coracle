@@ -100,7 +100,8 @@ $(document).ready(function () {
         //response.error = null;
 				if (response.error != null){
 					console.log(response);
-					result = validationError("Failed: " + response.stderr)
+					result = validationError("Failed: " + response.error);
+          result += validationError("Stderr: " + response.stderr);
           result += validationError('Stdout: ' + response.stdout);
 				}
 				else{
