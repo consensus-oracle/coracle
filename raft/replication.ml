@@ -15,10 +15,13 @@ let constuct_reply id seq_num outcome (leader_hint: id option) =
 
 
 (* form an append entries packet *)
-let form_heartbeat (state:State.t) n (id,next,_) = 
+let form_heartbeat (state:State.t) global (id,next,_) = 
 	let pre_index = if next>0 then next - 1 else 0 in
 	let entries = get_entries_from_index next state.log in
-	(n + (List.length entries),
+	let global = global
+		|> Global.update (`AE `ARG_SND)
+		|> Global.update_n (`CMD_DSP) (List.length entries) in
+	(global,
   PacketDispatch (id, AEA AppendEntriesArg.({
   	term = state.term;
   	pre_log_term = pull (get_term_at_index pre_index state.log);
@@ -36,16 +39,19 @@ let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) success =
   }))
 
 (* triggered by Leadership timer, dispatch heartbeat packets to all nodes *)
-let dispatch_heartbeat (state:State.t) global =
+let dispatch_heartbeat reset (state:State.t) global =
 	match state.mode with 
-	| Leader l -> 
-		let (n,ae_msgs) = map_fold (form_heartbeat state) 0 [] l.indexes in
-		let global = global 
-		|> Global.update_n (`AE `ARG_SND) (List.length state.node_ids)
-		|> Global.update_n (`CMD_DSP) n in
-		(None,
-			SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
+	| Leader l -> (
+		let (global,ae_msgs) = map_fold (form_heartbeat state) global [] l.indexes in
+		match reset with
+		| true -> (* reset instead of set timer *)
+			(None,
+			ResetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
 		  ae_msgs, global)
+		| false -> (* already triggered by timer *)
+			(None,
+			SetTimeout (to_span state.config.heartbeat_interval,Leadership) ::
+		  ae_msgs, global))
 	| _ -> (* only leaders should dispatch heartbeats *) assert false
 
 
@@ -108,10 +114,11 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
    match check_terms pkt.term state, state.mode with
 	 | Higher, _-> step_down pkt.term state global
 	 | Invalid, _  | Same, Follower _ | Same, Candidate _-> (None,[],global)
-	 | Same, Leader l -> 
+	 | Same, Leader _ -> 
 	 	match pkt.success with
 	 	| true -> ((* update next and match to index+entries, update commit index *)
 	 		let state = update_indexes_success state pkt.pre_log_index id in
+	 		let l = match state.mode with Leader l -> l in
 	 		let new_commit =  get_commit_index state.commit_index l.indexes in
 	 		match state.commit_index = new_commit with
 	 		| true -> (* commit index hasn't increased *)
@@ -120,15 +127,20 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 		(Some {state with commit_index=new_commit},
 	 		 generate_sm_requests state.commit_index new_commit state.log state.client_cache, global))
 	 	| false -> (* decrement next and try again *)
-	 	Printf.printf "%i" id;
-	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
-	 		(*TODO: actively try again instead of waiting till next append entries *)
+	 		let state = update_indexes_failed state pkt.pre_log_index id in
+	 		match state.config.lazy_update with
+	 		| true -> (Some state,[],global)
+	 		| false -> 
+	 			let l = match state.mode with Leader l -> l in
+	 			let (global,pkt) = form_heartbeat state global (get_triple_exn id l.indexes) in
+	 			(Some state, [pkt], global)
+
 
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =
 	let global = Global.update `ELE_WON global in
 	let state = {state with mode=State.leader state.last_index state.node_ids} in 
-	let (_,events,global) = dispatch_heartbeat state global in
+	let (_,events,global) = dispatch_heartbeat false state global in
   (Some state,
   CancelTimeout Election :: events,
 	global)
@@ -137,13 +149,17 @@ let receive_client_request id (pkt:ClientArg.t) (state:State.t) global =
   let global = global
   	|> Global.update (`CL `ARG_RCV) in
   match state.mode with
-  | Leader l -> 
+  | Leader l -> (
   	let global = global
   		|> Global.update `CMD_RCV in
   	(* TODO: actively dispatch appendentries *)
   	let request = (id,pkt.seq_num,pkt.cmd) in
   	let state = append_entry state request in
-  	(Some state, [], global)
+  	match state.config.batch_requests with 
+  	| true -> (Some state, [], global)
+  	| false -> 
+  		let (_,events,global) = dispatch_heartbeat true state global in
+  		(Some state, events, global))
   | Follower f -> 
   	(None, constuct_reply id pkt.seq_num None f.leader,	Global.update (`CL `RES_SND) global)
   | Candidate _ -> 

@@ -46,6 +46,8 @@ type config = {
   heartbeat_interval: int;
   servers: int;
   client_timer: int option;
+  batch_requests: bool;
+  lazy_update: bool;
 }
 
 type command = id * int * cmd with sexp
