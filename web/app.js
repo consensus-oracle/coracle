@@ -30,6 +30,19 @@ app.get('/', function(req, res) {
     res.render('index',{ title: 'Coracle' })
 });
 
+app.get('/examples.json', function(req,res){
+  fs.readdir(path.join(__dirname, 'public','examples'), function(err,files){
+    console.log(files);
+    var templateNames = files.filter(function(d){
+      return d.indexOf('.json') != -1;
+    })
+    .map(function(d){
+      return d.split('.')[0];
+    });
+    res.send({templateNames: templateNames});
+  });
+});
+
 app.post('/runSim', function(req,res){
     console.log(req);
 	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
