@@ -13,26 +13,9 @@ type candidate = {
 
 type leader = {
   indexes: (id * index * index) list;
-  outstanding: (id * int * cmd) option;
 }
 
-let rec update_triple (a,b,c) = function
-  | [] -> assert false
-  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
-  | x::xs -> x :: (update_triple (a,b,c) xs)
 
-let get_triple x = List.find (fun (a,b,x) -> a=x)
-
-let rec get_commit_index curr indexes = 
-  let nodes = (List.length indexes) +1 in
-  indexes
-  |> List.map (fun (id,next,matched) -> matched) 
-  |> List.filter (fun m -> m>curr)
-  |> List.length
-  |> fun n -> 
-      if (n+1)*2 > nodes 
-      then get_commit_index (curr+1) indexes 
-      else curr 
 
 type mode_state =
  | Follower of follower
@@ -51,7 +34,6 @@ let candidate = Candidate {
 
 let leader last_index node_ids = Leader {
   indexes = List.map (fun id -> (id, last_index+1, 0)) node_ids;
-  outstanding = None;
   }
 
 let string_of_mode_state = function
@@ -157,7 +139,7 @@ let update_indexes_success (t:t) index id =
 let update_indexes_failed (t:t) index id  = 
   match t.mode with
   | Leader l ->
-    let (_,next,matched) = get_triple id l.indexes in
+    let (_,next,matched) = get_triple_exn id l.indexes in
     match index = next with
     | true -> 
     { t with mode = Leader { l with 
