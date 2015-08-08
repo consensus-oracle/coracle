@@ -122,6 +122,8 @@ $(document).ready(function () {
       .classed('server',true)
       .classed('nodes',true);
       
+    servers.exit().remove();
+      
     var clients = svg.selectAll('circle.client')
       .data(data.nodes.filter(clientFilter),function(d) { return d.id;})
       .call(nodesDrag);
@@ -135,6 +137,8 @@ $(document).ready(function () {
       .attr('cy',function(d){return d.cy;})
       .classed('client',true)
       .classed('nodes',true);
+      
+    clients.exit().remove();
       
     var hubs = svg.selectAll('rect.hub')
       .data(data.nodes.filter(hubFilter),function(d) { return d.id;})
@@ -151,6 +155,8 @@ $(document).ready(function () {
       .attr('height',10)
       .classed('hub',true)
       .classed('nodes',true);
+      
+    hubs.exit().remove();
       
     var clickableNodes = d3.selectAll('.nodes.clickable');
     clickableNodes.on('click',function(){

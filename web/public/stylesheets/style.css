@@ -103,3 +103,7 @@ text.label{
 .link.disabled{
   stroke:grey;
 }
+
+div.carousel{
+  width: 140px;
+}

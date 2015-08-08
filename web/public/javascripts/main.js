@@ -27,6 +27,35 @@ $(document).ready(function () {
     updateNodes();
 });
 
+  $.get( '/examples.json',function(response){
+    console.log(response);
+    d3.select('#carouselIndicators').selectAll('li').data(response.templateNames)
+      .enter()
+      .append('li')
+      .attr('data-target','#examplesCarousel')
+      .attr('data-slide-to',function(d,i){return i-1;})
+      .classed('active',function(d,i){return i-1 ==0;})
+      .classed('carouselIndicator',true);
+      
+    var items =d3.select('#carouselItems').selectAll('div.item').data(response.templateNames)
+      .enter()
+      .append('div')
+        .classed('item',true)
+        .classed('active',function(d,i){return i-1 ==0;})
+        .on('click',function(d){
+          $.get('/examples/' + d + '.json', function(response){
+            data = response;
+            updateNodes();
+          });
+        });
+    
+    items.append('img')
+        .attr('src',function(d){return '/examples/' + d + '.png';});
+    items.append('div')
+      .classed('carousel-caption',true)
+      .html(function(d){return d.replace('_',' ');});
+  });
+
   $('#termination').on( 'change', function () {
     //update max for time slider to be termination
     $slider = $('#timeSlider');
