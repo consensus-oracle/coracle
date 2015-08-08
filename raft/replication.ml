@@ -15,10 +15,13 @@ let constuct_reply id seq_num outcome (leader_hint: id option) =
 
 
 (* form an append entries packet *)
-let form_heartbeat (state:State.t) n (id,next,_) = 
+let form_heartbeat (state:State.t) global (id,next,_) = 
 	let pre_index = if next>0 then next - 1 else 0 in
 	let entries = get_entries_from_index next state.log in
-	(n + (List.length entries),
+	let global = global
+		|> Global.update (`AE `ARG_SND)
+		|> Global.update_n (`CMD_DSP) (List.length entries) in
+	(global,
   PacketDispatch (id, AEA AppendEntriesArg.({
   	term = state.term;
   	pre_log_term = pull (get_term_at_index pre_index state.log);
@@ -39,10 +42,7 @@ let form_heartbeat_reply (state:State.t) id (pkt:AppendEntriesArg.t) success =
 let dispatch_heartbeat reset (state:State.t) global =
 	match state.mode with 
 	| Leader l -> (
-		let (n,ae_msgs) = map_fold (form_heartbeat state) 0 [] l.indexes in
-		let global = global 
-		|> Global.update_n (`AE `ARG_SND) (List.length state.node_ids)
-		|> Global.update_n (`CMD_DSP) n in
+		let (global,ae_msgs) = map_fold (form_heartbeat state) global [] l.indexes in
 		match reset with
 		| true -> (* reset instead of set timer *)
 			(None,
@@ -127,9 +127,14 @@ let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	 		(Some {state with commit_index=new_commit},
 	 		 generate_sm_requests state.commit_index new_commit state.log state.client_cache, global))
 	 	| false -> (* decrement next and try again *)
-	 	Printf.printf "%i" id;
-	 		(Some (update_indexes_failed state pkt.pre_log_index id),[],global)
-	 		(*TODO: actively try again instead of waiting till next append entries *)
+	 		let state = update_indexes_failed state pkt.pre_log_index id in
+	 		match state.config.lazy_update with
+	 		| true -> (Some state,[],global)
+	 		| false -> 
+	 			let l = match state.mode with Leader l -> l in
+	 			let (global,pkt) = form_heartbeat state global (get_triple_exn id l.indexes) in
+	 			(Some state, [pkt], global)
+
 
 (* start leader, called after winning an election *)
 let start_leader (state:State.t) global =
