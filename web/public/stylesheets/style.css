@@ -104,6 +104,18 @@ text.label{
   stroke:grey;
 }
 
+.link.L{
+  stroke-width:6;
+}
+
+.link.M{
+  stroke-width:4;
+}
+
+.link.S{
+  stroke-width:2;
+}
+
 div.carousel{
   width: 140px;
 }

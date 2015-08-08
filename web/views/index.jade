@@ -63,10 +63,19 @@ block content
           button.btn.btn-primary#runSim Run Simulation
   
         div.well#networkView
-          div.btn-group
+          div.btn-group#networkModes
             button.btn.btn-default.active#nodesModeRadioButton Add Nodes
             button.btn.btn-default#linksModeRadioButton Add Links
             button.btn.btn-default#disableModeRadioButton Toggle State
+
+          div.btn-group#linkSize
+            button.btn.btn-default.active#largeLink Large
+            button.btn.btn-default#mediumLink Medium
+            button.btn.btn-default#smallLink Small
+
+          div.btn-group#directionality
+            button.btn.btn-default.active#bi Bi
+            button.btn.btn-default#uni Uni
             
           br
           
