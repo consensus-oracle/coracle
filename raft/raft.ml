@@ -43,7 +43,7 @@ module Server = struct
     match timer,state.mode with
     | Heartbeat, Follower _ -> Election.start_election state 
     | Election, Candidate _ -> Election.restart_election state
-    | Leadership, Leader _ -> Replication.dispatch_heartbeat state
+    | Leadership, Leader _ -> Replication.dispatch_heartbeat false state
     | _ -> (* should not happen *) (fun g -> (None,[],g))
 
   let eval event state global =

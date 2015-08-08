@@ -27,10 +27,13 @@ let config_from_json servers _ (json:json) =
     let client_timer = json_assoc_opt "client_timeout" config |> maybe_apply extract_int in
     let batch_requests = json_assoc_opt "batch_requests" config 
       |> maybe_apply extract_bool |> maybe_bool false in
+    let lazy_update = json_assoc_opt "lazy_update" config 
+      |> maybe_apply extract_bool |> maybe_bool false in
 	{ election_timeout = (min,max);
 	 heartbeat_interval = interval;
 	 servers;
    client_timer;
-   batch_requests
+   batch_requests;
+   lazy_update;
 	}
   | _ -> raise JSON_parsing_failure
