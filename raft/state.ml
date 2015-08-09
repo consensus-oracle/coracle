@@ -78,10 +78,13 @@ let rec get_entries_from_index index = function
   | x::xs -> x :: (get_entries_from_index index xs)
 
 (* returns a new log where index is the index of the last entry *)
-let rec cut_entries index log = 
-  match log with
-  | (i,_,_)::xs when i=index -> log
-  | _::xs -> cut_entries index xs 
+let rec cut_entries index log =
+  match index with
+  | 0 -> []
+  | _ -> (
+    match log with
+    | (i,_,_)::xs when i=index -> log
+    | _::xs -> cut_entries index xs)
 
 type client_cache = (id * int * outcome) list with sexp
  
