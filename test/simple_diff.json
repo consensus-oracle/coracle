@@ -1,11 +1,13 @@
 {
 	"termination": 1000,
-	"seed": 5598,
+	"workload_min":100,
+	"workload_max":150,
 	"consensus": {
 		"protocol": "raft",
 		"election_timeout_min": 30,
 		"election_timeout_max": 300,
-		"heartbeat_interval": 30
+		"heartbeat_interval": 30,
+		"client_timeout":50
 	},
 	"network": {
 		"nodes": [
@@ -37,7 +39,7 @@
 				"id": 3,
 				"cx": 270,
 				"cy": 188,
-				"type": "Server",
+				"type": "Client",
 				"events": [
 					{
 						"time": 0,

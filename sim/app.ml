@@ -63,9 +63,9 @@ let init (para:Parameters.t) n = []
 
 let eval time event s = 
   match event with
-  | LocalArrival (Cmd c) -> 
+  | LocalArrival (CmdM (id,seq,c)) -> 
     (Some (c::s),
-      [ProxyDispatch (Outcome (Success c))])
+      [ProxyDispatch (OutcomeM (id,seq,Success c))])
   | LocalArrival Startup -> (None,[])
   | _ -> assert false
 
