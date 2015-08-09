@@ -23,6 +23,7 @@ type data = {
   clients: int;
   startup: int;
   recover: int;
+  failures: int;
 }
 
 let inital_data = {
@@ -37,6 +38,7 @@ let inital_data = {
   clients=0;
   startup=0;
   recover=0;
+  failures=0;
 }
 
 type 'msg t = {
@@ -84,10 +86,17 @@ let init p =
   let c = Parameters.(Network.count_clients p.network) in
   let recovery = Network.find_recovery p.network
     |> List.map (fun (id,time) -> (time,id, Recovery)) in
-  let queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)) @ recovery in
+  let fail = Network.find_failure p.network
+    |> List.map (fun (id,time) -> (time,id, Fail)) in
+  let queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)) @ recovery @ fail in
   {queue; 
   queue_id = 0;
-  data= {inital_data with servers=s; clients=c; startup=c+s; recover= List.length recovery};
+  data = {inital_data with 
+    servers=s; 
+    clients=c; 
+    startup=c+s; 
+    recover= List.length recovery; 
+    failures = List.length fail};
   p}
 
 

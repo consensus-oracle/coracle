@@ -13,6 +13,9 @@ val find_node: id -> time -> t -> bool
 (* given t, return a list of the times that a node recovers *)
 val find_recovery: t -> (id * time) list
 
+(* given t, return a list of the times that a node fails *)
+val find_failure: t -> (id * time) list
+
 (* [find_path source dist start_time] returns the time to reach dis if possible *)
 val find_path: id -> id -> time -> t -> span option
 

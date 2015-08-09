@@ -230,6 +230,11 @@ let find_active time (n1,n2) =
   | false, true -> Some (n1.id,time)
   | _ -> None
 
+let find_inactive time (n1,n2) = 
+  match n1.active, n2.active with
+  | true, false -> Some (n1.id,time)
+  | _ -> None
+
 let rec zip xl yl =
   match xl,yl with
   | x::xs,y::ys -> (x,y) :: (zip xs ys)
@@ -237,17 +242,18 @@ let rec zip xl yl =
   | _, [] | [], _ -> assert false
 
 (* we are assuming event and nodes within events are ordered and all nodes are specificed *)
-let rec find_recovery2 (t:t) (events: event list) = 
+let rec find_rel_events (t:t) (events: event list) f = 
   match events with
   | e1::e2::es -> (
     zip e1.nodes e1.nodes
-    |> map_filter (find_active e2.time)
+    |> map_filter (f e2.time)
     |> List.filter (fun (id,_) -> match (find_node_type t.nodes id) with Server -> true | _ -> false))
-    :: find_recovery2 t (e2::es)
+    :: find_rel_events t (e2::es) f
   | [_] -> []
   | [] -> []
 
-let find_recovery t = List.flatten (find_recovery2 t t.events)
+let find_recovery t = List.flatten (find_rel_events t t.events find_active)
+let find_failure t = List.flatten (find_rel_events t t.events find_inactive)
 
 let find_path src dst time t =
   Path.find_path src dst (find_recent_path time t.paths)
