@@ -8,6 +8,12 @@ type pkt_counter = {
 	res_rcv: int;
 }
 
+type modes = {
+	f: int;
+	c: int;
+	l: int;
+}
+
 type t = {
 	time: time;
 	ae: pkt_counter;
@@ -20,6 +26,7 @@ type t = {
 	ele_stepdown: int;
 	cmd_rcv: int;
 	cmd_dsp: int;
+	failure: modes;
 }
 
 let init_pkt = {
@@ -29,6 +36,8 @@ let init_pkt = {
 	res_rcv = 0;
 }
 
+let init_modes = 
+  {f=0; c=0; l=0}
 
 let init = {
 	time = 0;
@@ -42,6 +51,7 @@ let init = {
 	ele_stepdown = 0;
 	cmd_rcv = 0;
 	cmd_dsp = 0;
+	failure = init_modes;
 }
 
 let set_time time g = {g with time=time}
@@ -75,11 +85,16 @@ let to_json g =
 			("won", `Int g.ele_won);
 			("lost due to insuffient votes", `Int g.ele_restart);
 			("lost due to step down", `Int g.ele_stepdown);
+			("lost due to candidate failure", `Int g.failure.c);
 		]);
 		("number of commands", `Assoc [
 			("received", `Int g.cmd_rcv);
 			("dispatched in AppendEntries", `Int g.cmd_dsp);
 		]);
+		("number of node failures", `Assoc [
+			("total", `Int (g.failure.f+g.failure.c+g.failure.l));
+			("leader failure", `Int g.failure.l);
+		])
 	]
 
 let update_pkt_counter tick c = 

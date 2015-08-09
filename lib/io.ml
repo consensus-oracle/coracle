@@ -15,6 +15,7 @@ let timer_to_string = function
 type 'rpc input = 
   | Startup of id 
   | Recovery
+  | Fail
   | PacketArrival of id * 'rpc
   | Timeout of timer
   | LocalArrival of msg
@@ -68,6 +69,10 @@ let input_to_json rpc_to_json = function
       `Assoc [
       ("type",`String "node restarting after failure");
       ]
+  | Fail -> 
+    `Assoc [
+    ("type",`String "node failing");
+    ]
 
 let output_to_json rpc_to_json  = function
   | PacketDispatch (id,pkt) ->
