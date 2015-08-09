@@ -1,0 +1,48 @@
+div.row
+  div.form-group.col-md-4#terminationDiv
+    label.control-label(for='termination') Termination:
+      input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
+div.btn-group
+button.btn.btn-default.active#nodesModeRadioButton Add Nodes
+button.btn.btn-default#linksModeRadioButton Add Links
+button.btn.btn-default#disableModeRadioButton Toggle State
+
+br
+
+label.control-label(for='timeSlider') Time:
+  div
+    span(style={'padding-right':'15px'}) 0
+    input#timeSlider(data-slider-min="0" data-slider-max="1000" data-slider-step="1" data-slider-value="0")
+    span(style={'padding-left':'15px'})#timeSliderMax 1000
+  div
+    span Current Time:
+    span#currentTime 0
+
+br
+div.row
+  svg#networkViewCanvas(width = 500, height=500).col-md-8
+    rect.border(x='0',y='0',width='500',height='500')
+    circle.masterServer.masterNode(cx='50',cy='50')#masterServer
+    text.label(x='40',y='70') Server
+    rect.masterHub.masterNode(x='45',y='75',width='10', height='10')#masterHub
+    text.label(x='40',y='100') Hub
+    circle.masterClient.masterNode(cx='50',cy='110')#masterClient
+    text.label(x='40',y='130') Client
+    //rect.masterLLinkButton(x='25',y='105',width='70',height='40')
+    //line.masterLLink(x1='40',x2='70',y1='110',y2='110')
+    //text.label(x='30',y='130') Add Link (L)
+    line.separator(x1='100',y1='0',x2='100',y2='500')
+  
+      
+  div.carousel.slide#examplesCarousel(data-ride='carousel').col-md-4
+    ol.carousel-indicators#carouselIndicators
+    
+    div.carousel-inner(role='listbox')#carouselItems
+    
+    a.left.carousel-control(href='#examplesCarousel',role='button',data-slide='prev')
+      span.glyphicon.glyphicon-chevron-left
+      span.sr-only Previous
+      
+    a.right.carousel-control(href='#examplesCarousel',role='button',data-slide='next')
+      span.glyphicon.glyphicon-chevron-right
+      span.sr-only Next
