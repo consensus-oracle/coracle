@@ -93,7 +93,7 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
   let final_stats = client_history
     |> List.map (fun (id,seq,t,dur) -> 
         let client_commits = 
-          List.filter (fun (n_id,n_seq,_,_) -> n_id=id && n_seq=seq) y_all in
+          List.filter (fun (n_id,_,_,n_seq) -> n_id=id && n_seq=seq) y_all in
         let count = List.length client_commits in
         let first_time = client_commits
           |> List.map (fun (_,_,time,_) -> time)
@@ -121,7 +121,7 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
           ("seq number", `Int seq);
           ("time",`Int time);
           ("duration",`Int dur);
-          ("time at first application", `Int first);
+          ("time to first application", `Int first);
           ("state machine applications",`Int cmd);
         ]) final_stats));
       ("average commands applied per state machine", `Int applied);
