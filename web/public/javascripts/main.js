@@ -125,18 +125,18 @@ $(document).ready(function () {
           if (response.error != null){
             console.log(response);
             result = validationError(value.name + " Failed: " + JSON.stringify(response.error));
-            result += validationError(value.name + "Stderr: " + response.stderr);
-            result += validationError(value.name + 'Stdout: ' + response.stdout);
+            result += validationError(value.name + " Stderr: " + response.stderr);
+            result += validationError(value.name + ' Stdout: ' + response.stdout);
           }
           else{
             try{
               var jsonResults = JSON.parse(response.stdout);
-              result = resultMessage(value.name + JSON.stringify(jsonResults.results));
+              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results));
               createTable(jsonResults);
             }
             catch(err){
-              result = validationError(value.name + 'Parsing error: ' + err);
-              result += validationError(value.name + 'Full Response: ' + JSON.stringify(response));
+              result = validationError(value.name + ' Parsing error: ' + err);
+              result += validationError(value.name + ' Full Response: ' + JSON.stringify(response));
             }          
             $('#tracePanel').removeClass('hidden');
           }
