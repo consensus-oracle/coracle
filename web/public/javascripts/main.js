@@ -1,9 +1,11 @@
 var maxNodes = 20;
 var maxTermination = 100000;
 var mode= 'nodes';
+var linkDirection = 'bi';
+var linkSize ='L';
 var time=0;
 $(document).ready(function () {
-  $(".btn-group > .btn").click(function(){
+  $("#networkModes > .btn").click(function(){
     $(this).addClass("active").siblings().removeClass("active");
     switch($(this).attr('id')){
       case 'nodesModeRadioButton':
@@ -26,6 +28,26 @@ $(document).ready(function () {
     }
     updateNodes();
 });
+
+    $("#linkSize > .btn").click(function(){
+      $(this).addClass("active").siblings().removeClass("active");
+      switch($(this).attr('id')){
+        case 'largeLink':
+          linkSize= 'L';
+          break;
+        case 'mediumLink':
+          linkSize= 'M';
+          break;
+        case 'smallLink':
+          linkSize= 'S';
+          break;
+      }
+    });
+
+    $("#directionality > .btn").click(function(){
+      $(this).addClass("active").siblings().removeClass("active");
+      linkDirection =$(this).attr('id');
+    });
 
   $.get( '/examples.json',function(response){
     console.log(response);
@@ -100,7 +122,8 @@ $(document).ready(function () {
         //response.error = null;
 				if (response.error != null){
 					console.log(response);
-					result = validationError("Failed: " + response.stderr)
+					result = validationError("Failed: " + JSON.stringify(response.error));
+          result += validationError("Stderr: " + response.stderr);
           result += validationError('Stdout: ' + response.stdout);
 				}
 				else{
@@ -288,7 +311,7 @@ $(document).ready(function () {
           });
         }
         console.log(linkEvent);
-        event[0].links.push({id:link.id,active:linkEvent.active,type:'s'});
+        event[0].links.push({id:link.id,active:linkEvent.active,type:linkEvent.linkSize});
         
       });
     });

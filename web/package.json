@@ -16,6 +16,7 @@
     "morgan": "~1.6.1",
     "node-uuid": "~1.4.3",
     "serve-favicon": "~2.3.0",
-    "serve-index": "^1.7.2"
+    "serve-index": "^1.7.2",
+    "supervisor": "^0.7.1"
   }
 }

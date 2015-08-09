@@ -43,7 +43,7 @@ module Server = struct
     match timer,state.mode with
     | Heartbeat, Follower _ -> Election.start_election state 
     | Election, Candidate _ -> Election.restart_election state
-    | Leadership, Leader _ -> Replication.dispatch_heartbeat state
+    | Leadership, Leader _ -> Replication.dispatch_heartbeat false state
     | _ -> (* should not happen *) (fun g -> (None,[],g))
 
   let eval event state global =
@@ -53,7 +53,7 @@ module Server = struct
     | Recovery -> Election.restart state global
     | Timeout timer -> receive_timeout timer state global
     | LocalArrival _ -> assert false
-    | ProxyArrival (Outcome o) -> Replication.receive_sm_response o state global
+    | ProxyArrival (OutcomeM (id,seq,o)) -> Replication.receive_sm_response (id,seq,o) state global
     | ProxyArrival _ -> assert false
 end
 

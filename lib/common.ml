@@ -97,7 +97,8 @@ let json_assoc key js =
 type cmd = int with sexp 
 type outcome = Failure | Success of cmd with sexp
 
-type msg = Cmd of cmd | Outcome of outcome | Startup
+type msg = Cmd of cmd | Outcome of outcome 
+  | CmdM of id * int * cmd | OutcomeM of id * int * outcome  | Startup
 
 let cmd_to_json cmd = `Int cmd
 let outcome_to_json = function
@@ -109,8 +110,20 @@ let msg_to_json = function
     ("type", `String "client command");
     ("command", cmd_to_json cmd );
     ]
+  | CmdM (id,seq,cmd) -> `Assoc [
+    ("type", `String "client command");
+    ("client id", `Int id);
+    ("seq #", `Int id);
+    ("command", cmd_to_json cmd );
+    ]
   | Outcome out -> `Assoc [
     ("type", `String "command response");
+    ("response", outcome_to_json out);
+    ]
+  | OutcomeM (id,seq,out) -> `Assoc [
+    ("type", `String "command response");
+    ("client id", `Int id);
+    ("seq #", `Int id);
     ("response", outcome_to_json out);
     ]
   | Startup -> `Assoc [
@@ -153,3 +166,14 @@ let rec map_fold f t acc = function
   | x::xs -> (
     let (t,y) = f t x in
     map_fold f t (y::acc) xs)
+
+let rec update_triple (a,b,c) = function
+  | [] -> [(a,b,c)]
+  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
+  | x::xs -> x :: (update_triple (a,b,c) xs)
+
+let get_triple_exn x = 
+  List.find (fun (a,b,c) -> a=x)
+
+let get_triple x xs = 
+  try Some (get_triple_exn x xs) with Not_found -> None

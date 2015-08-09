@@ -17,7 +17,7 @@ module Simulate =
   
 
   let json_to_stdout json = 
-    pretty_to_channel ~std:true stdout json
+    to_channel ~std:true stdout json
 
   let flush_buffer general client protocol = 
     json_to_stdout (
