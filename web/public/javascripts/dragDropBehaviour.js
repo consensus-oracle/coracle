@@ -164,7 +164,7 @@ $(document).ready(function () {
         return;
       }
       if (start == null){
-        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1,direction:"bi", events:[{time:0,active:true}]});
+        data.links.push({start:d3.select(this).data()[0].id,id:data.links.length +1,direction:linkDirection, events:[{time:0,active:true,linkSize:linkSize}]});
         d3.select(this).classed('clickable',false);
         console.log(data.links);
         start = d3.select(this).data()[0].id;
@@ -193,7 +193,8 @@ $(document).ready(function () {
       });
       if (event.length == 0){
         console.log('no event');
-        localEvents.push({time:time,active:disabled});
+        //quick hack for links need to fix properly
+        localEvents.push({time:time,active:disabled,link:'s'});
       }
       else{
         event[0].active = disabled;
@@ -280,7 +281,9 @@ $(document).ready(function () {
       .attr('x2',getLinkX2CoOrd)
       .attr('y1',getLinkY1CoOrd)
       .attr('y2',getLinkY2CoOrd)
-      .classed('link',true);
+      .classed('link',true)
+      .classed(linkSize, true)
+      .classed(linkDirection, true);
       
     paths.exit().remove();
   }
