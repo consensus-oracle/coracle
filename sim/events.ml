@@ -22,6 +22,7 @@ type data = {
   servers: int;
   clients: int;
   startup: int;
+  recover: int;
 }
 
 let inital_data = {
@@ -35,6 +36,7 @@ let inital_data = {
   servers=0;
   clients=0;
   startup=0;
+  recover=0;
 }
 
 type 'msg t = {
@@ -85,7 +87,7 @@ let init p =
   let queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)) @ recovery in
   {queue; 
   queue_id = 0;
-  data= {inital_data with servers=s; clients=c; startup=List.length queue};
+  data= {inital_data with servers=s; clients=c; startup=c+s; recover= List.length recovery};
   p}
 
 
@@ -165,14 +167,23 @@ open Yojson.Safe
 
 let json_of_stats t =
   `Assoc [
-    ("packets dispatched", `Int t.data.msgsent);
-    ("packets received", `Int t.data.msgrecv);
-    ("packets dropped due to node failure", `Int t.data.msgdrop_nodst);
-    ("packets dropped due to partition", `Int t.data.msgdrop_nopath);
-    ("packets inflight", `Int t.data.msgflight);
-    ("termination reason", `String (term_to_string t.data.reason));
-    ("average latency", `Int (average t.data.latency));
-    ("number of servers", `Int t.data.servers);
-    ("number of clients", `Int t.data.clients);
-    ("number of startups/recoveries", `Int t.data.startup);
+    ("packet counts", `Assoc [
+      ("dispatched", `Int t.data.msgsent);
+      ("received", `Int t.data.msgrecv);
+      ("dropped due to node failure", `Int t.data.msgdrop_nodst);
+      ("dropped due to partition or hub failure", `Int t.data.msgdrop_nopath);
+      ("inflight", `Int t.data.msgflight);
+      ]);
+    (* ("termination reason", `String (term_to_string t.data.reason)); *)
+    ("latency", `Assoc [
+      ("average", `Int (average t.data.latency));
+      ("min", `Int (min t.data.latency));
+      ("max", `Int (max t.data.latency));
+      ]);
+    ("nodes", `Assoc [
+      ("number of servers", `Int t.data.servers);
+      ("number of clients", `Int t.data.clients);
+      ("number of startups", `Int t.data.startup);
+      ("number of recoveries", `Int t.data.recover);
+      ]);
     ]
