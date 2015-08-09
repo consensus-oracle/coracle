@@ -146,6 +146,12 @@ let min ls =
   | x::xs -> f n xs in
   f (List.hd ls ) ls
 
+let max ls = 
+  let rec f n = function
+  | [] -> n
+  | x::xs when x>n -> f x xs
+  | x::xs -> f n xs in
+  f (List.hd ls ) ls
 
 let rec map_filter f = function
   | [] -> []
