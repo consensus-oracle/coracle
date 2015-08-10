@@ -175,3 +175,6 @@ let receive_sm_response (id,seq,o) (state:State.t) global =
    		constuct_reply id seq (Some o) None, Global.update (`CL `RES_SND) global))
    | _ -> (* no client is waiting => ignore *) 
    		(Some state,[],global) 
+
+let fail (state:State.t) global =
+	(None,[],global)

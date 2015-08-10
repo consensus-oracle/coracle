@@ -131,7 +131,7 @@ $(document).ready(function () {
           else{
             try{
               var jsonResults = JSON.parse(response.stdout);
-              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results));
+              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,2));
               createTable(jsonResults);
             }
             catch(err){
@@ -160,7 +160,7 @@ $(document).ready(function () {
   
   function resultMessage(text){
 		return '<div class="alert alert-info" role="alert">'
-  + errorText +
+  + text +
   '</div>';
 	}
 	
