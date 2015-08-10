@@ -1,4 +1,7 @@
 div.row
+  div.form-group.col-md-4#runConfigNameDiv
+    label.control-label(for='runConfigName') Workload Min:
+      input.form-control#runConfigName(type='text', value='New Test')
   div.form-group.col-md-4#workloadMin
     label.control-label(for='workload_min') Workload Min:
       input.form-control#workload_min(type='number', min='0', value='100')
@@ -19,7 +22,12 @@ div.row
   div.form-group.col-md-4#clientDiv
     label.control-label(for='client') Client Timeout:
       input.form-control#client(type='number', min='0', value='50')
-
+      
 div.form-group#advancedSettingsButton
   button.btn.btn-info.btn-xs(type='button',data-toggle='collapse',data-target='#advancedSettings',
     aria-expanded='false') Advanced Settings
+    
+div.collapse#advancedSettings
+  div.well
+    label.control-label(for='randomSeed') Random Seed:
+      input.form-control#randomSeed(type='number',min='0',max='10000',value=parseInt(Math.random()*10000))

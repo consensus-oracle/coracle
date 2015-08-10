@@ -110,40 +110,43 @@ $(document).ready(function () {
     $('.has-error').removeClass('has-error');
 		$('#resultsPanel').addClass('hidden');
     $('#tracePanel').addClass('hidden');
+    $('#SimResults').html('');
 		if (validateSettings()){
 			var oldButtonText = $('#runSim').html();
 			$('#runSim').html('Running...');
 			$('#runSim').attr("disabled", true)
-			$.post( '/runSim',
-			{data:generateJSON()}, 
-			function(response){
-				var result;
-        //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
-        //response.error = null;
-				if (response.error != null){
-					console.log(response);
-					result = validationError("Failed: " + JSON.stringify(response.error));
-          result += validationError("Stderr: " + response.stderr);
-          result += validationError('Stdout: ' + response.stdout);
-				}
-				else{
-          try{
-            var jsonResults = JSON.parse(response.stdout);
-            result = JSON.stringify(jsonResults.results);
-            createTable(jsonResults);
+      runConfigs.forEach(function(value,index){
+        $.post( '/runSim',
+        {data:generateJSON(value)}, 
+        function(response){
+          var result;
+          //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
+          //response.error = null;
+          if (response.error != null){
+            console.log(response);
+            result = validationError(value.name + " Failed: " + JSON.stringify(response.error));
+            result += validationError(value.name + " Stderr: " + response.stderr);
+            result += validationError(value.name + ' Stdout: ' + response.stdout);
           }
-          catch(err){
-            result = validationError('Parsing error: ' + err);
-            result += validationError('Full Response: ' + JSON.stringify(response));
-          }          
-          $('#tracePanel').removeClass('hidden');
-				}
-        $('#resultsPanel').removeClass('hidden');
-        $('#resultsTab').tab('show');
-        $('#SimResults').html(result);
-				$('#runSim').html(oldButtonText);
-				$('#runSim').removeAttr("disabled");
-			});
+          else{
+            try{
+              var jsonResults = JSON.parse(response.stdout);
+              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results));
+              createTable(jsonResults);
+            }
+            catch(err){
+              result = validationError(value.name + ' Parsing error: ' + err);
+              result += validationError(value.name + ' Full Response: ' + JSON.stringify(response));
+            }          
+            $('#tracePanel').removeClass('hidden');
+          }
+          $('#resultsPanel').removeClass('hidden');
+          $('#resultsTab').tab('show');
+          $('#SimResults').append(result);
+          $('#runSim').html(oldButtonText);
+          $('#runSim').removeAttr("disabled");
+        });
+      });
 		}
     });
 	
@@ -151,6 +154,12 @@ $(document).ready(function () {
 		return '<div class="alert alert-danger validationError" role="alert">'
       +'<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>'
       +'<span class="sr-only">Error:</span>'
+  + errorText +
+  '</div>';
+	}
+  
+  function resultMessage(text){
+		return '<div class="alert alert-info" role="alert">'
   + errorText +
   '</div>';
 	}
@@ -252,7 +261,7 @@ $(document).ready(function () {
     } );
   }
   
-  function generateJSON(){
+  function generateJSON(runConfig){
     /*
       return 			{
 			nodes: parseInt($('#numNodes').val()),
@@ -260,27 +269,21 @@ $(document).ready(function () {
 			termination: parseInt($('#termination').val())
 			};
     */
-    
+    console.log(runConfig);
     var result = {
-      termination: parseInt($('#termination').val()),
-      seed: parseInt($('#randomSeed').val()),
-      workload_min: parseInt($('#workload_min').val()),
-      workload_max: parseInt($('#workload_max').val()),
-      consensus: {
-        protocol:"raft",
-        election_timeout_min: parseInt($('#election_min').val()), 
-        election_timeout_max: parseInt($('#election_max').val()),
-        client_timeout: parseInt($('#client').val()),
-        heartbeat_interval: parseInt($('#heartbeat').val())
-      },
+      termination: runConfig.termination,
+      seed: runConfig.seed,
+      workload_min: runConfig.workload_min,
+      workload_max: runConfig.workload_max,
+      consensus: runConfig.consensus,
       network:{
-        nodes:data.nodes,
-        links:data.links,
+        nodes:runConfig.data.nodes,
+        links:runConfig.data.links,
         events:[]
       }
     };
     
-    data.nodes.forEach(function(node){
+    runConfig.data.nodes.forEach(function(node){
       //console.log(node);
       node.events.forEach(function(nodeEvent){
         var event = $.grep(result.network.events,function(n,i){
@@ -298,7 +301,7 @@ $(document).ready(function () {
       });
     });
     
-    data.links.forEach(function(link){
+    runConfig.data.links.forEach(function(link){
       link.events.forEach(function(linkEvent){
         var event = $.grep(result.network.events,function(n,i){
           return n.time == linkEvent.time;

@@ -35,10 +35,18 @@ block content
 
           div.modal-footer
             button.btn.btn-default(type='button', data-dismiss='modal') Close
-            a.btn.btn-primary(href='#networkModalTabContent', role='tab',data-toggle='tab') Next
+            a.btn.btn-primary(href='#networkModalTabContent', role='tab',data-toggle='tab')#SettingsNextButton Next
+            a.btn.btn-primary.hidden#SettingsSaveButton Save
     
     div.tab-content
       div.tab-pane.active#settingsTabContent(role='tabpanel')
+        div.row
+          div.list-group.col-md-8#runSettingsList
+            
+          div.btn-group-vertical.col-md-4
+            button.btn.btn-default.btn-primary#addConfigButton Add
+            button.btn.btn-default.btn-primary#editSettingsButton Edit
+            button.btn.btn-default.btn-danger#removeConfigButton Remove
         form
           //div.form-group#nodesDiv
             //label.control-label(for='numNodes') Nodes:
@@ -50,13 +58,8 @@ block content
               //input.form-control#lossSlider(data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="0.1")
               //span(style={'padding-left':'15px'}) 1
               
-          div.form-group#openNetworkViewButton
-            button.btn.btn-info.btn-s(type='button',data-toggle='modal',data-target='#networkSettingsModal') Configure Network
-          
-          div.collapse#advancedSettings
-            div.well
-              label.control-label(for='randomSeed') Random Seed:
-                input.form-control#randomSeed(type='number',min='0',max='10000',value=parseInt(Math.random()*10000))
+          //div.form-group#openNetworkViewButton
+          //  button.btn.btn-info.btn-s(type='button',data-toggle='modal',data-target='#networkSettingsModal') Configure Network    
           
           button.btn.btn-primary#runSim Run Simulation    
 
@@ -79,4 +82,5 @@ block content
   link(href='/stylesheets/bootstrap-slider.css',rel='stylesheet')
   script(src='https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js')
   script(src='/javascripts/jquery.dataTables.columnFilter.js')
+  script(src='/javascripts/Runconfigs.js')
   link(href='https://cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css',rel='stylesheet')

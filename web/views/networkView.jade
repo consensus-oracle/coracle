@@ -2,10 +2,11 @@ div.row
   div.form-group.col-md-4#terminationDiv
     label.control-label(for='termination') Termination:
       input.form-control#termination(type='number', min='500', max='100000',step='500',value='1000')
-div.btn-group
-button.btn.btn-default.active#nodesModeRadioButton Add Nodes
-button.btn.btn-default#linksModeRadioButton Add Links
-button.btn.btn-default#disableModeRadioButton Toggle State
+      
+div.btn-group#networkModes
+  button.btn.btn-default.active#nodesModeRadioButton Add Nodes
+  button.btn.btn-default#linksModeRadioButton Add Links
+  button.btn.btn-default#disableModeRadioButton Toggle State
 
 div.btn-group#linkSize
   button.btn.btn-default.active#largeLink Large
