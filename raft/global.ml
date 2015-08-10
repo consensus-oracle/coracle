@@ -177,7 +177,10 @@ let update tick t =
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
 	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
 	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}
-	| `TERM term -> {t with terms=(t.id,t.time,term)::t.terms}
+	| `TERM term -> 
+		match get_triple t.id t.terms with
+		| None -> {t with terms=(t.id,t.time,term)::t.terms}
+		| Some (_,_,old_term) -> {t with terms=(t.id,t.time,old_term)::(t.id,t.time,term)::t.terms}
 
 let rec update_n tick n t = 
 	match n with

@@ -159,9 +159,9 @@ $(document).ready(function () {
 	}
   
   function resultMessage(text){
-		return '<div class="alert alert-info" role="alert">'
+		return '<div class="alert alert-info" role="alert"><pre>'
   + text +
-  '</div>';
+  '</pre></div>';
 	}
 	
 	function validateSettings(){
