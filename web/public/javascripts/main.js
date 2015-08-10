@@ -160,7 +160,7 @@ $(document).ready(function () {
   
   function resultMessage(text){
 		return '<div class="alert alert-info" role="alert">'
-  + errorText +
+  + text +
   '</div>';
 	}
 	
