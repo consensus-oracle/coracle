@@ -55,7 +55,7 @@ app.post('/runSim', function(req,res){
 	
 		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte --trace -f ' + process.cwd() +'/' + filename;
 		console.log('running: ' + cmd);
-		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024, uid: 1000} ,function (error,stdout,stderr){
+		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024} ,function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
 			res.send({error:error,
