@@ -143,7 +143,7 @@ $(document).ready(function () {
             }          
             $('#tracePanel').removeClass('hidden');
           }
-          createGraph1(jsonResults.results['protocol specific']['figures'][0].data[0].data);
+          createGraph1(jsonResults.results['protocol specific']['figures'][0]);
           $('#resultsPanel').removeClass('hidden');
           $('#resultsTab').tab('show');
           $('#SimResults').append(result);
