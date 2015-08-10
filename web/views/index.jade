@@ -66,6 +66,7 @@ block content
       div.tab-pane#resultsTabContent(role='tabpanel')
         div.panel.panel-default.hidden#resultsPanel
           div.panel-heading Results
+          svg#Graph1
           div#SimResults
           
       div.tab-pane#traceTabContent(role='tabpanel')
@@ -84,3 +85,6 @@ block content
   script(src='/javascripts/jquery.dataTables.columnFilter.js')
   script(src='/javascripts/Runconfigs.js')
   link(href='https://cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css',rel='stylesheet')
+  script(src='/javascripts/nv.d3.js')
+  script(src='/javascripts/createGraphs.js')
+  link(href='/stylesheets/nv.d3.css',rel='stylesheet')

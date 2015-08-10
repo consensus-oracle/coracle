@@ -132,6 +132,7 @@ $(document).ready(function () {
             try{
               var jsonResults = JSON.parse(response.stdout);
               result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results));
+              createGraph1(jsonResults.results.figures[0].data);
               createTable(jsonResults);
             }
             catch(err){
