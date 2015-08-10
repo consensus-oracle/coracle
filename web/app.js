@@ -44,6 +44,7 @@ app.get('/examples.json', function(req,res){
 });
 
 app.post('/runSim', function(req,res){
+    res.header('Access-Control-Allow-Origin', '*');
     console.log(req);
 	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
 	var filename = 'requests/' + id + '.json'
