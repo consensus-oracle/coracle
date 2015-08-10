@@ -11,7 +11,7 @@ module type CONSENSUS = sig
 	type global
 	val reset_global: global
 	val global_to_json: global -> json
-	val set_time: time -> global -> global
+	val set_state: time -> id -> global -> global
 
 	type msg
 	val msg_serialize: msg -> string

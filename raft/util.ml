@@ -33,9 +33,15 @@ let reconstruct_heartbeat (state:State.t) =
   ResetTimeout (to_span timeout,Heartbeat)
 
 let step_down term (state:State.t) (global:Global.t) =
+  (* TODO: fix me *)
+  match term=state.term with
+  | true -> 
+   (Some {state with mode=State.follower},
+      (construct_heartbeat state)::(cancel_timers state), global)
+  | false ->
    (Some {state with term=term; mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), 
-  		global)
+  		Global.update (`TERM term) global)
 
 let rec get_commit_index curr indexes = 
   let nodes = (List.length indexes) +1 in

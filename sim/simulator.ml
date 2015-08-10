@@ -65,7 +65,7 @@ module Simulate =
       let open Events in 
       match Events.next es with
       | Next ((t,n,e),new_es) -> 
-        let g = C.set_time t g in
+        let g = C.set_state t n g in
         if trace then buffer debug (input_event_to_json t n e) else (); (
         match e with
         | LocalArrival _ | LocalTimeout -> (
