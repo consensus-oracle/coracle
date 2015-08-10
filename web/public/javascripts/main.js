@@ -131,7 +131,7 @@ $(document).ready(function () {
           else{
             try{
               var jsonResults = JSON.parse(response.stdout);
-              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,'\t'));
+              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,2));
               createTable(jsonResults);
             }
             catch(err){
