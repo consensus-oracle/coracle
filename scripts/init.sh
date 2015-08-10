@@ -18,7 +18,7 @@ start() {
 # Restart the service FOO
 stop() {
         initlog -c "echo -n Stopping coracle server: "
-        kill -9 \`pidof node\`
+        kill -9 `pidof node`
         ### Now, delete the lock file ###
         rm -f /var/lock/subsys/FOO
         echo
