@@ -180,7 +180,7 @@ let update tick t =
 	| `TERM term -> 
 		match get_triple t.id t.terms with
 		| None -> {t with terms=(t.id,t.time,term)::t.terms}
-		| Some (_,_,old_term) -> {t with terms=(t.id,t.time,old_term)::(t.id,t.time,term)::t.terms}
+		| Some (_,_,old_term) -> {t with terms=(t.id,t.time,term)::(t.id,t.time,old_term)::t.terms}
 
 let rec update_n tick n t = 
 	match n with

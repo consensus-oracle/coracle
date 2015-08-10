@@ -194,5 +194,8 @@ let rec triple_to_doubles lst =
     let (xs,rest) = List.partition (fun (a,b,c) -> a=x) lst in
     let xs_new = xs
       |> List.map (fun (_,b,c) -> (b,c))
-      |> List.stable_sort (fun (t1,_) (t2,_) -> compare t1 t2) in
+      |> List.stable_sort (fun (t1,m1) (t2,m2) -> 
+        match compare t1 t2 with 
+        | 0 -> compare m1 m2
+        | n -> n ) in
     (x, xs_new) :: (triple_to_doubles rest)
