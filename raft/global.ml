@@ -27,6 +27,7 @@ type t = {
 	cmd_rcv: int;
 	cmd_dsp: int;
 	failure: modes;
+	terms: (id * (time * term) list) list;
 }
 
 let init_pkt = {
@@ -52,6 +53,7 @@ let init = {
 	cmd_rcv = 0;
 	cmd_dsp = 0;
 	failure = init_modes;
+	terms=[];
 }
 
 let set_time time g = {g with time=time}
@@ -73,6 +75,27 @@ let pkt_counter_to_json c =
 		]);
 	]
 
+let figure_in_json ~title ~y_axis ~x_axis ~legand (data:json) =
+	`Assoc [
+		("titles", `Assoc [
+			("main", `String title);
+			("x axis", `String x_axis);
+			("y axis", `String y_axis);
+			("legand", `String legand);
+			]);
+		("data", data);
+	]
+
+(* convert a simple list of (x,y) coordinate to JSON *)
+let simple_data_in_json (data: (int * int) list) =
+	`List (List.map (fun (x,y) -> `Assoc [("x",`Int x); ("y",`Int y); ]) data)
+
+(* convery a list of list of (x,y) cooridates to JSON *)
+let data_in_json (data: (int * ((int * int) list)) list) = 
+	`List (List.map (fun (line_id,xy) -> `Assoc [
+					("line id", `Int line_id); 
+					("data", simple_data_in_json xy)]) data)
+
 let to_json g = 
 	`Assoc [
 		("termination time", `Int g.time);
@@ -86,15 +109,23 @@ let to_json g =
 			("lost due to insuffient votes", `Int g.ele_restart);
 			("lost due to step down", `Int g.ele_stepdown);
 			("lost due to candidate failure", `Int g.failure.c);
-		]);
+			]);
 		("number of commands", `Assoc [
 			("received", `Int g.cmd_rcv);
 			("dispatched in AppendEntries", `Int g.cmd_dsp);
-		]);
+			]);
 		("number of node failures", `Assoc [
 			("total", `Int (g.failure.f+g.failure.c+g.failure.l));
 			("leader failure", `Int g.failure.l);
-		])
+			]);
+		("figures", `List [
+			figure_in_json
+				~title:"Terms changes over time"
+				~x_axis:"Time"
+				~y_axis:"Term number"
+				~legand:"Server ID's"
+				(data_in_json g.terms)
+			]);
 	]
 
 let update_pkt_counter tick c = 
