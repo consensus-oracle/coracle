@@ -134,7 +134,6 @@ $(document).ready(function () {
 
               result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,2));
               console.log(jsonResults.results);
-              createGraph1(jsonResults.results.figures[0].data);
 
               createTable(jsonResults);
             }
@@ -144,6 +143,7 @@ $(document).ready(function () {
             }          
             $('#tracePanel').removeClass('hidden');
           }
+          createGraph1(jsonResults.results['protocol specific']['figures'][0].data[0].data);
           $('#resultsPanel').removeClass('hidden');
           $('#resultsTab').tab('show');
           $('#SimResults').append(result);
