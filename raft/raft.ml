@@ -14,7 +14,7 @@ let msg_deserialize = Rpcs.rpc_deserialize
 type global = Global.t
 let reset_global = Global.init
 let global_to_json = Global.to_json
-let set_time = Global.set_time
+let set_state = Global.set_state
 
 module type PROXY = sig
     type state
@@ -51,6 +51,7 @@ module Server = struct
   	| PacketArrival (id,pkt) -> receive_pkt id pkt state global
   	| Startup _ -> Election.start_follower state global
     | Recovery -> Election.restart state global
+    | Fail -> Replication.fail state global
     | Timeout timer -> receive_timeout timer state global
     | LocalArrival _ -> assert false
     | ProxyArrival (OutcomeM (id,seq,o)) -> Replication.receive_sm_response (id,seq,o) state global

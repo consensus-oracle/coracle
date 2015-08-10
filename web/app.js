@@ -53,7 +53,7 @@ app.post('/runSim', function(req,res){
 		}
 		console.log(filename + ' saved');
 	
-		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte --trace -f ' + process.cwd() +'/' + filename;
+		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
 		console.log('running: ' + cmd);
 		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024} ,function (error,stdout,stderr){
 			console.log('stdout: ' + stdout);
