@@ -133,6 +133,7 @@ $(document).ready(function () {
               var jsonResults = JSON.parse(response.stdout);
 
               result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,2));
+              console.log(jsonResults.results);
               createGraph1(jsonResults.results.figures[0].data);
 
               createTable(jsonResults);
