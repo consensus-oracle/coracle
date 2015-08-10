@@ -45,7 +45,7 @@ let dispatch_vote_request (state:State.t) id =
 let start_follower state global = 
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
-  (None, [construct_heartbeat state], global)
+  (None, [construct_heartbeat state], Global.update (`TERM state.term) global)
 
 let restart state global = 
   let cancel_events = cancel_timers state in

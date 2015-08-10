@@ -29,6 +29,7 @@ type t = {
 	cmd_dsp: int;
 	failure: modes;
 	terms: (id * time * term) list;
+	modes: (id * time * int) list
 }
 
 let init_pkt = {
@@ -56,6 +57,7 @@ let init = {
 	cmd_dsp = 0;
 	failure = init_modes;
 	terms=[];
+	modes = []
 }
 
 let set_state time id g = {g with time=time; id=id}
@@ -77,13 +79,23 @@ let pkt_counter_to_json c =
 		]);
 	]
 
-let figure_in_json ~title ~y_axis ~x_axis ~legand (data:json) =
+let figure_in_json ~title ~y_axis ~x_axis ~legand 
+	~x_start ~y_start ~x_end ~y_end ~lines (data:json) =
 	`Assoc [
-		("titles", `Assoc [
-			("main", `String title);
-			("x axis", `String x_axis);
-			("y axis", `String y_axis);
-			("legand", `String legand);
+		("title", `String title);
+		("x axis", `Assoc [
+			("label", `String x_axis);
+			("start", `Int x_start);
+			("end", `Int x_end);
+			]);
+		("y axis", `Assoc [
+			("label", `String y_axis);
+			("start", `Int y_start);
+			("end", `Int y_end);
+			]);
+		("legand", `Assoc [
+			("label", `String legand);
+			("data sets", `Int lines);
 			]);
 		("data", data);
 	]
@@ -99,6 +111,11 @@ let data_in_json (data: (int * ((int * int) list)) list) =
 					("data", simple_data_in_json xy)]) data)
 
 let to_json g = 
+	let term_updates = triple_to_doubles g.terms in
+	let mode_updates = triple_to_doubles g.modes in
+	let max_term = term_updates
+		|> List.map (fun (id,(time,term)::_) -> term) 
+		|> max in
 	`Assoc [
 		("termination time", `Int g.time);
 		("append entries packets", pkt_counter_to_json g.ae);
@@ -111,6 +128,7 @@ let to_json g =
 			("lost due to insuffient votes", `Int g.ele_restart);
 			("lost due to step down", `Int g.ele_stepdown);
 			("lost due to candidate failure", `Int g.failure.c);
+			("highest term", `Int max_term);
 			]);
 		("number of commands", `Assoc [
 			("received", `Int g.cmd_rcv);
@@ -122,11 +140,18 @@ let to_json g =
 			]);
 		("figures", `List [
 			figure_in_json
-				~title:"Terms changes over time"
-				~x_axis:"Time"
-				~y_axis:"Term number"
-				~legand:"Server ID's"
-				(data_in_json (triple_to_doubles g.terms))
+				~title:"Changes in local term number over time"
+				~x_axis:"Time" ~x_start:0 ~x_end:g.time
+				~y_axis:"Term number" ~y_start:0 ~y_end:max_term
+				~legand:"Server ID's" ~lines:(List.length term_updates)
+				(data_in_json term_updates);
+			figure_in_json
+				~title:"Changes in local mode over time"
+				~x_axis:"Time" ~x_start:0 ~x_end:g.time
+				~y_axis:"Mode (0=failed, 1=follower, 2=candidate, 3=leader)" ~y_start:0 ~y_end:3
+				~legand:"Server ID's" ~lines:(List.length mode_updates)
+				(data_in_json mode_updates);
+
 			]);
 	]
 
