@@ -175,7 +175,7 @@ let add id time output_events t =
 open Yojson.Safe
 
 let json_of_stats t =
-  `Assoc [
+  `Assoc ([
     ("packet counts", `Assoc [
       ("dispatched", `Int t.data.msgsent);
       ("received", `Int t.data.msgrecv);
@@ -184,15 +184,18 @@ let json_of_stats t =
       ("inflight", `Int t.data.msgflight);
       ]);
     (* ("termination reason", `String (term_to_string t.data.reason)); *)
-    ("latency", `Assoc [
-      ("average", `Int (average t.data.latency));
-      ("min", `Int (min t.data.latency));
-      ("max", `Int (max t.data.latency));
-      ]);
     ("nodes", `Assoc [
       ("number of servers", `Int t.data.servers);
       ("number of clients", `Int t.data.clients);
       ("number of startups", `Int t.data.startup);
       ("number of recoveries", `Int t.data.recover);
       ]);
-    ]
+    ] @ 
+    match t.data.latency with
+    | [] -> []
+    | _ -> [
+      ("latency", `Assoc [
+      ("average", `Int (average t.data.latency));
+      ("min", `Int (min t.data.latency));
+      ("max", `Int (max t.data.latency));
+    ])])
