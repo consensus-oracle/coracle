@@ -16,6 +16,7 @@ type modes = {
 
 type t = {
 	time: time;
+	id:id;
 	ae: pkt_counter;
 	rv: pkt_counter;
 	cl: pkt_counter;
@@ -27,7 +28,7 @@ type t = {
 	cmd_rcv: int;
 	cmd_dsp: int;
 	failure: modes;
-	terms: (id * (time * term) list) list;
+	terms: (id * time * term) list;
 }
 
 let init_pkt = {
@@ -42,6 +43,7 @@ let init_modes =
 
 let init = {
 	time = 0;
+	id=0;
 	ae = init_pkt;
   rv = init_pkt;
   cl = init_pkt;
@@ -56,7 +58,7 @@ let init = {
 	terms=[];
 }
 
-let set_time time g = {g with time=time}
+let set_state time id g = {g with time=time; id=id}
 let get_time g = g.time
 
 let pkt_counter_to_json c =
@@ -124,7 +126,7 @@ let to_json g =
 				~x_axis:"Time"
 				~y_axis:"Term number"
 				~legand:"Server ID's"
-				(data_in_json g.terms)
+				(data_in_json (triple_to_doubles g.terms))
 			]);
 	]
 
@@ -150,6 +152,7 @@ let update tick t =
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
 	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
 	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}
+	| `TERM term -> {t with terms=(t.id,t.time,term)::t.terms}
 
 let rec update_n tick n t = 
 	match n with

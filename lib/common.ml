@@ -183,3 +183,13 @@ let get_triple_exn x =
 
 let get_triple x xs = 
   try Some (get_triple_exn x xs) with Not_found -> None
+
+let get_value x xs = 
+  try Some (List.assoc x xs) with Not_found -> None
+
+let rec triple_to_doubles lst =
+  match lst with
+  | [] -> []
+  | (x,_,_)::_ -> 
+    let (xs,rest) = List.partition (fun (a,b,c) -> a=x) lst in
+    (x, List.map (fun (_,b,c) -> (b,c)) xs) :: (triple_to_doubles rest)
