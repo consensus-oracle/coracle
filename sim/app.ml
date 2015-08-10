@@ -104,25 +104,29 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
     |> average in
   match commands with 
     | 0 -> `String "no commands committed"
-    | _ -> `Assoc [
+    | _ -> `Assoc ([
       ("commands attempted", `Int commands);
       ("successful", `Int (List.length client_history));
       ("failed", `Int failed);
       ("outstanding", `Int outstanding);
-      ("time to commit (successful only)", 
-        `Assoc [
-          ("average",`Int (average duration));
-          ("min", `Int (min duration));
-          ("max", `Int (max duration));
-        ]);
-      ("actual times", `List (List.map (fun (id,seq,time,dur,cmd,first) -> 
-          `Assoc [
-          ("client id", `Int id);
-          ("seq number", `Int seq);
-          ("time",`Int time);
-          ("duration",`Int dur);
-          ("time to first application", `Int first);
-          ("state machine applications",`Int cmd);
-        ]) final_stats));
       ("average commands applied per state machine", `Int applied);
-      ]
+        ] @ (
+      match final_stats with
+      | [] -> (* no successful *) []
+      | _ -> (* some successful *) [
+        ("time to commit (successful only)", 
+          `Assoc [
+            ("average",`Int (average duration));
+            ("min", `Int (min duration));
+            ("max", `Int (max duration));
+          ]);
+        ("actual times", `List (List.map (fun (id,seq,time,dur,cmd,first) -> 
+            `Assoc [
+            ("client id", `Int id);
+            ("seq number", `Int seq);
+            ("time",`Int time);
+            ("duration",`Int dur);
+            ("time to first application", `Int first);
+            ("state machine applications",`Int cmd);
+          ]) final_stats));
+        ]))
