@@ -57,8 +57,9 @@ let start_election (state:State.t) global =
   let global = global
     |> Global.update `ELE_START
     |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids)
-    |> Global.update (`TERM (state.term+1)) in 
-  let timeout = Numbergen.uniform 0 2000 in
+    |> Global.update (`TERM (state.term+1)) in
+  let (min,max) = state.config.election_timeout in
+  let timeout = Numbergen.uniform min max in
   let state = {state with term=state.term+1; mode=State.candidate} in
   (Some state,
    SetTimeout (timeout,Election) ::
