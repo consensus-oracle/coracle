@@ -187,15 +187,16 @@ let get_triple x xs =
 let get_value x xs = 
   try Some (List.assoc x xs) with Not_found -> None
 
-let rec triple_to_doubles lst =
+let rec triple_to_doubles time lst =
   match lst with
   | [] -> []
-  | (x,_,_)::_ -> 
+  | (x,_,last_term)::_ -> 
     let (xs,rest) = List.partition (fun (a,b,c) -> a=x) lst in
     let xs_new = xs
       |> List.map (fun (_,b,c) -> (b,c))
+      |> (fun ys -> (time,last_term)::ys) (* add fake end point *)
       |> List.stable_sort (fun (t1,m1) (t2,m2) -> 
         match compare t1 t2 with 
         | 0 -> compare m1 m2
         | n -> n ) in
-    (x, xs_new) :: (triple_to_doubles rest)
+    (x, xs_new) :: (triple_to_doubles time rest)
