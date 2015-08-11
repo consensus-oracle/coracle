@@ -113,8 +113,8 @@ let data_in_json (data: (int * ((int * int) list)) list) =
 let to_json g = 
 	let term_updates = triple_to_doubles g.terms in
 	let mode_updates = triple_to_doubles g.modes in
-	let max_term = term_updates
-		|> List.map (fun (id,(time,term)::_) -> term) 
+	let max_term = g.terms
+		|> List.map (fun (id,time,term) -> term) 
 		|> max in
 	`Assoc [
 		("termination time", `Int g.time);
