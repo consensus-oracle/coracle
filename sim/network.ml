@@ -86,7 +86,7 @@ let parse_link_event (json:json) :link_event =
   json 
   |> function `Assoc config -> {
     id = (json_assoc "id" config |> function `Int i -> i);
-    link_type = (json_assoc "type" config |> parse_link_type);
+    link_type = (json_assoc_def "type" config (`String "l") |> parse_link_type);
     active = (json_assoc "active" config |> function `Bool b -> b);
   }
 

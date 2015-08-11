@@ -94,6 +94,9 @@ let json_assoc_opt key js =
 let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
 
+let json_assoc_def key js def =
+  try List.assoc key js with Not_found -> def
+
 type cmd = int with sexp 
 type outcome = Failure | Success of cmd with sexp
 

@@ -51,6 +51,7 @@ val check_parameter: int -> int parameter -> unit
 
 (* List.assoc for string with more helpful exception *)
 val json_assoc: string -> (string * 'a) list -> 'a
+val json_assoc_def: string -> (string * 'a) list -> 'a -> 'a
 val json_assoc_opt: string -> (string * 'a) list -> 'a option
 
 type cmd = int with sexp
