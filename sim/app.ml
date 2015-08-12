@@ -86,6 +86,7 @@ let hist_to_cum_stats hist term_time =
   hist
   |> List.rev
   |> List.mapi (fun i (_,_,time,_) -> (time, i+1))
+  |> fun xs -> (0,0)::xs
   |> fill_points term_time 
 
 let json_of_stats term_time (x: Client.state list) (y:StateMachine.state list) = 
