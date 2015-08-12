@@ -16,7 +16,7 @@ rect.border{
 }
 
 circle.masterServer{
-  fill: green;
+  fill: red;
   r:10;
 }
 
