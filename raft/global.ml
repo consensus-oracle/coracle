@@ -162,25 +162,45 @@ let update_pkt_counter tick c =
 	| `ARG_SND -> {c with arg_snd = c.arg_snd +1 }
 	| `RES_SND -> {c with res_snd = c.res_snd +1 }
 
+(* for terms and modes *)
+(*  mode 0=failed, 1=follower, 2=candidate, 3=leader *)
+let update_data new_point data t =
+	match get_triple t.id data with
+	| None -> (*first data point*)
+		(t.id,t.time,new_point)::data
+	| Some (_,_,old_point) -> (* needs fake extra point *)
+		(t.id,t.time,new_point)::(t.id,t.time,old_point)::data
+
+
 let update tick t = 
 	match tick with 
 	| `AE x -> {t with ae = (update_pkt_counter x t.ae)}
 	| `RV x -> {t with rv = (update_pkt_counter x t.rv)}
 	| `CL x -> {t with cl = (update_pkt_counter x t.cl)}
-	| `ELE_WON -> 
-		let t = {t with ele_won = t.ele_won +1 } in (
-		match t.first_leader with
-		| Some _ -> t
-		| None -> {t with first_leader=Some t.time} )
-	| `ELE_START -> {t with ele_start = t.ele_start +1 }
+	| `ELE_WON -> (
+		let t = {t with ele_won = t.ele_won +1 } in
+		let first = match t.first_leader with
+			| Some _ -> t.first_leader
+			| None -> Some t.time in
+		{t with
+			first_leader = first;
+			modes = update_data 3 t.modes t; } )
+	| `ELE_START term -> {t with 
+		ele_start = t.ele_start +1;
+		terms = update_data term t.terms t;
+		modes = update_data 2 t.modes t;
+		}
 	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
 	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
 	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}
-	| `TERM term -> 
-		match get_triple t.id t.terms with
-		| None -> {t with terms=(t.id,t.time,term)::t.terms}
-		| Some (_,_,old_term) -> {t with terms=(t.id,t.time,term)::(t.id,t.time,old_term)::t.terms}
+	| `FOLLOW term -> {t with 
+			terms=update_data term t.terms t;
+			modes=update_data 1 t.modes t; }
+	| `FAIL -> {t with 
+			modes=update_data 0 t.modes t; }
+
+		
 
 let rec update_n tick n t = 
 	match n with

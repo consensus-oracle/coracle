@@ -78,4 +78,6 @@ val update_triple: 'a * 'b * 'c -> ('a * 'b * 'c) list -> ('a * 'b * 'c) list
 val get_triple_exn: 'a -> ('a * 'b * 'c) list -> 'a * 'b * 'c
 val get_triple: 'a -> ('a * 'b * 'c) list -> ('a * 'b * 'c) option
 val get_value: 'a -> ('a * 'b) list -> 'b option
+
+(* triple must be in reverse order by 'b (ususally time) *)
 val triple_to_doubles: 'b -> ('a * 'b * 'c) list -> ('a * ('b * 'c) list) list

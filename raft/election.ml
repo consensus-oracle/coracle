@@ -30,7 +30,7 @@ let receive_vote_request id (pkt:RequestVoteArg.t) (state:State.t) (global:Globa
     (Some {state with term=pkt.term;
         mode= Follower {voted_for= Some id; leader=None}},
     [PacketDispatch (id, reply pkt.term true);
-    reconstruct_heartbeat state], Global.update (`TERM pkt.term) global)
+    reconstruct_heartbeat state], Global.update (`FOLLOW pkt.term) global)
 
 let dispatch_vote_request (state:State.t) id = 
   let open RequestVoteArg in 
@@ -45,7 +45,7 @@ let dispatch_vote_request (state:State.t) id =
 let start_follower state global = 
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
-  (None, [construct_heartbeat state], Global.update (`TERM state.term) global)
+  (None, [construct_heartbeat state], Global.update (`FOLLOW state.term) global)
 
 let restart state global = 
   let cancel_events = cancel_timers state in
@@ -55,9 +55,8 @@ let restart state global =
 
 let start_election (state:State.t) global =
   let global = global
-    |> Global.update `ELE_START
-    |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids)
-    |> Global.update (`TERM (state.term+1)) in
+    |> Global.update (`ELE_START (state.term+1))
+    |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids) in
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
   let state = {state with term=state.term+1; mode=State.candidate} in

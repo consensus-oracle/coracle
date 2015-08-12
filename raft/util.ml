@@ -41,7 +41,7 @@ let step_down term (state:State.t) (global:Global.t) =
   | false ->
    (Some {state with term=term; mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), 
-  		Global.update (`TERM term) global)
+  		Global.update (`FOLLOW term) global)
 
 let rec get_commit_index curr indexes = 
   let nodes = (List.length indexes) +1 in
