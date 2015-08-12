@@ -51,8 +51,8 @@ function saveConfig(){
         election_timeout_max: parseInt($('#election_max').val()),
         client_timeout: parseInt($('#client').val()),
         heartbeat_interval: parseInt($('#heartbeat').val()),
-        batch_requests:$('#batchRequests').checked,
-        lazy_update:$('#lazyUpdate').checked
+        batch_requests:$('#batchRequests').is(':checked'),
+        lazy_update:$('#lazyUpdate').is(':checked')
       },
       data: JSON.parse(JSON.stringify(data))
         
