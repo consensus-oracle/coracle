@@ -57,21 +57,38 @@ end
 
 module StateMachine = struct
 
-type state = (id * int * time * cmd) list
+type state = {
+  id: id;
+  (* ordered, newest command first *)
+  hist: (id * int * time * cmd) list;
+  }
 
-let init (para:Parameters.t) n = []
+let init (para:Parameters.t) n = {
+  id=n;
+  hist=[];
+}
 
-let eval time event s = 
+let eval time event (s:state) = 
   match event with
   | LocalArrival (CmdM (id,seq,c)) -> 
-    (Some ((id,seq,time,c)::s),
+    let state = {s with hist = (id,seq,time,c)::s.hist} in
+    (Some state,
       [ProxyDispatch (OutcomeM (id,seq,Success c))])
   | LocalArrival Startup -> (None,[])
   | _ -> assert false
 
 end
 
-let json_of_stats (x: Client.state list) (y:StateMachine.state list) = 
+open Json_basic
+
+(* convert state machine history to data points for command commited verse time plot *)
+let hist_to_cum_stats hist term_time = 
+  hist
+  |> List.rev
+  |> List.mapi (fun i (_,_,time,_) -> (time, i+1))
+  |> fill_points term_time 
+
+let json_of_stats term_time (x: Client.state list) (y:StateMachine.state list) = 
   let client_history = x
     |> List.map (fun (state:Client.state) -> 
         (List.map (fun (cmd,time,dur) -> (state.id,cmd,time,dur)) state.history))
@@ -89,6 +106,7 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
     |> List.map (fun (state:Client.state) -> state.request)
     |> sum in
   let y_all = y
+    |> List.map (fun (state:StateMachine.state) -> state.hist)
     |> List.flatten in
   let final_stats = client_history
     |> List.map (fun (id,seq,t,dur) -> 
@@ -100,8 +118,16 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
           |> (function [] -> t | xs -> min xs) in
         (id,seq,t,dur,count,first_time-t)) in
   let applied = y
-    |> List.map List.length
+    |> List.map (fun (state:StateMachine.state) -> List.length state.hist)
     |> average in
+  let cmd_figure = y
+    |> List.map (fun (sm:StateMachine.state) -> (sm.id, hist_to_cum_stats sm.hist term_time))
+    |> fun data -> figure_in_json
+      ~title:"Number of commands committed to each state machine over time"
+      ~y_axis:"Number of commands committted"
+      ~x_axis:"Time"
+      ~legand:"Server ID"
+      ~x_start:0 ~x_end:term_time ~y_start:0 ~y_end:(max_y_of_data data) ~lines:(List.length y) (data_in_json data) in
   match commands with 
     | 0 -> `String "no commands committed"
     | _ -> `Assoc ([
@@ -129,4 +155,5 @@ let json_of_stats (x: Client.state list) (y:StateMachine.state list) =
             ("time to first application", `Int first);
             ("state machine applications",`Int cmd);
           ]) final_stats));
+        ("figure1", cmd_figure);
         ]))

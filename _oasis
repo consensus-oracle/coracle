@@ -12,7 +12,7 @@ Library lib
   Findlibname: lib
   Pack: true
   Modules:
-    Common, Docs, Io, Numbergen, Protocol
+    Common, Docs, Io, Numbergen, Protocol, Json_basic
   BuildDepends: sexplib, sexplib.syntax, cmdliner, yojson
 
 Library raft

@@ -1,5 +1,6 @@
 open Common
 open Yojson.Safe
+open Json_basic
 
 type pkt_counter = {
 	arg_snd: int;
@@ -79,43 +80,10 @@ let pkt_counter_to_json c =
 		]);
 	]
 
-let figure_in_json ~title ~y_axis ~x_axis ~legand 
-	~x_start ~y_start ~x_end ~y_end ~lines (data:json) =
-	`Assoc [
-		("title", `String title);
-		("x axis", `Assoc [
-			("label", `String x_axis);
-			("start", `Int x_start);
-			("end", `Int x_end);
-			]);
-		("y axis", `Assoc [
-			("label", `String y_axis);
-			("start", `Int y_start);
-			("end", `Int y_end);
-			]);
-		("legand", `Assoc [
-			("label", `String legand);
-			("data sets", `Int lines);
-			]);
-		("data", data);
-	]
-
-(* convert a simple list of (x,y) coordinate to JSON *)
-let simple_data_in_json (data: (int * int) list) =
-	`List (List.map (fun (x,y) -> `Assoc [("x",`Int x); ("y",`Int y); ]) data)
-
-(* convery a list of list of (x,y) cooridates to JSON *)
-let data_in_json (data: (int * ((int * int) list)) list) = 
-	`List (List.map (fun (line_id,xy) -> `Assoc [
-					("line id", `Int line_id); 
-					("data", simple_data_in_json xy)]) data)
-
 let to_json g = 
 	let term_updates = triple_to_doubles g.time g.terms in
 	let mode_updates = triple_to_doubles g.time g.modes in
-	let max_term = g.terms
-		|> List.map (fun (id,time,term) -> term) 
-		|> max in
+	let max_term = max_y_of_data term_updates in
 	`Assoc [
 		("termination time", `Int g.time);
 		("append entries packets", pkt_counter_to_json g.ae);

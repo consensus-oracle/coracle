@@ -145,6 +145,7 @@ $(document).ready(function () {
           }
           createGraph1(jsonResults.results['protocol specific']['figures'][0]);
           createGraph1(jsonResults.results['protocol specific']['figures'][1]);
+          createGraph1(jsonResults.results['client']['figure1']);
           $('#resultsPanel').removeClass('hidden');
           $('#resultsTab').tab('show');
           $('#SimResults').append(result);

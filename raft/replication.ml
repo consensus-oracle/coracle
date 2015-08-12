@@ -177,4 +177,4 @@ let receive_sm_response (id,seq,o) (state:State.t) global =
    		(Some state,[],global) 
 
 let fail (state:State.t) global =
-	(None,[],global)
+	(None,[],Global.update `FAIL global)
