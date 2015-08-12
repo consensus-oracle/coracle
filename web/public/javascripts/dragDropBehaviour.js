@@ -16,7 +16,7 @@ $(document).ready(function () {
     if (mode != 'nodes'){
       return;
     }
-    var tyoe;
+    var type;
     switch (this.id){
       case 'masterServer':
         type = 'Server';
@@ -194,7 +194,13 @@ $(document).ready(function () {
       if (event.length == 0){
         console.log('no event');
         //quick hack for links need to fix properly
-        localEvents.push({time:time,active:disabled,link:'s'});
+        if (d3.select(this).classed('link')){
+            var lastLinkState = getLastLinkType(d3.select(this).datum());
+            localEvents.push({time:time,active:disabled,linkSize:lastLinkState});
+        }
+        else{
+          localEvents.push({time:time,active:disabled});
+        }
       }
       else{
         event[0].active = disabled;
@@ -274,7 +280,11 @@ $(document).ready(function () {
       .attr('x2',getLinkX2CoOrd)
       .attr('y1',getLinkY1CoOrd)
       .attr('y2',getLinkY2CoOrd)
-      .classed('disabled',getDisabledState);
+      .classed('disabled',getDisabledState)
+      .classed('s',false)
+      .classed('m',false)
+      .classed('l',false)
+      .classed(getLastLinkType, true);
       
     paths.enter().append('line')
       .attr('x1',getLinkX1CoOrd)
@@ -331,4 +341,9 @@ $(document).ready(function () {
   function getDisabledState(d){
     var events = d.events.filter(function(x){return x.time <= time});
     return !events[events.length -1].active;
+  }
+
+  function getLastLinkType(d){
+    var events = d.events.filter(function(x){return x.time <= time});
+    return events[events.length -1].linkSize;
   }
