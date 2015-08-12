@@ -12,6 +12,8 @@ let parse_node_type (json:json) :node_type =
     | "client" -> Client
     | "hub" -> Hub
 
+    
+
 type link_type = Small | Medium | Large
 type direction = Bi | Uni
 
