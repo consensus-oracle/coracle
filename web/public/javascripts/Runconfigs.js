@@ -74,7 +74,7 @@ function saveConfig(){
   $('#networkSettingsModal').modal('hide');
   console.log(runConfigs);
   updateRunConfigList();
-  var editing=false;
+  editing=false;
 }
 
 function numberNodes(networkData){
@@ -89,9 +89,12 @@ function numberNodes(networkData){
     d.id = currentNodeId++;
   });
   
-  dataCopy.nodes.filter(function(node){
-    return !serverFilter(node);
-  }).forEach(function (d,i){
+  dataCopy.nodes.filter(clientFilter).forEach(function (d,i){
+    mappings[d.id.toString()] = currentNodeId;
+    d.id = currentNodeId++;
+  });
+
+   dataCopy.nodes.filter(hubFilter).forEach(function (d,i){
     mappings[d.id.toString()] = currentNodeId;
     d.id = currentNodeId++;
   });
