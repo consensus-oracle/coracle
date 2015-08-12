@@ -31,7 +31,7 @@ let read_1d t index = try t.(index-1) with _ -> raise (NoRouteDst index)
 let write t (src,dst) v = try Array.set t.(src-1) (dst-1) v with _ -> raise (NoRoute (src,dst))
 let write_1d t index = try Array.set t (index-1) with _ -> raise (NoRouteDst index)
 
-let print t = 
+let string_of_path t = 
 	iterate t (fun (x,y) v -> Printf.printf "(%i,%i) %i \n" x y (item_to_int v))
 
 let is_transitive target_id nodes = 

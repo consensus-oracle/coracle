@@ -12,7 +12,10 @@ let parse_node_type (json:json) :node_type =
     | "client" -> Client
     | "hub" -> Hub
 
-    
+let json_of_node_type = function
+  | Server -> `String "server"
+  | Client -> `String "client"
+  | Hub -> `String "hub"
 
 type link_type = Small | Medium | Large
 type direction = Bi | Uni
@@ -26,6 +29,11 @@ let parse_link_type (json:json) :link_type =
     | "m" -> Medium
     | "l" -> Large
 
+let json_of_link_type = function
+  | Small -> `String "s"
+  | Medium -> `String "m"
+  | Large -> `String "l"
+
 let parse_direction (json:json) :direction = 
   json 
   |> function `String s -> s
@@ -33,6 +41,10 @@ let parse_direction (json:json) :direction =
   |> function
     | "bi" -> Bi
     | "uni" -> Uni
+
+let json_of_direction = function 
+  | Bi -> `String "bi"
+  | Uni -> `String "uni"
 
 let type_to_latency = function
   | Small -> 5
@@ -50,6 +62,12 @@ let parse_node (json:json) :node =
     node_type = json_assoc "type" config |> parse_node_type;
     id = json_assoc "id" config |> function `Int i -> i;
   }
+
+let json_of_node (node:node) =
+  `Assoc [
+    ("id", `Int node.id);
+    ("type", json_of_node_type node.node_type);
+    ]
 
 let find_node_type (nodes: node list) id = 
   (List.find (fun n -> n.id=id) nodes).node_type
@@ -70,6 +88,14 @@ let parse_link (json:json) :link =
     id = (json_assoc "id" config |> function `Int i -> i);
     direction = json_assoc "direction" config |> parse_direction;
   }
+
+let json_of_link (link:link) =
+  `Assoc [
+    ("id", `Int link.id);
+    ("start", `Int link.src);
+    ("end", `Int link.dst);
+    ("direction",json_of_direction link.direction);
+    ]
 
 let get_endpoints link_id links = 
   let link = List.find (fun link -> link_id==link.id) links in
@@ -92,6 +118,13 @@ let parse_link_event (json:json) :link_event =
     active = (json_assoc "active" config |> function `Bool b -> b);
   }
 
+let json_of_link_event (le:link_event) =
+  `Assoc [
+    ("id", `Int le.id);
+    ("type", json_of_link_type le.link_type);
+    ("active", `Bool le.active);
+    ]
+
 type node_event = {
   id: id;
   active: bool;
@@ -103,6 +136,12 @@ let parse_node_event (json:json) :node_event =
     id = (json_assoc "id" config |> function `Int i -> i);
     active = (json_assoc "active" config |> function `Bool b -> b);
   }
+
+let json_of_node_event (ne:node_event) =
+  `Assoc [
+    ("id", `Int ne.id);
+    ("active", `Bool ne.active);
+    ]
 
 type event = {
   time: time;
@@ -117,6 +156,13 @@ let parse_event (json:json) :event =
     links = (json_assoc "links" config |> function `List lst -> lst |> List.map parse_link_event);
     nodes = (json_assoc "nodes" config |> function `List lst -> lst |> List.map parse_node_event);
   }
+
+let json_of_event (event:event) =
+  `Assoc [
+    ("time", `Int event.time);
+    ("links", `List (List.map json_of_link_event event.links));
+    ("nodes", `List (List.map json_of_node_event event.nodes));
+    ]  
 
 let combine crt nw =
   {time = nw.time;
@@ -144,6 +190,20 @@ type t = {
   events: event list;
   paths: (time * Path.t) list;
 }
+
+let json_of_path (time,path) =
+  `Assoc [
+    ("time", `Int time);
+   (* ("paths", `String (string_of_path path)); *)
+    ]
+
+let json_of_t (t:t) =
+  `Assoc [
+    ("nodes", `List (List.map json_of_node t.nodes));
+    ("links", `List (List.map json_of_link t.links));
+    ("event", `List (List.map json_of_event t.events));
+    ("paths", `List (List.map json_of_path t.paths));
+    ]
 
 let parse_section name item_parser sections = 
   json_assoc name sections
@@ -192,7 +252,9 @@ let parse (json:json) =
       |> fun e -> fill_in (List.hd e) e) in
     let paths = 
       generate_paths nodes links events in
-  {nodes;links;events;paths}
+  let t = {nodes;links;events;paths} in
+  (* pretty_to_channel stdout (json_of_t t); *)
+  t
 
 let rec find_recent_event time events =
   (* we assume events is sorted as order is preserved since inputted JSON *)
