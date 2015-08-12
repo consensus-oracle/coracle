@@ -31,3 +31,7 @@ div.collapse#advancedSettings
   div.well
     label.control-label(for='randomSeed') Random Seed:
       input.form-control#randomSeed(type='number',min='0',max='10000',value=parseInt(Math.random()*10000))
+    label.control-label(for='batchRequests') Batch Requests:
+      input.form-control#batchRequests(type='checkbox')
+    label.control-label(for='lazyUpdate') Lazy Update:
+      input.form-control#lazyUpdate(type='checkbox')
