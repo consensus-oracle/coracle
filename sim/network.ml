@@ -249,7 +249,8 @@ let parse (json:json) =
       |> function `List lst -> lst
       |> List.map parse_event
       |> List.sort (fun a b -> compare a.time b.time)
-      |> fun e -> fill_in (List.hd e) e) in
+      |> fun e -> fill_in (List.hd e) e)
+      |> List.sort (fun a b -> compare a.time b.time) in
     let paths = 
       generate_paths nodes links events in
   let t = {nodes;links;events;paths} in
@@ -289,14 +290,16 @@ let find_node id time t =
   |> fun event -> List.find (fun node -> node.id==id) event.nodes
   |> fun node_event -> node_event.active
 
-let find_active time (n1,n2) = 
+let find_active (n1,n2) = 
+  assert (n1.id=n2.id);
   match n1.active, n2.active with
-  | false, true -> Some (n1.id,time)
+  | false, true -> Some n1.id
   | _ -> None
 
-let find_inactive time (n1,n2) = 
+let find_inactive (n1,n2) = 
+  assert (n1.id=n2.id);
   match n1.active, n2.active with
-  | true, false -> Some (n1.id,time)
+  | true, false -> Some n1.id
   | _ -> None
 
 let rec zip xl yl =
@@ -307,17 +310,20 @@ let rec zip xl yl =
 
 (* we are assuming event and nodes within events are ordered and all nodes are specificed *)
 let rec find_rel_events (t:t) (events: event list) f = 
+  assert (sorted (fun (e1:event) (e2:event) -> compare e1.time e2.time) events);
   match events with
   | e1::e2::es -> (
-    zip e1.nodes e1.nodes
-    |> map_filter (f e2.time)
-    |> List.filter (fun (id,_) -> match (find_node_type t.nodes id) with Server -> true | _ -> false))
-    :: find_rel_events t (e2::es) f
+    zip e1.nodes e2.nodes
+    |> map_filter f
+    |> List.filter (fun id -> match (find_node_type t.nodes id) with Server -> true | _ -> false)
+    |> List.map (fun id -> (id,e2.time)) )
+    :: (find_rel_events t (e2::es) f)
   | [_] -> []
   | [] -> []
 
 let find_recovery t = List.flatten (find_rel_events t t.events find_active)
-let find_failure t = List.flatten (find_rel_events t t.events find_inactive)
+let find_failure t = List.flatten (find_rel_events t t.events find_inactive) 
+
 
 let find_path src dst time t =
   Path.find_path src dst (find_recent_path time t.paths)

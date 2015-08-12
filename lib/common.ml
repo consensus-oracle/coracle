@@ -200,3 +200,11 @@ let rec triple_to_doubles time lst =
       |> (fun ys -> (time,last_term)::ys) (* add fake end point *)
       |> List.rev in
     (x, xs_new) :: (triple_to_doubles time rest)
+
+let rec sorted f = function
+  | [] -> true 
+  | [_] -> true
+  | x::y::zs -> 
+    match f x y with
+    | n when n<=0 -> sorted f (y::zs)
+    | _ -> false
