@@ -198,8 +198,13 @@ let rec triple_to_doubles time lst =
     let xs_new = xs
       |> List.map (fun (_,b,c) -> (b,c))
       |> (fun ys -> (time,last_term)::ys) (* add fake end point *)
-      |> List.stable_sort (fun (t1,m1) (t2,m2) -> 
-        match compare t1 t2 with 
-        | 0 -> compare m1 m2
-        | n -> n ) in
+      |> List.rev in
     (x, xs_new) :: (triple_to_doubles time rest)
+
+let rec sorted f = function
+  | [] -> true 
+  | [_] -> true
+  | x::y::zs -> 
+    match f x y with
+    | n when n<=0 -> sorted f (y::zs)
+    | _ -> false

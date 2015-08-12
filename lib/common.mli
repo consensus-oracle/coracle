@@ -72,10 +72,13 @@ val max: int list -> int
 val map_filter: ('a -> 'b option) -> 'a list -> 'b list
 val map_filter_fold: ('a -> 'b -> 'a * 'c option) -> 'a -> 'c list -> 'b list -> 'a * 'c list
 val map_fold: ('a -> 'b -> 'a * 'c) -> 'a -> 'c list -> 'b list -> 'a * 'c list
+val sorted: ('a -> 'a -> int) -> 'a list  -> bool
 
 (* generic functions on triples *)
 val update_triple: 'a * 'b * 'c -> ('a * 'b * 'c) list -> ('a * 'b * 'c) list
 val get_triple_exn: 'a -> ('a * 'b * 'c) list -> 'a * 'b * 'c
 val get_triple: 'a -> ('a * 'b * 'c) list -> ('a * 'b * 'c) option
 val get_value: 'a -> ('a * 'b) list -> 'b option
+
+(* triple must be in reverse order by 'b (ususally time) *)
 val triple_to_doubles: 'b -> ('a * 'b * 'c) list -> ('a * ('b * 'c) list) list

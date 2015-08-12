@@ -188,6 +188,7 @@ let json_of_stats t =
       ("number of servers", `Int t.data.servers);
       ("number of clients", `Int t.data.clients);
       ("number of startups", `Int t.data.startup);
+      ("number of failures", `Int t.data.failures);
       ("number of recoveries", `Int t.data.recover);
       ]);
     ] @ 

@@ -9,7 +9,7 @@ function createGraph1(chartData){
                 .width(500)
                 .height(500)
                 .xDomain([chartData['x axis'].start,chartData['x axis'].end])
-                //.yDomain([chartData['y axis'].start,chartData['y axis'].end])
+                .yDomain([chartData['y axis'].start,chartData['y axis'].end])
   ;
   chart.xAxis     //Chart x-axis settings
       .axisLabel(chartData['x axis'].label);
