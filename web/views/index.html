@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Coracle</h1>
+      </div>
+      <ul role="tablist" class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#settingsTabContent" role="tab" data-toggle="tab" id="settingsTab">Settings</a></li>
+        <li role="presentation"><a href="#resultsTabContent" role="tab" data-toggle="tab" id="resultsTab">Results</a></li>
+        <li role="presentation"><a href="#traceTabContent" role="tab" data-toggle="tab" id="traceTab">Trace</a></li>
+      </ul>
+      <div id="networkSettingsModal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="buton" data-dismiss="modal" class="close">&times;</button>
+              <ul role="tablist" class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#settingsModalTabContent" role="tab" data-toggle="tab" id="settingsModalTab">Settings</a></li>
+                <li role="presentation"><a href="#networkModalTabContent" role="tab" data-toggle="tab" id="networkModalTab">Network</a></li>
+              </ul>
+            </div>
+            <div class="modal-body">
+              <div class="tab-content">
+                <div id="settingsModalTabContent" role="tabpanel" class="tab-pane active">
+                  <div class="row">
+                    <div id="runConfigNameDiv" class="form-group col-md-4 col-sm-6">
+                      <label for="runConfigName" class="control-label">Configuration Name:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Heidi's explanatory text" id="nameInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
+                        <input id="runConfigName" type="text" value="New Test" class="form-control">
+
+                    </div>
+                    <div id="workloadMin" class="form-group col-md-4 col-sm-6">
+                      <label for="workload_min" class="control-label">Workload Min:
+                        <input id="workload_min" type="number" min="0" value="100" class="form-control">
+                      </label>
+                    </div>
+                    <div id="workloadMMax" class="form-group col-md-4 col-sm-6">
+                      <label for="workload_max" class="control-label">Workload Max:
+                        <input id="workload_max" type="number" min="0" value="150" class="form-control">
+                      </label>
+                    </div>
+                    <div id="electionMin" class="form-group col-md-4 col-sm-6">
+                      <label for="election_min" class="control-label">Election Timeout Min:
+                        <input id="election_min" type="number" min="0" value="150" class="form-control">
+                      </label>
+                    </div>
+                    <div id="electionMax" class="form-group col-md-4 col-sm-6">
+                      <label for="election_max" class="control-label">Election Timeout Max:
+                        <input id="election_max" type="number" min="0" value="300" class="form-control">
+                      </label>
+                    </div>
+                    <div id="heartbeatDiv" class="form-group col-md-4 col-sm-6">
+                      <label for="heartbeat" class="control-label">Heartbeat Interval:
+                        <input id="heartbeat" type="number" min="0" value="30" class="form-control">
+                      </label>
+                    </div>
+                    <div id="clientDiv" class="form-group col-md-4 col-sm-6">
+                      <label for="client" class="control-label">Client Timeout:
+                        <input id="client" type="number" min="0" value="50" class="form-control">
+                      </label>
+                    </div>
+                  </div>
+                  <div id="advancedSettingsButton" class="form-group">
+                    <button type="button" data-toggle="collapse" data-target="#advancedSettings" aria-expanded="false" class="btn btn-info btn-xs">Advanced Settings</button>
+                  </div>
+                  <div id="advancedSettings" class="collapse">
+                    <div class="well">
+                      <div class="row">
+                        <div class="form-group col-md-4 col-sm-6">
+                          <label for="randomSeed" class="control-label">Random Seed:
+                            <input id="randomSeed" type="number" min="0" max="10000" value="7045" class="form-control">
+                          </label>
+                        </div>
+                        <div class="form-group col-md-4 col-sm-6">
+                          <label for="batchRequests">Batch Requests:
+                            <input id="batchRequests" type="checkbox">
+                          </label>
+                        </div>
+                        <div class="form-group col-md-4 col-sm-6">
+                          <label for="lazyUpdate">Lazy Update:
+                            <input id="lazyUpdate" type="checkbox">
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="networkModalTabContent" role="tabpanel" class="tab-pane">
+                  <div class="row">
+                    <div id="terminationDiv" class="form-group col-md-4">
+                      <label for="termination" class="control-label">Termination:
+                        <input id="termination" type="number" min="500" max="100000" step="500" value="1000" class="form-control">
+                      </label>
+                    </div>
+                  </div>
+                  <div id="networkModes" class="btn-group">
+                    <button id="nodesModeRadioButton" class="btn btn-default active">Add Nodes</button>
+                    <button id="linksModeRadioButton" class="btn btn-default">Add Links</button>
+                    <button id="disableModeRadioButton" class="btn btn-default">Toggle State</button>
+                  </div>
+                  <div id="linkSize" class="btn-group">
+                    <button id="largeLink" class="btn btn-default active">Large</button>
+                    <button id="mediumLink" class="btn btn-default">Medium</button>
+                    <button id="smallLink" class="btn btn-default">Small</button>
+                  </div>
+                  <div id="directionality" class="btn-group">
+                    <button id="bi" class="btn btn-default active">Bi</button>
+                    <button id="uni" class="btn btn-default">Uni</button>
+                  </div><br>
+                  <label for="timeSlider" class="control-label">Time:
+                    <div><span style="padding-right:15px">0</span>
+                      <input id="timeSlider" data-slider-min="0" data-slider-max="1000" data-slider-step="1" data-slider-value="0"><span style="padding-left:15px" id="timeSliderMax">1000</span>
+                    </div>
+                    <div><span>Current Time:</span><span id="currentTime">0</span></div>
+                  </label><br>
+                  <div class="row">
+                    <svg id="networkViewCanvas" width="500" height="500" class="col-md-8">
+                      <rect x="0" y="0" width="500" height="500" class="border"></rect>
+                      <circle cx="50" cy="50" id="masterServer" class="masterServer masterNode"></circle>
+                      <text x="40" y="70" class="label">Server</text>
+                      <rect x="45" y="75" width="10" height="10" id="masterHub" class="masterHub masterNode"></rect>
+                      <text x="40" y="100" class="label">Hub</text>
+                      <circle cx="50" cy="110" id="masterClient" class="masterClient masterNode"></circle>
+                      <text x="40" y="130" class="label">Client</text>
+                      <!--rect.masterLLinkButton(x='25',y='105',width='70',height='40')-->
+                      <!--line.masterLLink(x1='40',x2='70',y1='110',y2='110')-->
+                      <!--text.label(x='30',y='130') Add Link (L)-->
+                      <line x1="100" y1="0" x2="100" y2="500" class="separator"></line>
+                    </svg>
+                    <div id="examplesCarousel" data-ride="carousel" class="carousel slide col-md-4">
+                      <ol id="carouselIndicators" class="carousel-indicators"></ol>
+                      <div role="listbox" id="carouselItems" class="carousel-inner"></div><a href="#examplesCarousel" role="button" data-slide="prev" class="left carousel-control"><span class="glyphicon glyphicon-chevron-left"></span><span class="sr-only">Previous</span></a><a href="#examplesCarousel" role="button" data-slide="next" class="right carousel-control"><span class="glyphicon glyphicon-chevron-right"></span><span class="sr-only">Next</span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" data-dismiss="modal" class="btn btn-default">Close</button><a href="#networkModalTabContent" role="tab" data-toggle="tab" id="SettingsNextButton" class="btn btn-primary">Next</a><a id="SettingsSaveButton" class="btn btn-primary hidden">Save</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-content">
+        <div id="settingsTabContent" role="tabpanel" class="tab-pane active">
+          <div class="row">
+            <div id="runSettingsList" class="list-group col-md-8"></div>
+            <div class="btn-group-vertical col-md-4">
+              <button id="addConfigButton" class="btn btn-default btn-primary">Add</button>
+              <button id="editSettingsButton" class="btn btn-default btn-primary">Edit</button>
+              <button id="removeConfigButton" class="btn btn-default btn-danger">Remove</button>
+            </div>
+          </div>
+          <form>
+            <!--div.form-group#nodesDiv
+            //label.control-label(for='numNodes') Nodes:
+              //input.form-control#numNodes(type='number', min='2', max='20',step='1',value='2')
+            -->
+            <!--div.form-group#lossDiv
+            //label.control-label(for='lossSlider') Loss:
+            //div
+              //span(style={'padding-right':'15px'}) 0
+              //input.form-control#lossSlider(data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="0.1")
+              //span(style={'padding-left':'15px'}) 1
+              
+            -->
+            <!--div.form-group#openNetworkViewButton-->
+            <!--  button.btn.btn-info.btn-s(type='button',data-toggle='modal',data-target='#networkSettingsModal') Configure Network    -->
+            <button id="runSim" class="btn btn-primary">Run Simulation    </button>
+          </form>
+        </div>
+        <div id="resultsTabContent" role="tabpanel" class="tab-pane">
+          <div id="resultsPanel" class="panel panel-default hidden">
+            <div class="panel-heading">Results</div>
+            <div id="SimResults"></div>
+            <div id="graphs"></div>
+            <!--svg#Graph1(width = 500, height=500)-->
+          </div>
+        </div>
+        <div id="traceTabContent" role="tabpanel" class="tab-pane">
+          <div id="tracePanel" class="panel panel-default hidden">
+            <div class="panel-heading">Trace</div>
+            <div id="TraceResults"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/main.js"></script>
+    <script src="/javascripts/bootstrap-slider.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/d3.min.js"></script>
+    <script src="/javascripts/dragDropBehaviour.js"></script>
+    <link href="/stylesheets/bootstrap-slider.css" rel="stylesheet">
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.columnFilter.js"></script>
+    <script src="/javascripts/Runconfigs.js"></script>
+    <link href="/stylesheets/jquery.dataTables.min.css" rel="stylesheet">
+    <script src="/javascripts/nv.d3.js"></script>
+    <script src="/javascripts/createGraphs.js"></script>
+    <link href="/stylesheets/nv.d3.css" rel="stylesheet">
+  </body>
+</html>
