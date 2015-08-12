@@ -54,7 +54,7 @@ function saveConfig(){
         batch_requests:$('#batchRequests').is(':checked'),
         lazy_update:$('#lazyUpdate').is(':checked')
       },
-      data: JSON.parse(JSON.stringify(data))
+      data: numberNodes(data)
         
     }
 
@@ -76,6 +76,40 @@ function saveConfig(){
   updateRunConfigList();
   var editing=false;
 }
+
+function numberNodes(networkData){
+  var dataCopy = JSON.parse(JSON.stringify(data));
+  
+  var mappings = new Array();
+  //used as mappings['oldNodeId'] = newNodeID
+  
+  var currentNodeId = 1;
+  dataCopy.nodes.filter(serverFilter).forEach(function (d,i){
+    mappings[d.id.toString()] = currentNodeId;
+    d.id = currentNodeId++;
+  });
+  
+  dataCopy.nodes.filter(function(node){
+    return !serverFilter(node);
+  }).forEach(function (d,i){
+    mappings[d.id.toString()] = currentNodeId;
+    d.id = currentNodeId++;
+  });
+  
+  dataCopy.links.forEach(function (d,i){
+    d.start = mappings[d.start.toString()];
+    d.end = mappings[d.end.toString()];
+  });
+  /*
+  console.log('original:');
+  console.log(networkData);
+  console.log('updated:');
+  console.log(dataCopy);
+  */
+  return dataCopy;
+  
+}
+
 
 function onRunConfigClick(listItem){
   //console.log(listItem);
