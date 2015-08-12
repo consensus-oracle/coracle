@@ -104,7 +104,7 @@ let json_of_stats term_time (x: Client.state list) (y:StateMachine.state list) =
     |> List.map (fun (state:Client.state) -> state.failed)
     |> sum in
   let commands = x
-    |> List.map (fun (state:Client.state) -> state.request)
+    |> List.map (fun (state:Client.state) -> state.request-1)
     |> sum in
   let y_all = y
     |> List.map (fun (state:StateMachine.state) -> state.hist)
