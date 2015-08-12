@@ -5,6 +5,8 @@ var linkDirection = 'bi';
 var linkSize ='L';
 var time=0;
 $(document).ready(function () {
+  $('.popoverButton').popover();
+
   $("#networkModes > .btn").click(function(){
     $(this).addClass("active").siblings().removeClass("active");
     switch($(this).attr('id')){
