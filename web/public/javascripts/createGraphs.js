@@ -15,7 +15,8 @@ function createGraph1(chartData){
       .axisLabel(chartData['x axis'].label);
   
   chart.yAxis     //Chart y-axis settings
-      .axisLabel(chartData['y axis'].label);
+      .axisLabel(chartData['y axis'].label)
+      .tickFormat(d3.format("d"));
       
   console.log(chartData);
   
