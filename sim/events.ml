@@ -118,9 +118,12 @@ let rec next t =
         |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
       | false -> 
         (match (time,n,e) with
-        | (_,_,PacketArrival (_,_)) -> drop_msgs_nodst 1 t
-        | _ -> t)
-        |> fun t_new -> next {t_new with queue=xs}
+        | (_,_,PacketArrival (_,_)) -> 
+          drop_msgs_nodst 1 t
+          |> fun t_new -> next {t_new with queue=xs}
+        | (_,_,Fail) ->
+          Next ((time,n,e), {t with queue=xs})
+        | _ -> next {t with queue=xs})
 
 let output_to_input origin time t = function
   | PacketDispatch (dest,pkt) -> (
