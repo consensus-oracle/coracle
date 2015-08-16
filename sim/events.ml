@@ -11,6 +11,9 @@ let term_to_string = function
   | OutofTime (next,limit)-> Printf.sprintf "timeout at %i next event is at %i" limit next
   | OutofEvents -> "out of events"
 
+let compare_events (t1,_,_) (t2,_,_) = compare t1 t2
+
+
 type data = {
   msgsent: int;
   msgrecv: int;
@@ -89,7 +92,7 @@ let init p =
   let fail = Network.find_failure p.network
     |> List.map (fun (id,time) -> (time,id, Fail)) in
   let queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)) @ recovery @ fail in
-  {queue; 
+  {queue = List.sort compare_events queue; 
   queue_id = 0;
   data = {inital_data with 
     servers=s; 
@@ -159,9 +162,6 @@ let rec check_sorted = function
   | [x] -> ()
   | (tx,_,_)::(ty,i,e)::zs when tx<=ty -> check_sorted ((ty,i,e)::zs)
   | _ -> assert false
-
-let compare_events (t1,_,_) (t2,_,_) = compare t1 t2
-
 
 let add id time output_events t =
   let q = cancel_timers time id t.queue output_events in
