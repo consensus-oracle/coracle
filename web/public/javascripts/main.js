@@ -148,12 +148,21 @@ $(document).ready(function () {
           createGraph1(jsonResults.results['protocol specific']['figures'][0]);
           createGraph1(jsonResults.results['protocol specific']['figures'][1]);
           createGraph1(jsonResults.results['client']['figure1']);
+        })
+        .fail(function(xhr, textStatus, errorThrown){
+        console.log(xhr);
+        console.log(textStatus);
+        console.log(errorThrown);
+          result = validationError(value.name + ' Server error: ' +'<br>Error Code: ' + xhr.status +'<br>ErrorMessage: ' + textStatus);
+        })
+        .always(function(){
           $('#resultsPanel').removeClass('hidden');
           $('#resultsTab').tab('show');
           $('#SimResults').append(result);
           $('#runSim').html(oldButtonText);
           $('#runSim').removeAttr("disabled");
-        });
+        })
+        ;
       });
 		}
     });
