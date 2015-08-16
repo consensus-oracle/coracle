@@ -119,7 +119,8 @@ $(document).ready(function () {
   		if (validateSettings()){
   			var oldButtonText = $('#runSim').html();
   			$('#runSim').html('Running...');
-  			$('#runSim').attr("disabled", true)
+  			$('#runSim').attr("disabled", true);
+        $('#graphs').html('');
         runConfigs.forEach(function(value,index){
           $.post( '/runSim',
           {data:generateJSON(value)}, 

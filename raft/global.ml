@@ -85,26 +85,21 @@ let to_json g =
 	let mode_updates = triple_to_doubles g.time g.modes in
 	let max_term = max_y_of_data term_updates in
 	`Assoc [
-		("termination time", `Int g.time);
-		("append entries packets", pkt_counter_to_json g.ae);
-		("request votes packets", pkt_counter_to_json g.rv);
-		("client packets", pkt_counter_to_json g.cl);
-		("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
-		("number of elections", `Assoc [
-			("started", `Int g.ele_start);
-			("won", `Int g.ele_won);
-			("lost due to insuffient votes", `Int g.ele_restart);
-			("lost due to step down", `Int g.ele_stepdown);
-			("lost due to candidate failure", `Int g.failure.c);
+		("table", `Assoc [
+			("append entries packets", pkt_counter_to_json g.ae);
+			("request votes packets", pkt_counter_to_json g.rv);
+			("client packets", pkt_counter_to_json g.cl);
+			("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
+			("elections started", `Int g.ele_start);
+			("elections won", `Int g.ele_won);
+			("elections lost due to insuffient votes", `Int g.ele_restart);
+			("elections lost due to step down", `Int g.ele_stepdown);
+			("elections lost due to candidate failure", `Int g.failure.c);
 			("highest term", `Int max_term);
-			]);
-		("number of commands", `Assoc [
-			("received", `Int g.cmd_rcv);
-			("dispatched in AppendEntries", `Int g.cmd_dsp);
-			]);
-		("number of node failures", `Assoc [
-			("total", `Int (g.failure.f+g.failure.c+g.failure.l));
-			("leader failure", `Int g.failure.l);
+			("number of commands received", `Int g.cmd_rcv);
+			("number of commands dispatched in AppendEntries", `Int g.cmd_dsp);
+			("number of node failures", `Int (g.failure.f+g.failure.c+g.failure.l));
+			("number of leader failures", `Int g.failure.l);
 			]);
 		("figures", `List [
 			figure_in_json
@@ -119,7 +114,9 @@ let to_json g =
 				~y_axis:"Mode (0=failed, 1=follower, 2=candidate, 3=leader)" ~y_start:0 ~y_end:3
 				~legand:"Server ID's" ~lines:(List.length mode_updates)
 				(data_in_json mode_updates);
-
+			]);
+		("extra info", `Assoc [
+			("termination time", `Int g.time);
 			]);
 	]
 

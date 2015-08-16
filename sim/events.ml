@@ -175,28 +175,28 @@ let add id time output_events t =
 open Yojson.Safe
 
 let json_of_stats t =
-  `Assoc ([
-    ("packet counts", `Assoc [
-      ("dispatched", `Int t.data.msgsent);
-      ("received", `Int t.data.msgrecv);
-      ("dropped due to node failure", `Int t.data.msgdrop_nodst);
-      ("dropped due to partition or hub failure", `Int t.data.msgdrop_nopath);
-      ("inflight", `Int t.data.msgflight);
-      ]);
-    (* ("termination reason", `String (term_to_string t.data.reason)); *)
-    ("nodes", `Assoc [
+  `Assoc [
+    ("table", `Assoc ([
+      ("packets dispatched", `Int t.data.msgsent);
+      ("packets received", `Int t.data.msgrecv);
+      ("packets dropped due to node failure", `Int t.data.msgdrop_nodst);
+      ("packets dropped due to partition or hub failure", `Int t.data.msgdrop_nopath);
+      ("packets inflight", `Int t.data.msgflight);
       ("number of servers", `Int t.data.servers);
       ("number of clients", `Int t.data.clients);
       ("number of startups", `Int t.data.startup);
       ("number of failures", `Int t.data.failures);
       ("number of recoveries", `Int t.data.recover);
+      ] @ 
+      match t.data.latency with
+      | [] -> []
+      | _ -> [
+        ("average latency", `Int (average t.data.latency));
+        ("min latency", `Int (min t.data.latency));
+        ("max latency", `Int (max t.data.latency));
+      ]));
+    ("figures", `List []);
+    ("extra info", `Assoc [
+      ("termination reason", `String (term_to_string t.data.reason));
       ]);
-    ] @ 
-    match t.data.latency with
-    | [] -> []
-    | _ -> [
-      ("latency", `Assoc [
-      ("average", `Int (average t.data.latency));
-      ("min", `Int (min t.data.latency));
-      ("max", `Int (max t.data.latency));
-    ])])
+    ]
