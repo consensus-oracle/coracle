@@ -122,10 +122,10 @@ $(document).ready(function () {
   			$('#runSim').attr("disabled", true);
         $('#graphs').html('');
         runConfigs.forEach(function(value,index){
-          $.post( '/runSim',
+          var result;
+          $.post( 'http://coracle-test2.cloudapp.net:3000/runSim',
           {data:generateJSON(value)}, 
           function(response){
-            var result;
             //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
             //response.error = null;
             if (response.error != null){
@@ -139,38 +139,47 @@ $(document).ready(function () {
                 var jsonResults = JSON.parse(response.stdout);
 
                 result = resultMessage(value.name + ' : Execution Time: ' + response.time
-                +'ms\n' + JSON.stringify(jsonResults.results,null,2));
+                +'ms<br>' + JSON.stringify(jsonResults.results,null,2));
                 console.log(jsonResults.results);
 
                 createTable(jsonResults);
+                try{
+                createGraph1(jsonResults.results['protocol specific']['figures'][0]);
+                createGraph1(jsonResults.results['protocol specific']['figures'][1]);
+                  try{
+                    createGraph1(jsonResults.results['client']['figures'][0]);
+                  }
+                  catch(exception){
+                    console.log('failure creating client commands graph');
+                  }
+                }
+                catch(exception){
+                  console.log('error creating graphs');
+                }
               }
               catch(err){
                 result = validationError(value.name + ' Parsing error: ' + err);
                 result += validationError(value.name + ' Full Response: ' + JSON.stringify(response));
               }          
               $('#tracePanel').removeClass('hidden');
-              try{
-                createGraph1(jsonResults.results['protocol specific']['figures'][0]);
-                createGraph1(jsonResults.results['protocol specific']['figures'][1]);
-                try{
-                  createGraph1(jsonResults.results['client']['figures'][0]);
-                }
-                catch(exception){
-                  console.log('failure creating client commands graph');
-                }
-              }
-              catch(exception){
-                console.log('error creating graphs');
-              }
             }
+          }
+          )
+          .fail(function(xhr, textStatus, errorThrown){
+            console.log(xhr);
+            console.log(textStatus);
+            console.log(errorThrown);
+            result = validationError(value.name + ' Server error: ' +'<br>Error Code: ' + xhr.status +'<br>ErrorMessage: ' + textStatus);
+          })
+          .always(function(){
             $('#resultsPanel').removeClass('hidden');
             $('#resultsTab').tab('show');
             $('#SimResults').append(result);
             $('#runSim').html(oldButtonText);
             $('#runSim').removeAttr("disabled");
           });
-        });
-  		}
+      });
+		}
     });
 	
 	function validationError(errorText){

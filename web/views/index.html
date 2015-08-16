@@ -13,7 +13,7 @@
       <ul role="tablist" class="nav nav-tabs">
         <li role="presentation" class="active"><a href="#settingsTabContent" role="tab" data-toggle="tab" id="settingsTab">Settings</a></li>
         <li role="presentation"><a href="#resultsTabContent" role="tab" data-toggle="tab" id="resultsTab">Results</a></li>
-        <li role="presentation"><a href="#traceTabContent" role="tab" data-toggle="tab" id="traceTab">Trace</a></li>
+        <!--<li role="presentation"><a href="#traceTabContent" role="tab" data-toggle="tab" id="traceTab">Trace</a></li>-->
       </ul>
       <div id="networkSettingsModal" class="modal fade">
         <div class="modal-dialog">
@@ -121,11 +121,11 @@
                   <div class="row">
                     <svg id="networkViewCanvas" width="500" height="500" class="col-md-8">
                       <rect x="0" y="0" width="500" height="500" class="border"></rect>
-                      <circle cx="50" cy="50" id="masterServer" class="masterServer masterNode"></circle>
+                      <circle cx="50" cy="50" r="10" id="masterServer" class="masterServer masterNode"></circle>
                       <text x="40" y="70" class="label">Server</text>
                       <rect x="45" y="75" width="10" height="10" id="masterHub" class="masterHub masterNode"></rect>
                       <text x="40" y="100" class="label">Hub</text>
-                      <circle cx="50" cy="110" id="masterClient" class="masterClient masterNode"></circle>
+                      <circle cx="50" cy="110" r="10" id="masterClient" class="masterClient masterNode"></circle>
                       <text x="40" y="130" class="label">Client</text>
                       <!--rect.masterLLinkButton(x='25',y='105',width='70',height='40')-->
                       <!--line.masterLLink(x1='40',x2='70',y1='110',y2='110')-->
@@ -149,8 +149,10 @@
       <div class="tab-content">
         <div id="settingsTabContent" role="tabpanel" class="tab-pane active">
           <div class="row">
-            <div id="runSettingsList" class="list-group col-md-8"></div>
-            <div class="btn-group-vertical col-md-4">
+            <div class="well col-sm-8">
+              <div id="runSettingsList" class="list-group"></div>
+            </div>
+            <div class="btn-group-vertical col-sm-4">
               <button id="addConfigButton" class="btn btn-default btn-primary">Add</button>
               <button id="editSettingsButton" class="btn btn-default btn-primary">Edit</button>
               <button id="removeConfigButton" class="btn btn-default btn-danger">Remove</button>
