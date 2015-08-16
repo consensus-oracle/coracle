@@ -5,6 +5,8 @@ open State
 
 type eventsig = State.t -> Global.t -> State.t option * rpc Io.output list * Global.t
 
+type mode_mini = F | C | L
+
 type term_checker =
   | Invalid 
   | Same
@@ -32,10 +34,14 @@ let reconstruct_heartbeat (state:State.t) =
   let timeout = Numbergen.uniform min max in
   ResetTimeout (to_span timeout,Heartbeat)
 
-let step_down term (state:State.t) (global:Global.t) =
+let step_down term incoming_mode (state:State.t) (global:Global.t) =
   (* TODO: fix me *)
   match term=state.term with
   | true -> 
+    let global = (
+      match state.mode, incoming_mode with
+      | Candidate _ , L -> Global.update `ELE_DOWN global
+      | _ -> global) in
    (Some {state with mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), global)
   | false ->

@@ -98,4 +98,4 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.
     (None,[], global)
   | Higher, _ -> 
     (* I am behind and need to update *)
-    step_down pkt.term state global
+    step_down pkt.term F state global

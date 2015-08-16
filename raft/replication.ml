@@ -87,6 +87,8 @@ let rec generate_sm_requests_leader new_commit (state:State.t) events global =
 
 (* triggered by receiving an AppendEntries packet, reply to AppendEntries *)
 let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
+	(* TODO: fix doubling voting *)
+	(* TODO: step down for candidate if same term *)
 	let global = global
 		|> Global.update (`AE `ARG_RCV)
 		|> Global.update (`AE `RES_SND) in
@@ -94,7 +96,7 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 	| Invalid -> 
 		(None, [form_heartbeat_reply state id pkt false], global)
 	| Same | Higher ->
-		let (state,events,global) = step_down pkt.term state global in
+		let (state,events,global) = step_down pkt.term L state global in
 		let state = 
 			match (pull state).mode with 
 			| Follower f -> { (pull state) with mode= Follower {f with leader=Some id}}
@@ -112,7 +114,7 @@ let receive_append_request id (pkt:AppendEntriesArg.t) (state:State.t) global =
 let receive_append_reply id (pkt:AppendEntriesRes.t) (state:State.t) global =
 	let global = Global.update (`AE `RES_RCV) global in
    match check_terms pkt.term state, state.mode with
-	 | Higher, _-> step_down pkt.term state global
+	 | Higher, _-> step_down pkt.term F state global
 	 | Invalid, _  | Same, Follower _ | Same, Candidate _-> (None,[],global)
 	 | Same, Leader _ -> 
 	 	match pkt.success with
