@@ -107,62 +107,76 @@ $(document).ready(function () {
   });
   
     $('#runSim').click(function () {
-		//clear all validationErrors and results
-		$('.validationError').remove();
-    $('.has-error').removeClass('has-error');
-		$('#resultsPanel').addClass('hidden');
-    $('#tracePanel').addClass('hidden');
-    $('#SimResults').html('');
-		if (validateSettings()){
-			var oldButtonText = $('#runSim').html();
-			$('#runSim').html('Running...');
-			$('#runSim').attr("disabled", true)
-      runConfigs.forEach(function(value,index){
-        $.post( '/runSim',
-        {data:generateJSON(value)}, 
-        function(response){
+      if (runConfigs.length == 0){
+        return;
+      }
+  		//clear all validationErrors and results
+  		$('.validationError').remove();
+      $('.has-error').removeClass('has-error');
+  		$('#resultsPanel').addClass('hidden');
+      $('#tracePanel').addClass('hidden');
+      $('#SimResults').html('');
+  		if (validateSettings()){
+  			var oldButtonText = $('#runSim').html();
+  			$('#runSim').html('Running...');
+  			$('#runSim').attr("disabled", true)
+        runConfigs.forEach(function(value,index){
           var result;
-          //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
-          //response.error = null;
-          if (response.error != null){
-            console.log(response);
-            result = validationError(value.name + " Failed: " + JSON.stringify(response.error));
-            result += validationError(value.name + " Stderr: " + response.stderr);
-            result += validationError(value.name + ' Stdout: ' + response.stdout);
-          }
-          else{
-            try{
-              var jsonResults = JSON.parse(response.stdout);
-
-              result = resultMessage(value.name + ' ' + JSON.stringify(jsonResults.results,null,2));
-              console.log(jsonResults.results);
-
-              createTable(jsonResults);
+          $.post( 'http://coracle-test2.cloudapp.net:3000/runSim',
+          {data:generateJSON(value)}, 
+          function(response){
+            //response.stdout ='{"packets dispatched":8,"packets received":8,"packets dropped":0}';
+            //response.error = null;
+            if (response.error != null){
+              console.log(response);
+              result = validationError(value.name + " Failed: " + JSON.stringify(response.error));
+              result += validationError(value.name + " Stderr: " + response.stderr);
+              result += validationError(value.name + ' Stdout: ' + response.stdout);
             }
-            catch(err){
-              result = validationError(value.name + ' Parsing error: ' + err);
-              result += validationError(value.name + ' Full Response: ' + JSON.stringify(response));
-            }          
-            $('#tracePanel').removeClass('hidden');
+            else{
+              try{
+                var jsonResults = JSON.parse(response.stdout);
+
+                result = resultMessage(value.name + ' : Execution Time: ' + response.time
+                +'ms<br>' + JSON.stringify(jsonResults.results,null,2));
+                console.log(jsonResults.results);
+
+                createTable(jsonResults);
+                try{
+                createGraph1(jsonResults.results['protocol specific']['figures'][0]);
+                createGraph1(jsonResults.results['protocol specific']['figures'][1]);
+                  try{
+                    createGraph1(jsonResults.results['client']['figure1']);
+                  }
+                  catch(exception){
+                    console.log('failure creating client commands graph');
+                  }
+                }
+                catch(exception){
+                  console.log('error creating graphs');
+                }
+              }
+              catch(err){
+                result = validationError(value.name + ' Parsing error: ' + err);
+                result += validationError(value.name + ' Full Response: ' + JSON.stringify(response));
+              }          
+              $('#tracePanel').removeClass('hidden');
+            }
           }
-          createGraph1(jsonResults.results['protocol specific']['figures'][0]);
-          createGraph1(jsonResults.results['protocol specific']['figures'][1]);
-          createGraph1(jsonResults.results['client']['figure1']);
-        })
-        .fail(function(xhr, textStatus, errorThrown){
-        console.log(xhr);
-        console.log(textStatus);
-        console.log(errorThrown);
-          result = validationError(value.name + ' Server error: ' +'<br>Error Code: ' + xhr.status +'<br>ErrorMessage: ' + textStatus);
-        })
-        .always(function(){
-          $('#resultsPanel').removeClass('hidden');
-          $('#resultsTab').tab('show');
-          $('#SimResults').append(result);
-          $('#runSim').html(oldButtonText);
-          $('#runSim').removeAttr("disabled");
-        })
-        ;
+          )
+          .fail(function(xhr, textStatus, errorThrown){
+            console.log(xhr);
+            console.log(textStatus);
+            console.log(errorThrown);
+            result = validationError(value.name + ' Server error: ' +'<br>Error Code: ' + xhr.status +'<br>ErrorMessage: ' + textStatus);
+          })
+          .always(function(){
+            $('#resultsPanel').removeClass('hidden');
+            $('#resultsTab').tab('show');
+            $('#SimResults').append(result);
+            $('#runSim').html(oldButtonText);
+            $('#runSim').removeAttr("disabled");
+          });
       });
 		}
     });

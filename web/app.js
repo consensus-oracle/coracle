@@ -39,25 +39,35 @@ app.get('/examples.json', function(req,res){
 
 app.post('/runSim', function(req,res){
     res.header('Access-Control-Allow-Origin', '*');
+    console.log('running simulation:');
     console.log(req);
-	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
-	var filename = 'requests/' + id + '.json'
-	fs.writeFile(filename,parseRequest(req),function(err){
-		if(err){
-			return console.log(err);
-		}
-		console.log(filename + ' saved');
-	
-		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
-		console.log('running: ' + cmd);
-		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024} ,function (error,stdout,stderr){
-			console.log('stdout: ' + stdout);
-			console.log('stderr: ' + stderr);
-			res.send({error:error,
-				stdout:stdout,
-				stderr:stderr});
-		});
-	});
+    try{
+    	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
+    	var filename = 'requests/' + id + '.json'
+    	fs.writeFile(filename,parseRequest(req),function(err){
+    		if(err){
+    			return console.log(err);
+    		}
+    		console.log(filename + ' saved');
+    	
+    		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
+    		console.log('running: ' + cmd);
+        var start = new Date();
+    		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024} ,function (error,stdout,stderr){
+          var end = new Date() - start;
+    			console.log('stdout: ' + stdout);
+    			console.log('stderr: ' + stderr);
+    			res.send({error:error,
+    				stdout:stdout,
+    				stderr:stderr,
+            time:end});
+    		});
+    	});
+    }
+    catch(exception){
+      console.log(exception);
+      res.send({error:exception});
+    }
 });
 
 // catch 404 and forward to error handler

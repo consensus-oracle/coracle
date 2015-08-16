@@ -119,3 +119,7 @@ text.label{
 div.carousel{
   width: 140px;
 }
+
+path.domain{
+  stroke-width:4;
+}

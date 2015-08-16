@@ -12,10 +12,12 @@ function createGraph1(chartData){
                 .yDomain([chartData['y axis'].start,chartData['y axis'].end])
   ;
   chart.xAxis     //Chart x-axis settings
-      .axisLabel(chartData['x axis'].label);
+      .axisLabel(chartData['x axis'].label)
+      .ticks(10);
   
   chart.yAxis     //Chart y-axis settings
-      .axisLabel(chartData['y axis'].label);
+      .axisLabel(chartData['y axis'].label)
+      .tickFormat(d3.format("d"));
       
   console.log(chartData);
   
