@@ -64,20 +64,14 @@ let init = {
 let set_state time id g = {g with time=time; id=id}
 let get_time g = g.time
 
-let pkt_counter_to_json c =
-	`Assoc [
-		("total packets", `Assoc [
-			("received", `Int (c.arg_rcv+c.res_rcv)); 
-			("dispatched", `Int (c.arg_snd+c.res_snd));
-		]);
-		("request packets", `Assoc [
-			("received", `Int c.arg_rcv); 
-			("dispatched", `Int c.arg_snd);
-		]);
-		("response packets", `Assoc [
-			("received", `Int c.res_rcv); 
-			("dispatched", `Int c.res_snd);
-		]);
+let pkt_counter_to_json c name =
+	[
+	(name^" received", `Int (c.arg_rcv+c.res_rcv)); 
+	(name^" dispatched", `Int (c.arg_snd+c.res_snd));
+	(name^" requests received", `Int c.arg_rcv); 
+	(name^" requests dispatched", `Int c.arg_snd);
+	(name^" responses received", `Int c.res_rcv); 
+	(name^" responses dispatched", `Int c.res_snd);
 	]
 
 let to_json g = 
@@ -85,10 +79,10 @@ let to_json g =
 	let mode_updates = triple_to_doubles g.time g.modes in
 	let max_term = max_y_of_data term_updates in
 	`Assoc [
-		("table", `Assoc [
-			("append entries packets", pkt_counter_to_json g.ae);
-			("request votes packets", pkt_counter_to_json g.rv);
-			("client packets", pkt_counter_to_json g.cl);
+		("table", `Assoc (
+			(pkt_counter_to_json g.ae "append entries") @
+			(pkt_counter_to_json g.rv "request votes") @ 
+			(pkt_counter_to_json g.cl "client request") @ [
 			("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
 			("elections started", `Int g.ele_start);
 			("elections won", `Int g.ele_won);
@@ -100,7 +94,7 @@ let to_json g =
 			("number of commands dispatched in AppendEntries", `Int g.cmd_dsp);
 			("number of node failures", `Int (g.failure.f+g.failure.c+g.failure.l));
 			("number of leader failures", `Int g.failure.l);
-			]);
+			]));
 		("figures", `List [
 			figure_in_json
 				~title:"Changes in local term number over time"
