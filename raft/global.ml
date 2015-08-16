@@ -149,7 +149,10 @@ let update tick t =
 		terms = update_data term t.terms t;
 		modes = update_data 2 t.modes t;
 		}
-	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
+	| `ELE_RESTART term -> {t with 
+		ele_restart = t.ele_restart +1;
+		terms = update_data term t.terms t;
+		}
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
 	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
 	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}

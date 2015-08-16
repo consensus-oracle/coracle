@@ -53,9 +53,8 @@ let restart state global =
   let (_,events,global) = start_follower state global in
   (Some state, cancel_events@events,global)
 
-let start_election (state:State.t) global =
+let run_election (state:State.t) global =
   let global = global
-    |> Global.update (`ELE_START (state.term+1))
     |> Global.update_n (`RV `ARG_SND) (List.length state.node_ids) in
   let (min,max) = state.config.election_timeout in
   let timeout = Numbergen.uniform min max in
@@ -66,7 +65,10 @@ let start_election (state:State.t) global =
    global)
 
 let restart_election state global = 
-  start_election state (Global.update `ELE_RESTART global)
+  run_election state (Global.update (`ELE_RESTART (state.term+1)) global)
+
+let start_election state global = 
+  run_election state (Global.update (`ELE_START (state.term+1)) global)
 
 let won (state:State.t) = 
   match state.mode with
@@ -96,5 +98,4 @@ let receive_vote_reply id (pkt:RequestVoteRes.t) (state:State.t) (global:Global.
     (None,[], global)
   | Higher, _ -> 
     (* I am behind and need to update *)
-    let global = Global.update `ELE_DOWN global in
-    step_down pkt.term state (Global.update `ELE_DOWN global)
+    step_down pkt.term state global

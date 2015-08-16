@@ -39,6 +39,11 @@ let step_down term (state:State.t) (global:Global.t) =
    (Some {state with mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), global)
   | false ->
+    let global = (
+      match state.mode with
+      | Follower _ -> global
+      | Leader _ -> global
+      | Candidate c -> Global.update `ELE_DOWN global) in
    (Some {state with term=term; mode=State.follower},
       (construct_heartbeat state)::(cancel_timers state), 
   		Global.update (`FOLLOW term) global)
