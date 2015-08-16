@@ -119,6 +119,7 @@ $(document).ready(function () {
     servers.enter().append('circle')
       .attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;})
+      .attr('r',10)
       .classed('server',true)
       .classed('nodes',true);
       
@@ -135,6 +136,7 @@ $(document).ready(function () {
     clients.enter().append('circle')
       .attr('cx',function(d){return d.cx;})
       .attr('cy',function(d){return d.cy;})
+      .attr('r',10)
       .classed('client',true)
       .classed('nodes',true);
       
