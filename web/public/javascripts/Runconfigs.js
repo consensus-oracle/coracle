@@ -117,29 +117,55 @@ function numberNodes(networkData){
 function onRunConfigClick(listItem){
   //console.log(listItem);
   $(this).addClass("active").siblings().removeClass("active");
-
+  updateRunConfigButtonStates();
 }
 
 function updateRunConfigList(){
 
-  var runconfigListItems = d3.select('#runSettingsList').selectAll('a.list-group-item').data(runConfigs);
-  
-  runconfigListItems.enter()
-    .append('a')
-      .classed('list-group-item',true)
-      .classed('active',function(d,i){return i-1 ==0;})
-      .on('click', onRunConfigClick)
-      .html(function(d){return d.name;});
+  if (runConfigs == null || runConfigs.length ==0){
+    var items = d3.select('#runSettingsList').selectAll('a.list-group-item').data(d3.range(1));
+    items.enter()
+      .append('a')
+        .classed('list-group-item',true)
+        .html("To get started click 'add' to create a new simulation configuration");
       
-  runconfigListItems.html(function(d){return d.name;});
+    items.html("To get started click 'add' to create a new simulation configuration")
+      .classed('active',false)
+      .on('click',function(){});
       
-  runconfigListItems.exit().remove();
+    $('#runSim').attr("disabled", true);
+    
+  }
+  else{
+    var runconfigListItems = d3.select('#runSettingsList').selectAll('a.list-group-item').data(runConfigs);
+    
+    runconfigListItems.enter()
+      .append('a')
+        .classed('list-group-item',true)
+        .classed('active',function(d,i){return i-1 ==0;})
+        .on('click', onRunConfigClick)
+        .html(function(d){return d.name;});
+        
+    runconfigListItems
+      .html(function(d){return d.name;})
+      .on('click', onRunConfigClick);
+        
+    runconfigListItems.exit().remove();
+    
+    $('#runSim').attr("disabled", false);
+  }
+  updateRunConfigButtonStates();
+}
 
+function updateRunConfigButtonStates(){
+  var disable = $('#runSettingsList >a.list-group-item.active').length ==0;
+  $('#editSettingsButton').attr("disabled", disable);
+  $('#removeConfigButton').attr("disabled", disable);
 }
 
 
 $(document).ready(function () {
-
+  updateRunConfigList();
   $('a[data-toggle="tab"][href="#networkModalTabContent"]').on('shown.bs.tab', function (e) {
     $('#SettingsNextButton').addClass('hidden');
     $('#SettingsSaveButton').removeClass('hidden');
