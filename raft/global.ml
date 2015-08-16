@@ -64,20 +64,14 @@ let init = {
 let set_state time id g = {g with time=time; id=id}
 let get_time g = g.time
 
-let pkt_counter_to_json c =
-	`Assoc [
-		("total packets", `Assoc [
-			("received", `Int (c.arg_rcv+c.res_rcv)); 
-			("dispatched", `Int (c.arg_snd+c.res_snd));
-		]);
-		("request packets", `Assoc [
-			("received", `Int c.arg_rcv); 
-			("dispatched", `Int c.arg_snd);
-		]);
-		("response packets", `Assoc [
-			("received", `Int c.res_rcv); 
-			("dispatched", `Int c.res_snd);
-		]);
+let pkt_counter_to_json c name =
+	[
+	(name^" received", `Int (c.arg_rcv+c.res_rcv)); 
+	(name^" dispatched", `Int (c.arg_snd+c.res_snd));
+	(name^" requests received", `Int c.arg_rcv); 
+	(name^" requests dispatched", `Int c.arg_snd);
+	(name^" responses received", `Int c.res_rcv); 
+	(name^" responses dispatched", `Int c.res_snd);
 	]
 
 let to_json g = 
@@ -85,27 +79,22 @@ let to_json g =
 	let mode_updates = triple_to_doubles g.time g.modes in
 	let max_term = max_y_of_data term_updates in
 	`Assoc [
-		("termination time", `Int g.time);
-		("append entries packets", pkt_counter_to_json g.ae);
-		("request votes packets", pkt_counter_to_json g.rv);
-		("client packets", pkt_counter_to_json g.cl);
-		("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
-		("number of elections", `Assoc [
-			("started", `Int g.ele_start);
-			("won", `Int g.ele_won);
-			("lost due to insuffient votes", `Int g.ele_restart);
-			("lost due to step down", `Int g.ele_stepdown);
-			("lost due to candidate failure", `Int g.failure.c);
+		("table", `Assoc (
+			(pkt_counter_to_json g.ae "append entries") @
+			(pkt_counter_to_json g.rv "request votes") @ 
+			(pkt_counter_to_json g.cl "client request") @ [
+			("time to first leader", match g.first_leader with None -> `String "no leader" | Some t -> `Int t);
+			("elections started", `Int g.ele_start);
+			("elections won", `Int g.ele_won);
+			("elections lost due to insuffient votes", `Int g.ele_restart);
+			("elections lost due to step down", `Int g.ele_stepdown);
+			("elections lost due to candidate failure", `Int g.failure.c);
 			("highest term", `Int max_term);
-			]);
-		("number of commands", `Assoc [
-			("received", `Int g.cmd_rcv);
-			("dispatched in AppendEntries", `Int g.cmd_dsp);
-			]);
-		("number of node failures", `Assoc [
-			("total", `Int (g.failure.f+g.failure.c+g.failure.l));
-			("leader failure", `Int g.failure.l);
-			]);
+			("number of commands received", `Int g.cmd_rcv);
+			("number of commands dispatched in AppendEntries", `Int g.cmd_dsp);
+			("number of node failures", `Int (g.failure.f+g.failure.c+g.failure.l));
+			("number of leader failures", `Int g.failure.l);
+			]));
 		("figures", `List [
 			figure_in_json
 				~title:"Changes in local term number over time"
@@ -119,7 +108,9 @@ let to_json g =
 				~y_axis:"Mode (0=failed, 1=follower, 2=candidate, 3=leader)" ~y_start:0 ~y_end:3
 				~legand:"Server ID's" ~lines:(List.length mode_updates)
 				(data_in_json mode_updates);
-
+			]);
+		("extra info", `Assoc [
+			("termination time", `Int g.time);
 			]);
 	]
 
@@ -158,7 +149,10 @@ let update tick t =
 		terms = update_data term t.terms t;
 		modes = update_data 2 t.modes t;
 		}
-	| `ELE_RESTART -> {t with ele_restart = t.ele_restart +1 }
+	| `ELE_RESTART term -> {t with 
+		ele_restart = t.ele_restart +1;
+		terms = update_data term t.terms t;
+		}
 	| `ELE_DOWN ->  {t with ele_stepdown = t.ele_stepdown +1 }
 	| `CMD_RCV -> {t with cmd_rcv = t.cmd_rcv +1}
 	| `CMD_DSP -> {t with cmd_dsp = t.cmd_dsp +1}

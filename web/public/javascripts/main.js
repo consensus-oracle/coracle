@@ -119,7 +119,8 @@ $(document).ready(function () {
   		if (validateSettings()){
   			var oldButtonText = $('#runSim').html();
   			$('#runSim').html('Running...');
-  			$('#runSim').attr("disabled", true)
+  			$('#runSim').attr("disabled", true);
+        $('#graphs').html('');
         runConfigs.forEach(function(value,index){
           var result;
           $.post( 'http://coracle-test2.cloudapp.net:3000/runSim',
@@ -146,7 +147,7 @@ $(document).ready(function () {
                 createGraph1(jsonResults.results['protocol specific']['figures'][0]);
                 createGraph1(jsonResults.results['protocol specific']['figures'][1]);
                   try{
-                    createGraph1(jsonResults.results['client']['figure1']);
+                    createGraph1(jsonResults.results['client']['figures'][0]);
                   }
                   catch(exception){
                     console.log('failure creating client commands graph');
