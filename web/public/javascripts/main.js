@@ -118,6 +118,7 @@ $(document).ready(function () {
       $('#SimResults').html('');
       networkTable.rows().remove();
       clientTable.rows().remove();
+      protocolSpecificTable.rows().remove();
   		if (validateSettings()){
   			var oldButtonText = $('#runSim').html();
   			$('#runSim').html('Running...');
@@ -150,6 +151,8 @@ $(document).ready(function () {
                 addRowToNetworkTable(jsonResults.results.network.table);
                 jsonResults.results.client.table.name = value.name;
                 addRowToClientTable(jsonResults.results.client.table);
+                jsonResults.results["protocol specific"].table.name = value.name;
+                addRowToProtocolSpecificTable(jsonResults.results["protocol specific"].table);
                 
                 try{
                 createGraph1(jsonResults.results['protocol specific']['figures'][0]);
