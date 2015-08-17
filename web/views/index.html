@@ -158,7 +158,6 @@
               <button id="removeConfigButton" class="btn btn-default btn-danger">Remove</button>
             </div>
           </div>
-          <form>
             <!--div.form-group#nodesDiv
             //label.control-label(for='numNodes') Nodes:
               //input.form-control#numNodes(type='number', min='2', max='20',step='1',value='2')
@@ -174,11 +173,11 @@
             <!--div.form-group#openNetworkViewButton-->
             <!--  button.btn.btn-info.btn-s(type='button',data-toggle='modal',data-target='#networkSettingsModal') Configure Network    -->
             <button id="runSim" class="btn btn-primary">Run Simulation    </button>
-          </form>
         </div>
         <div id="resultsTabContent" role="tabpanel" class="tab-pane">
           <div id="resultsPanel" class="panel panel-default hidden">
             <div class="panel-heading">Results</div>
+              <div id="SimResults"></div>
               <div>
                 <table id="networkTable" class="display table table-bordered" cellspacing="0">
                   <caption><h2>Network Results</h2></caption>
@@ -275,7 +274,6 @@
                   </thead>
               </table>
             </div>
-            <div id="SimResults"></div>
             <div id="graphs"></div>
             <!--svg#Graph1(width = 500, height=500)-->
           </div>
