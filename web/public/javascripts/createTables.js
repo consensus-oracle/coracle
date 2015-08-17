@@ -35,7 +35,8 @@ function createNetworkTable(){
               }
             },
       responsive: false,
-      "scrollX": true
+      "scrollX": true,
+      paginate: false,
     });
 }
 
@@ -72,7 +73,8 @@ function createClientTable(){
               }
             },
       responsive: false,
-      "scrollX": true
+      "scrollX": true,
+      paginate: false,
     });
 }
 
@@ -130,7 +132,8 @@ function createProtocolSpecificTable(){
               }
             },
       responsive: false,
-      "scrollX": true
+      "scrollX": true,
+      paginate: false,
     });
 }
 
