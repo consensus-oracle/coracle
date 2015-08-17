@@ -141,10 +141,13 @@ $(document).ready(function () {
               try{
                 var jsonResults = JSON.parse(response.stdout);
 
-                result = resultMessage(value.name + ' : Execution Time: ' + response.time
-                +'ms<br>' + JSON.stringify(jsonResults.results,null,2));
+                //result = resultMessage(value.name + ' : Execution Time: ' + response.time
+                //+'ms<br>' + JSON.stringify(jsonResults.results,null,2));
                 console.log(jsonResults.results);
-
+                var id = 'resultsDownloadLink' + index;
+                var jsonDownload = new Blob([JSON.stringify(jsonResults.results,null,2)], {type: 'text/plain'});
+                $('#SimResults').append("<a id='" + id + "' download='results.json' class='btn btn-default btn-primary btn-xs'> Download Results for " + value.name +"</a><br>");
+                $('#' + id).attr('href',window.URL.createObjectURL(jsonDownload));
                 createTable(jsonResults);
                 
                 jsonResults.results.network.table.name = value.name;
