@@ -5,7 +5,6 @@ var linkDirection = 'bi';
 var linkSize ='L';
 var time=0;
 $(document).ready(function () {
-  createNetworkTable();
   $('.popoverButton').popover();
 
   $("#networkModes > .btn").click(function(){
@@ -117,7 +116,8 @@ $(document).ready(function () {
   		$('#resultsPanel').addClass('hidden');
       $('#tracePanel').addClass('hidden');
       $('#SimResults').html('');
-      networkTable.rows().remove()
+      networkTable.rows().remove();
+      clientTable.rows().remove();
   		if (validateSettings()){
   			var oldButtonText = $('#runSim').html();
   			$('#runSim').html('Running...');
@@ -148,6 +148,8 @@ $(document).ready(function () {
                 
                 jsonResults.results.network.table.name = value.name;
                 addRowToNetworkTable(jsonResults.results.network.table);
+                jsonResults.results.client.table.name = value.name;
+                addRowToClientTable(jsonResults.results.client.table);
                 
                 try{
                 createGraph1(jsonResults.results['protocol specific']['figures'][0]);

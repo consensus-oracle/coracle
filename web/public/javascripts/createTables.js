@@ -1,4 +1,10 @@
+$(document).ready(function () {
+  createNetworkTable();
+  createClientTable();
+});
+
 var networkTable;
+var clientTable;
 
 function createNetworkTable(){
       networkTable = $('#networkTable').DataTable({
@@ -38,6 +44,43 @@ function addRowToNetworkTable(rowData){
   }
   catch(exception){
     console.log('error adding row to network table:');
+    console.log(exception);
+  }
+}
+
+function createClientTable(){
+      clientTable = $('#clientTable').DataTable({
+      columns:  [
+         {data: 'name'},
+         {data: 'commands attempted'},
+         {data: 'successful'},
+         {data: 'failed'},
+         {data: 'outstanding'},
+         {data: 'average commands applied per state machine'},
+         {data: 'average time to successful commit'},
+         {data: 'min time to successful commit'},
+         {data: 'max time to successful commit'},
+      ],
+      render: function( data, type, full, meta){
+              if (data == null){
+                return '';
+              }
+              else{
+                return JSON.stringify(data);
+              }
+            },
+      responsive: false,
+      "scrollX": true
+    });
+}
+
+function addRowToClientTable(rowData){
+  try{
+    clientTable.row.add(rowData);
+    clientTable.draw();
+  }
+  catch(exception){
+    console.log('error adding row to client table:');
     console.log(exception);
   }
 }
