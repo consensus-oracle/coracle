@@ -30,37 +30,32 @@
                 <div id="settingsModalTabContent" role="tabpanel" class="tab-pane active">
                   <div class="row">
                     <div id="runConfigNameDiv" class="form-group col-md-4 col-sm-6">
-                      <label for="runConfigName" class="control-label">Configuration Name:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Heidi's explanatory text" id="nameInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
+                      <label for="runConfigName" class="control-label">Configuration Name:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Give this configuarion a name so you can refer to it later." id="nameInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="runConfigName" type="text" value="New Test" class="form-control">
 
                     </div>
                     <div id="workloadMin" class="form-group col-md-4 col-sm-6">
-                      <label for="workload_min" class="control-label">Workload Min:
+                      <label for="workload_min" class="control-label">Workload Min:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Each client dispatches commands at intervals generated uniformly between the workload min and max values." id="workminInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="workload_min" type="number" min="0" value="100" class="form-control">
-                      </label>
                     </div>
                     <div id="workloadMMax" class="form-group col-md-4 col-sm-6">
-                      <label for="workload_max" class="control-label">Workload Max:
+                      <label for="workload_max" class="control-label">Workload Max:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Each client dispatches commands at intervals generated uniformly between the workload min and max values." id="workmaxInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="workload_max" type="number" min="0" value="150" class="form-control">
-                      </label>
                     </div>
                     <div id="electionMin" class="form-group col-md-4 col-sm-6">
-                      <label for="election_min" class="control-label">Election Timeout Min:
+                      <label for="election_min" class="control-label">Election Timeout Min:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Minimum time a follower waits to hear from a leader before becomes a candidate" id="eleminInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="election_min" type="number" min="0" value="150" class="form-control">
-                      </label>
                     </div>
                     <div id="electionMax" class="form-group col-md-4 col-sm-6">
-                      <label for="election_max" class="control-label">Election Timeout Max:
+                      <label for="election_max" class="control-label">Election Timeout Max:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="Maximum time a follower waits to hear from a leader before becomes a candidate" id="elemaxInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="election_max" type="number" min="0" value="300" class="form-control">
-                      </label>
                     </div>
                     <div id="heartbeatDiv" class="form-group col-md-4 col-sm-6">
-                      <label for="heartbeat" class="control-label">Heartbeat Interval:
+                      <label for="heartbeat" class="control-label">Heartbeat Interval:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="How regularly a Raft leader broadcasts a heartbeat AppendEntries RPC to all other nodes" id="heartInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="heartbeat" type="number" min="0" value="30" class="form-control">
-                      </label>
                     </div>
                     <div id="clientDiv" class="form-group col-md-4 col-sm-6">
-                      <label for="client" class="control-label">Client Timeout:
+                      <label for="client" class="control-label">Client Timeout:</label><a class="popoverButton" tabindex="0" data-toggle="popover" role="button" data-trigger="focus" data-content="The time a client will wait after contacting a server before trying another server" id="clientInfo" class="btn"><span class="glyphicon glyphicon-question-sign"></span></a>
                         <input id="client" type="number" min="0" value="50" class="form-control">
                       </label>
                     </div>
