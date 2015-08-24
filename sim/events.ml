@@ -11,22 +11,37 @@ let term_to_string = function
   | OutofTime (next,limit)-> Printf.sprintf "timeout at %i next event is at %i" limit next
   | OutofEvents -> "out of events"
 
+let compare_events (t1,_,_) (t2,_,_) = compare t1 t2
+
+
 type data = {
   msgsent: int;
   msgrecv: int;
-  msgdrop: int;
+  msgdrop_nopath: int;
+  msgdrop_nodst: int;
   msgflight: int;
   reason: termination;
   latency: int list;
+  servers: int;
+  clients: int;
+  startup: int;
+  recover: int;
+  failures: int;
 }
 
 let inital_data = {
   msgsent = 0;
   msgrecv = 0;
-  msgdrop = 0;
+  msgdrop_nopath = 0;
+  msgdrop_nodst = 0;
   msgflight = 0;
   reason = Unknown;
   latency = [];
+  servers=0;
+  clients=0;
+  startup=0;
+  recover=0;
+  failures=0;
 }
 
 type 'msg t = {
@@ -44,8 +59,11 @@ let receive_msgs n t =
 let dispatch_msgs n t =
   { t with data = {t.data with msgsent=t.data.msgsent+n; msgflight=t.data.msgflight+n}}
 
-let drop_msgs n t =
-  { t with data = {t.data with msgdrop=t.data.msgdrop+n; msgflight=t.data.msgflight-n}}
+let drop_msgs_nopath n t =
+  { t with data = {t.data with msgdrop_nopath=t.data.msgdrop_nopath+n; msgflight=t.data.msgflight-n}}
+
+let drop_msgs_nodst n t =
+  { t with data = {t.data with msgdrop_nodst=t.data.msgdrop_nodst+n; msgflight=t.data.msgflight-n}}
 
 let termination_reason r t =
   { t with data = {t.data with reason=r}}
@@ -56,97 +74,132 @@ let add_latency n t =
 let count f qu = 
   List.length (List.filter f qu)
 
-let average = function
-  | [] -> 0
-  | xs -> List.fold_left (+) 0 xs / List.length xs
-
-let rec map_filter f = function
-  | [] -> []
-  | x::xs -> (
-    match f x with 
-    | None -> map_filter f xs 
-    | Some y -> y :: (map_filter f xs))
-
-let rec map_filter_fold f t acc = function
-  | [] -> (t, List.rev acc)
-  | x::xs -> (
-    match f t x with 
-    | (t, None) -> map_filter_fold f t acc xs
-    | (t, Some y) -> map_filter_fold f t (y::acc) xs)
-
-
 let rec start_events m n =
-    if m>n then [] 
+  if m>n then [] 
   else 
-    let id = id_of_int m in 
-    (to_time 0, id, Startup id) :: (start_events (m+1) n)
+    (to_time 0, m, Startup m) :: (to_time 0, m, LocalArrival Startup) :: (start_events (m+1) n)
+
+let rec start_clients m n =
+  if m>n then [] 
+  else 
+    (to_time 0, m, Startup m) :: (to_time 0, m, LocalArrival Startup) :: (start_events (m+1) n)
 
 let init p = 
-  let n = Parameters.(Network.count_servers p.network) in
-  {queue = start_events 1 n; 
+  let s = Parameters.(Network.count_servers p.network) in
+  let c = Parameters.(Network.count_clients p.network) in
+  let recovery = Network.find_recovery p.network
+    |> List.map (fun (id,time) -> (time,id, Recovery)) in
+  let fail = Network.find_failure p.network
+    |> List.map (fun (id,time) -> (time,id, Fail)) in
+  let queue = (start_events 1 (s+c)) @ (start_clients (s+1) (s+c)) @ recovery @ fail in
+  {queue = List.sort compare_events queue; 
   queue_id = 0;
-  data=inital_data;
+  data = {inital_data with 
+    servers=s; 
+    clients=c; 
+    startup=c+s; 
+    recover= List.length recovery; 
+    failures = List.length fail};
   p}
 
 
 
-let next t = 
+let rec next t = 
   match t.queue with
  | [] -> NoNext (termination_reason OutofEvents t)
  | (time,n,e)::xs -> 
     if (time>=t.p.term) then NoNext (termination_reason (OutofTime(time,t.p.term)) t)
     else
-      (match (time,n,e) with
-      | (_,_,PacketArrival (_,_)) -> receive_msgs 1 t
-      | _ -> t)
-    |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
-
-let rec add_one t ((time,_,_) as y) = 
-  match t.queue with
-  | ((et,_,_) as x)::xs -> 
-    if (compare_time time et) <=0 then {t with queue=y::x::xs}
-    else 
-    let t_xs = add_one {t with queue=xs} y in
-    {t_xs with queue= x :: (t_xs.queue)}
-  | [] -> {t with queue=[y]}
-
+      match Network.find_node n time t.p.network with
+      | true -> 
+        (match (time,n,e) with
+        | (_,_,PacketArrival (_,_)) -> receive_msgs 1 t
+        | _ -> t)
+        |> fun t_new -> Next ((time,n,e), {t_new with queue=xs})
+      | false -> 
+        (match (time,n,e) with
+        | (_,_,PacketArrival (_,_)) -> 
+          drop_msgs_nodst 1 t
+          |> fun t_new -> next {t_new with queue=xs}
+        | (_,_,Fail) ->
+          Next ((time,n,e), {t with queue=xs})
+        | _ -> next {t with queue=xs})
 
 let output_to_input origin time t = function
   | PacketDispatch (dest,pkt) -> (
     let t = dispatch_msgs 1 t in
     match Network.find_path origin dest time t.p.network with 
-    | None -> (* no path *) (drop_msgs 1 t, None)
+    | None -> (* no path *) (drop_msgs_nopath 1 t, None)
     | Some lat -> (add_latency lat t, Some (incr time lat, dest, PacketArrival (origin,pkt)) ))
   | SetTimeout (n,timer) -> (t, Some (incr time n,origin,Timeout timer))
-  | CancelTimeout _ -> 
+  | CancelTimeout _ | ResetTimeout _ -> 
     (*should have been removed by cancel_timers *)
     (t, None)
+  | LocalDispatch m -> (t, Some (time,origin,LocalArrival m))
+  | ProxyDispatch m -> (t, Some (time,origin,ProxyArrival m))
+  | LocalSetTimeout n -> (t, Some (incr time n,origin,LocalTimeout))
     
 
 
-let rec cancel_timers id q = function
+let rec cancel_timers time id q = function
   | (CancelTimeout timer)::xs ->
-    cancel_timers id 
+    cancel_timers time id 
     (List.filter (function (_,e_id,Timeout e_timer) 
       when e_id=id && e_timer=timer -> false | _ -> true) q) xs
-  | _::xs -> cancel_timers id q xs
+  | (ResetTimeout (n,timer)::xs) -> 
+    cancel_timers time id 
+    ((incr time n, id, Timeout timer) ::
+    (List.filter (function (_,e_id,Timeout e_timer) 
+      when e_id=id && e_timer=timer -> false | _ -> true) q)) xs
+  | _::xs -> cancel_timers time id q xs
   | [] -> q
 
+
+let check_future time input_events = 
+  match List.exists (fun (t,_,_) -> t<time) input_events with
+  | true -> assert false
+  | false -> ()
+
+let rec check_sorted = function
+  | [] -> ()
+  | [x] -> ()
+  | (tx,_,_)::(ty,i,e)::zs when tx<=ty -> check_sorted ((ty,i,e)::zs)
+  | _ -> assert false
+
 let add id time output_events t =
-  let q = cancel_timers id t.queue output_events in
+  let q = cancel_timers time id t.queue output_events in
   let t = {t with queue=q} in 
   let (t,input_events) = map_filter_fold (output_to_input id time) t [] output_events in
-  List.fold_left add_one t input_events
+  check_future time input_events;
+  let t = {t with queue=(List.sort compare_events (t.queue@input_events))} in
+  check_sorted t.queue; t
 
 
 open Yojson.Safe
 
 let json_of_stats t =
   `Assoc [
-    ("packets dispatched", `Int t.data.msgsent);
-    ("packets received", `Int t.data.msgrecv);
-    ("packets dropped", `Int t.data.msgdrop);
-    ("packets inflight", `Int t.data.msgflight);
-    ("termination reason", `String (term_to_string t.data.reason));
-    ("average latency", `Int (average t.data.latency));
+    ("table", `Assoc ([
+      ("packets dispatched", `Int t.data.msgsent);
+      ("packets received", `Int t.data.msgrecv);
+      ("packets dropped due to node failure", `Int t.data.msgdrop_nodst);
+      ("packets dropped due to partition or hub failure", `Int t.data.msgdrop_nopath);
+      ("packets inflight", `Int t.data.msgflight);
+      ("number of servers", `Int t.data.servers);
+      ("number of clients", `Int t.data.clients);
+      ("number of startups", `Int t.data.startup);
+      ("number of failures", `Int t.data.failures);
+      ("number of recoveries", `Int t.data.recover);
+      ] @ 
+      match t.data.latency with
+      | [] -> []
+      | _ -> [
+        ("average latency", `Int (average t.data.latency));
+        ("min latency", `Int (min t.data.latency));
+        ("max latency", `Int (max t.data.latency));
+      ]));
+    ("figures", `List []);
+    ("extra info", `Assoc [
+      ("termination reason", `String (term_to_string t.data.reason));
+      ]);
     ]

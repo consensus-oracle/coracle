@@ -88,5 +88,123 @@ open Yojson.Safe
 
 exception Json_parser_cannot_find_key of string
 
+let json_assoc_opt key js = 
+  try Some (List.assoc key js) with Not_found -> None
+
 let json_assoc key js =
   try List.assoc key js with Not_found -> raise (Json_parser_cannot_find_key key)
+
+let json_assoc_def key js def =
+  try List.assoc key js with Not_found -> def
+
+type cmd = int with sexp 
+type outcome = Failure | Success of cmd with sexp
+
+type msg = Cmd of cmd | Outcome of outcome 
+  | CmdM of id * int * cmd | OutcomeM of id * int * outcome  | Startup
+
+let cmd_to_json cmd = `Int cmd
+let outcome_to_json = function
+  | Failure -> `String "failure"
+  | Success s -> cmd_to_json s
+
+let msg_to_json = function
+  | Cmd cmd -> `Assoc [
+    ("type", `String "client command");
+    ("command", cmd_to_json cmd );
+    ]
+  | CmdM (id,seq,cmd) -> `Assoc [
+    ("type", `String "client command");
+    ("client id", `Int id);
+    ("seq #", `Int id);
+    ("command", cmd_to_json cmd );
+    ]
+  | Outcome out -> `Assoc [
+    ("type", `String "command response");
+    ("response", outcome_to_json out);
+    ]
+  | OutcomeM (id,seq,out) -> `Assoc [
+    ("type", `String "command response");
+    ("client id", `Int id);
+    ("seq #", `Int id);
+    ("response", outcome_to_json out);
+    ]
+  | Startup -> `Assoc [
+    ("type", `String "client startup");
+    ]
+
+let pull = function 
+  | Some x -> x
+
+let sum = List.fold_left (+) 0 
+
+let average = function
+  | [] -> 0
+  | xs -> List.fold_left (+) 0 xs / List.length xs
+
+let min ls = 
+  let rec f n = function
+  | [] -> n
+  | x::xs when x<n -> f x xs
+  | x::xs -> f n xs in
+  f (List.hd ls ) ls
+
+let max ls = 
+  let rec f n = function
+  | [] -> n
+  | x::xs when x>n -> f x xs
+  | x::xs -> f n xs in
+  f (List.hd ls ) ls
+
+let rec map_filter f = function
+  | [] -> []
+  | x::xs -> (
+    match f x with 
+    | None -> map_filter f xs 
+    | Some y -> y :: (map_filter f xs))
+
+let rec map_filter_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    match f t x with 
+    | (t, None) -> map_filter_fold f t acc xs
+    | (t, Some y) -> map_filter_fold f t (y::acc) xs)
+
+let rec map_fold f t acc = function
+  | [] -> (t, List.rev acc)
+  | x::xs -> (
+    let (t,y) = f t x in
+    map_fold f t (y::acc) xs)
+
+let rec update_triple (a,b,c) = function
+  | [] -> [(a,b,c)]
+  | (a1,_,_)::xs when a=a1 -> (a,b,c) :: xs
+  | x::xs -> x :: (update_triple (a,b,c) xs)
+
+let get_triple_exn x = 
+  List.find (fun (a,b,c) -> a=x)
+
+let get_triple x xs = 
+  try Some (get_triple_exn x xs) with Not_found -> None
+
+let get_value x xs = 
+  try Some (List.assoc x xs) with Not_found -> None
+
+let rec triple_to_doubles time lst =
+  match lst with
+  | [] -> []
+  | (x,_,last_term)::_ -> 
+    let (xs,rest) = List.partition (fun (a,b,c) -> a=x) lst in
+    let xs_new = xs
+      |> List.map (fun (_,b,c) -> (b,c))
+      |> (fun ys -> (time,last_term)::ys) (* add fake end point *)
+      |> List.rev in
+    (x, xs_new) :: (triple_to_doubles time rest)
+
+let rec sorted f = function
+  | [] -> true 
+  | [_] -> true
+  | x::y::zs -> 
+    match f x y with
+    | n when n<=0 -> sorted f (y::zs)
+    | _ -> false

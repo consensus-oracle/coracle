@@ -7,12 +7,10 @@ var bodyParser = require('body-parser');
 var exec = require('child_process').exec;
 var fs = require('fs');
 var uuid = require('node-uuid');
+var serveIndex = require('serve-index');
+var moment = require('moment');
 
 var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -21,31 +19,55 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/requests',serveIndex(path.join(__dirname, 'requests'), {'icons': true}));
+app.use('/requests',express.static('requests'));
+app.use(express.static(path.join(__dirname, 'views')))
 
-app.get('/', function(req, res) {
-    res.render('index',{ title: 'Coracle' })
+
+app.get('/examples.json', function(req,res){
+  fs.readdir(path.join(__dirname, 'public','examples'), function(err,files){
+    console.log(files);
+    var templateNames = files.filter(function(d){
+      return d.indexOf('.json') != -1;
+    })
+    .map(function(d){
+      return d.split('.')[0];
+    });
+    res.send({templateNames: templateNames});
+  });
 });
 
 app.post('/runSim', function(req,res){
+    res.header('Access-Control-Allow-Origin', '*');
+    console.log('running simulation:');
     console.log(req);
-	var id = uuid.v1();
-	var filename = 'requests/' + id + '.json'
-	fs.writeFile(filename,parseRequest(req),function(err){
-		if(err){
-			return console.log(err);
-		}
-		console.log(filename + ' saved');
-	
-		var cmd = '../coracle_sim.byte --trace -f ' + process.cwd() +'/' + filename;
-		console.log('running: ' + cmd);
-		exec(cmd, function (error,stdout,stderr){
-			console.log('stdout: ' + stdout);
-			console.log('stderr: ' + stderr);
-			res.send({error:error,
-				stdout:stdout,
-				stderr:stderr});
-		});
-	});
+    try{
+    	var id = moment().format('YYYY-MM-DD-HH-mm-ss-SSSS');
+    	var filename = 'requests/' + id + '.json'
+    	fs.writeFile(filename,parseRequest(req),function(err){
+    		if(err){
+    			return console.log(err);
+    		}
+    		console.log(filename + ' saved');
+    	
+    		var cmd = 'OCAMLRUNPARAM=b; ../coracle_sim.byte -f ' + process.cwd() +'/' + filename;
+    		console.log('running: ' + cmd);
+        var start = new Date();
+    		exec(cmd, { timeout: 5000, maxBuffer: 1000*1024} ,function (error,stdout,stderr){
+          var end = new Date() - start;
+    			console.log('stdout: ' + stdout);
+    			console.log('stderr: ' + stderr);
+    			res.send({error:error,
+    				stdout:stdout,
+    				stderr:stderr,
+            time:end});
+    		});
+    	});
+    }
+    catch(exception){
+      console.log(exception);
+      res.send({error:exception});
+    }
 });
 
 // catch 404 and forward to error handler

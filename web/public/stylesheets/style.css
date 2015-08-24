@@ -11,9 +11,27 @@ rect.border{
   opacity:0.1;
 }
 
+.masterNode.disabled{
+  fill:grey;
+}
+
 circle.masterServer{
-  fill: green;
+  fill: red;
   r:10;
+}
+
+circle.masterClient{
+  fill:lightblue;
+  r:10;
+}
+
+circle.client{
+  fill:lightblue;
+  r:10;
+}
+
+circle.client.clickable{
+  fill:pink;
 }
 
 circle.server{
@@ -66,4 +84,42 @@ rect.masterLLinkButton.mouseover{
 
 text.label{
   pointer-events: none;
+}
+
+.nodes.toggleState{
+  stroke:black;
+  stroke-width:3;
+}
+
+.link.toggleState{
+  stroke-width:4;
+  pointer-events: visiblePainted;
+}
+
+.nodes.disabled{
+  fill:grey;
+}
+
+.link.disabled{
+  stroke:grey;
+}
+
+.link.L{
+  stroke-width:6;
+}
+
+.link.M{
+  stroke-width:4;
+}
+
+.link.S{
+  stroke-width:2;
+}
+
+div.carousel{
+  width: 140px;
+}
+
+path.domain{
+  stroke-width:4;
 }

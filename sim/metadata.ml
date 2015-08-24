@@ -1,22 +1,5 @@
 open Common
 
-let n = {
-    name = "nodes";
-    sname = "n";
-    doc = "number of nodes to simulate";
-    default = Some 5;
-    min = Some 2;
-    max = Some 100;
-  }
-
-let loss = {
-    name = "loss";
-    sname = "l";
-    doc = "probability of message loss";
-    default = Some 0.1;
-    min = Some 0.0;
-    max = Some 1.0;
-  }
 
 let term = {
     name = "termination";
@@ -72,11 +55,20 @@ let output_file = {
     max = None;
 }
 
-let latency = {
-    name = "latency";
-    sname = "l";
-    doc = "simulated packet latency";
-    default = Some 10;
+let workload_min = {
+    name = "workload_min";
+    sname = "wm";
+    doc = "minimum time between requests from each client";
+    default = None;
+    min = Some 0;
+    max = None;
+  }
+
+let workload_max = {
+    name = "workload_max";
+    sname = "wm";
+    doc = "maximum time between requests from each client";
+    default = None;
     min = Some 0;
     max = None;
   }

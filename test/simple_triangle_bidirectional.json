@@ -1,0 +1,34 @@
+{
+	"termination":400,
+	"consensus": {
+		"protocol":"raft",
+		"election_timeout_min":60, 
+		"election_timeout_max":300, 
+		"heartbeat_interval":30
+	},
+	"network": {
+		"nodes":[
+			{"type":"server", "id":1},
+			{"type":"server", "id":2},
+			{"type":"server", "id":3}
+		],
+		"links":[
+			{"start":1, "end":2, "id":1, "direction":"bi"},
+			{"start":1, "end":3, "id":2, "direction":"bi"},
+			{"start":2, "end":3, "id":3, "direction":"bi"}
+		],
+		"events": [ {
+				"time":0,
+			 	"links": [
+			 		{"id":1, "type":"s", "active":true},
+					{"id":2, "type":"s", "active":true},
+					{"id":3, "type":"s", "active":true}
+			 	],
+			 	"nodes": [
+			    {"id":1, "active": true},
+			    {"id":2, "active": true},
+			    {"id":3, "active": true}
+			 	]
+		} ]
+	}
+}
